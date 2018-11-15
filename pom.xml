@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>21.0.0</version>
+		<relativePath />
+	</parent>
+
+	<groupId>org.mastodon</groupId>
+	<artifactId>mastodon-tomancak</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+
+	<name>Tomancak Lab Mastodon Plugins</name>
+	<description>Various Mastodon plugins for use in Tomancak lab projects</description>
+	<url>https://github.com/tpietzsch/mastodon-tomancak</url>
+	<inceptionYear>2018</inceptionYear>
+	<organization>
+		<name>BigDataViewer</name>
+		<url>http://github.com/bigdataviewer</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>Simplified BSD License</name>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.mastodon</groupId>
+			<artifactId>mastodon-collection</artifactId>
+			<version>1.0.0-beta-17-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mastodon</groupId>
+			<artifactId>mastodon-graph</artifactId>
+			<version>1.0.0-beta-15-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>net.trackmate</groupId>
+			<artifactId>trackmate</artifactId>
+			<version>1.0.0-beta-9-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>spim_data</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>ui-behaviour</artifactId>
+			<version>1.7.4</version>
+		</dependency>
+
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
+
+	<scm>
+		<connection>scm:git:git:github.com/tpietzsch/mastodon-tomancak</connection>
+		<developerConnection>scm:git:git@github.com:tpietzsch/mastodon-tomancak</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/tpietzsch/mastodon-tomancak</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/tpietzsch/mastodon-tomancak/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/tpietzsch/mastodon-tomancak</url>
+	</ciManagement>
+
+	<properties>
+		<package-name>net.trackmate</package-name>
+
+		<license.licenseName>not licensed yet</license.licenseName>
+		<license.projectName>mastodon-tomancak</license.projectName>
+		<license.organizationName>Mastodon authors</license.organizationName>
+		<license.copyrightOwners>Tobias Pietzsch</license.copyrightOwners>
+
+		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
+		<releaseProfiles>deploy-to-imagej</releaseProfiles>
+
+		<enforcer.skip>true</enforcer.skip>
+	</properties>
+
+	<developers>
+		<developer>
+			<id>tpietzsch</id>
+			<name>Tobias Pietzsch</name>
+			<email>pietzsch@mpi-cbg.de</email>
+			<url>http://imagej.net/User:Pietzsch</url>
+			<organization>MPI-CBG</organization>
+			<organizationUrl>http://www.mpi-cbg.de/</organizationUrl>
+			<roles>
+				<role>lead</role>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<contributors><contributor><name>none</name></contributor></contributors>
+
+	<repositories>
+		<repository>
+			<id>imagej.public</id>
+			<url>http://maven.imagej.net/content/groups/public</url>
+		</repository>
+	</repositories>
+</project>
