@@ -11,8 +11,11 @@ import org.mastodon.plugin.MastodonPlugin;
 import org.mastodon.plugin.MastodonPluginAppModel;
 import org.mastodon.project.MamutProject;
 import org.mastodon.project.MamutProjectIO;
+import org.mastodon.revised.mamut.KeyConfigContexts;
 import org.mastodon.revised.mamut.MamutAppModel;
 import org.mastodon.revised.mamut.Mastodon;
+import org.mastodon.revised.ui.keymap.CommandDescriptionProvider;
+import org.mastodon.revised.ui.keymap.CommandDescriptions;
 import org.scijava.AbstractContextual;
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
@@ -27,21 +30,48 @@ import static org.mastodon.app.ui.ViewMenuBuilder.menu;
 public class TomancakPlugins extends AbstractContextual implements MastodonPlugin
 {
 	private static final String EXPORT_PHYLOXML = "[tomancak] export phyloxml for selection";
+	private static final String FLIP_DESCENDANTS = "[tomancak] flip descendants";
+
+	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
+	private static final String[] FLIP_DESCENDANTS_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
 	static
 	{
 		menuTexts.put( EXPORT_PHYLOXML, "Export phyloXML for selection" );
+		menuTexts.put( FLIP_DESCENDANTS, "Flip descendants" );
+	}
+
+	/*
+	 * Command descriptions for all provided commands
+	 */
+	@Plugin( type = Descriptions.class )
+	public static class Descriptions extends CommandDescriptionProvider
+	{
+		public Descriptions()
+		{
+			super( KeyConfigContexts.TRACKSCHEME, KeyConfigContexts.BIGDATAVIEWER );
+		}
+
+		@Override
+		public void getCommandDescriptions( final CommandDescriptions descriptions )
+		{
+			descriptions.add( EXPORT_PHYLOXML, EXPORT_PHYLOXML_KEYS, "Export subtree to PhyloXML format." );
+			descriptions.add( FLIP_DESCENDANTS, FLIP_DESCENDANTS_KEYS, "Flip children in trackscheme graph." );
+		}
 	}
 
 	private final AbstractNamedAction exportPhyloXmlAction;
+
+	private final AbstractNamedAction flipDescendantsAction;
 
 	private MastodonPluginAppModel pluginAppModel;
 
 	public TomancakPlugins()
 	{
 		exportPhyloXmlAction = new RunnableAction( EXPORT_PHYLOXML, this::exportPhyloXml );
+		flipDescendantsAction = new RunnableAction( FLIP_DESCENDANTS, this::flipDescendants );
 		updateEnabledActions();
 	}
 
@@ -58,7 +88,8 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		return Arrays.asList(
 				menu( "Plugins",
 						menu( "Tomancak lab",
-								item( EXPORT_PHYLOXML ) ) ) );
+								item( EXPORT_PHYLOXML ),
+								item( FLIP_DESCENDANTS ) ) ) );
 	}
 
 	@Override
@@ -70,19 +101,27 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 	@Override
 	public void installGlobalActions( final Actions actions )
 	{
-		actions.namedAction( exportPhyloXmlAction );
+		actions.namedAction( exportPhyloXmlAction, EXPORT_PHYLOXML_KEYS );
+		actions.namedAction( flipDescendantsAction, FLIP_DESCENDANTS_KEYS );
 	}
 
 	private void updateEnabledActions()
 	{
 		final MamutAppModel appModel = ( pluginAppModel == null ) ? null : pluginAppModel.getAppModel();
 		exportPhyloXmlAction.setEnabled( appModel != null );
+		flipDescendantsAction.setEnabled( appModel != null );
 	}
 
 	private void exportPhyloXml()
 	{
 		if ( pluginAppModel != null )
 			MakePhyloXml.exportSelectedSubtreeToPhyloXmlFile( pluginAppModel.getAppModel() );
+	}
+
+	private void flipDescendants()
+	{
+		if ( pluginAppModel != null )
+			FlipDescendants.flipDescendants( pluginAppModel.getAppModel() );
 	}
 
 	/*
