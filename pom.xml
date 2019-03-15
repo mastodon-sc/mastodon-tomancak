@@ -15,7 +15,7 @@
 
 	<name>Tomancak Lab Mastodon Plugins</name>
 	<description>Various Mastodon plugins for use in Tomancak lab projects</description>
-	<url>https://github.com/tpietzsch/mastodon-tomancak</url>
+	<url>https://github.com/bigdataviewer/mastodon-tomancak</url>
 	<inceptionYear>2018</inceptionYear>
 	<organization>
 		<name>BigDataViewer</name>
@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>org.mastodon</groupId>
 			<artifactId>mastodon-graph</artifactId>
-			<version>1.0.0-beta-16</version>
+			<version>1.0.0-beta-17-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.trackmate</groupId>
@@ -72,18 +72,18 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git:github.com/tpietzsch/mastodon-tomancak</connection>
-		<developerConnection>scm:git:git@github.com:tpietzsch/mastodon-tomancak</developerConnection>
+		<connection>scm:git:git:github.com/bigdataviewer/mastodon-tomancak</connection>
+		<developerConnection>scm:git:git@github.com:bigdataviewer/mastodon-tomancak</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/tpietzsch/mastodon-tomancak</url>
+		<url>https://github.com/bigdataviewer/mastodon-tomancak</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/tpietzsch/mastodon-tomancak/issues</url>
+		<url>https://github.com/bigdataviewer/mastodon-tomancak/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.org/tpietzsch/mastodon-tomancak</url>
+		<url>https://travis-ci.com/bigdataviewer/mastodon-tomancak</url>
 	</ciManagement>
 
 	<properties>
