@@ -14,6 +14,7 @@ import org.mastodon.project.MamutProjectIO;
 import org.mastodon.revised.mamut.KeyConfigContexts;
 import org.mastodon.revised.mamut.MamutAppModel;
 import org.mastodon.revised.mamut.Mastodon;
+import org.mastodon.revised.model.mamut.Model;
 import org.mastodon.revised.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.revised.ui.keymap.CommandDescriptions;
 import org.scijava.AbstractContextual;
@@ -31,9 +32,13 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 {
 	private static final String EXPORT_PHYLOXML = "[tomancak] export phyloxml for selection";
 	private static final String FLIP_DESCENDANTS = "[tomancak] flip descendants";
+	private static final String COPY_TAG = "[tomancak] copy tag";
+	private static final String INTERPOLATE_SPOTS = "[tomancak] interpolate spots";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "not mapped" };
+	private static final String[] COPY_TAG_KEYS = { "not mapped" };
+	private static final String[] INTERPOLATE_SPOTS_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -41,6 +46,8 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 	{
 		menuTexts.put( EXPORT_PHYLOXML, "Export phyloXML for selection" );
 		menuTexts.put( FLIP_DESCENDANTS, "Flip descendants" );
+		menuTexts.put( COPY_TAG, "Copy Tag..." );
+		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate Missing Spots" );
 	}
 
 	/*
@@ -59,6 +66,8 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		{
 			descriptions.add( EXPORT_PHYLOXML, EXPORT_PHYLOXML_KEYS, "Export subtree to PhyloXML format." );
 			descriptions.add( FLIP_DESCENDANTS, FLIP_DESCENDANTS_KEYS, "Flip children in trackscheme graph." );
+			descriptions.add( COPY_TAG, COPY_TAG_KEYS, "Copy tags: everything that has tag A assigned gets B assigned." );
+			descriptions.add( INTERPOLATE_SPOTS, INTERPOLATE_SPOTS_KEYS, "Interpolate missing spots." );
 		}
 	}
 
@@ -66,12 +75,18 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 
 	private final AbstractNamedAction flipDescendantsAction;
 
+	private final AbstractNamedAction copyTagAction;
+
+	private final AbstractNamedAction interpolateSpotsAction;
+
 	private MastodonPluginAppModel pluginAppModel;
 
 	public TomancakPlugins()
 	{
 		exportPhyloXmlAction = new RunnableAction( EXPORT_PHYLOXML, this::exportPhyloXml );
 		flipDescendantsAction = new RunnableAction( FLIP_DESCENDANTS, this::flipDescendants );
+		copyTagAction = new RunnableAction( COPY_TAG, this::copyTag );
+		interpolateSpotsAction = new RunnableAction( INTERPOLATE_SPOTS, this::interpolateSpots );
 		updateEnabledActions();
 	}
 
@@ -89,7 +104,9 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 				menu( "Plugins",
 						menu( "Tomancak lab",
 								item( EXPORT_PHYLOXML ),
-								item( FLIP_DESCENDANTS ) ) ) );
+								item( FLIP_DESCENDANTS ),
+								item( INTERPOLATE_SPOTS ),
+								item( COPY_TAG ) ) ) );
 	}
 
 	@Override
@@ -103,6 +120,8 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 	{
 		actions.namedAction( exportPhyloXmlAction, EXPORT_PHYLOXML_KEYS );
 		actions.namedAction( flipDescendantsAction, FLIP_DESCENDANTS_KEYS );
+		actions.namedAction( copyTagAction, COPY_TAG_KEYS );
+		actions.namedAction( interpolateSpotsAction, INTERPOLATE_SPOTS_KEYS );
 	}
 
 	private void updateEnabledActions()
@@ -122,6 +141,24 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 	{
 		if ( pluginAppModel != null )
 			FlipDescendants.flipDescendants( pluginAppModel.getAppModel() );
+	}
+
+	private void copyTag()
+	{
+		if ( pluginAppModel != null )
+		{
+			final Model model = pluginAppModel.getAppModel().getModel();
+			new CopyTagDialog( null, model ).setVisible( true );
+		}
+	}
+
+	private void interpolateSpots()
+	{
+		if ( pluginAppModel != null )
+		{
+			final Model model = pluginAppModel.getAppModel().getModel();
+			InterpolateMissingSpots.interpolate( model );
+		}
 	}
 
 	/*
