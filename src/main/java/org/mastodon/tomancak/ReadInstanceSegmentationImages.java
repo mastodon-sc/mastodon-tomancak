@@ -26,6 +26,7 @@ import net.imglib2.RandomAccessibleInterval;
 
 import bdv.viewer.Source;
 import net.imglib2.Cursor;
+import net.imglib2.RandomAccess;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.LinAlgHelpers;
@@ -174,7 +175,7 @@ extends ContextCommand
 				currImg = fetchImage(time);
 
 				imgSource.getSourceTransform(time,viewMipLevel, coordTransImg2World);
-				readSpots( (IterableInterval)Views.iterable( currImg ),
+				readSpots( (IterableInterval)Views.iterable( currImg ), (RandomAccessibleInterval)prevImg,
 							  time, coordTransImg2World, modelGraph );
 
 				pbar.setProgress(time+1-timeFrom);
@@ -207,7 +208,9 @@ extends ContextCommand
 	final private double[][] Tc  = new double[3][3];
 
 	private <T extends NativeType<T> & RealType<T>>
-	void readSpots(final IterableInterval<T> img, final int time,
+	void readSpots(final IterableInterval<T> img,
+	               final RandomAccessibleInterval<T> pImg,
+	               final int time,
 	               final AffineTransform3D transform,
 	               final ModelGraph modelGraph)
 	{
