@@ -61,7 +61,8 @@ extends ContextCommand
 	boolean shouldLinkOverlappingLabels = false;
 
 	@Parameter(label = "If overlap is checked: Label's minimal intersection size for overlap:",
-	           description = "If (intersection volume / label's volume) >= this threshold, then link is made.")
+	           description = "If (intersection volume / label's volume) >= this threshold, then link is made.",
+	           min = "0.0", max = "1.0", stepSize = "0.1")
 	double overlapThreshold = 0.3;
 
 	// ----------------- what is currently displayed in the project -----------------
