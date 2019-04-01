@@ -60,6 +60,10 @@ extends ContextCommand
 	           description = "This option assumes that geometry of the labels from one tracklet is not changing dramatically.")
 	boolean shouldLinkOverlappingLabels = false;
 
+	@Parameter(label = "If overlap is checked: Label's minimal intersection size for overlap:",
+	           description = "If (intersection volume / label's volume) >= this threshold, then link is made.")
+	double overlapThreshold = 0.3;
+
 	// ----------------- what is currently displayed in the project -----------------
 	@Parameter
 	Source<?> imgSource;
@@ -322,10 +326,51 @@ extends ContextCommand
 				recentlyUsedSpots.get(label, oSpot);
 				modelGraph.addEdge( oSpot, nSpot, linkRef ).init();
 			}
-			else
+
+			if (shouldLinkOverlappingLabels && pImg != null)
 			{
-				//is detected for the first time: is it after a division?
-				//attempt to detect if division occured here
+				//find and link to all markers from the pImg with which
+				//this marker has overlap larger than 'overlapThreshold'
+
+				//list of sizes of observed intersections
+				HashMap<Integer,Long> intSizes = new HashMap<>(50);
+
+				//sweeping vars
+				voxelCursor.reset();
+				final RandomAccess<T> voxelAccessor = pImg.randomAccess();
+
+				//determines sizes of all intersections
+				while (voxelCursor.hasNext())
+				{
+					if (voxelCursor.next().getRealFloat() == label)
+					{
+						//found some intersecting label from pImg
+						voxelAccessor.setPosition( voxelCursor );
+						final int oLabel = (int)voxelAccessor.get().getRealFloat();
+
+						//update the intersections counter (on non-background voxels)
+						if (oLabel > 0)
+						{
+							intSizes.putIfAbsent(oLabel, 0L);
+							intSizes.replace(oLabel, intSizes.get(oLabel)+1);
+						}
+					}
+				}
+
+				//adds links to spots that represent markers with considerable overlap
+				for (Integer oLabel : intSizes.keySet())
+				{
+					//System.out.println("marker "+label+" intersects with pMarker "+oLabel+" (overlap size="+intSizes.get(oLabel)+")");
+					if ((double)intSizes.get(oLabel)/(double)m.size >= overlapThreshold)
+					{
+						//this overlap qualifies size-wise
+						recentlyUsedSpots.get(oLabel, oSpot);
+
+						//add edge only if there is none such existing already
+						if (modelGraph.getEdge( oSpot, nSpot ) == null)
+							modelGraph.addEdge( oSpot, nSpot, linkRef ).init();
+					}
+				}
 			}
 
 			//in any case, add-or-replace the association of nSpot to this label
