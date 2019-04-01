@@ -55,6 +55,10 @@ extends ContextCommand
 	           description = "This option assumes that labels from the input images are unique for one tracklet.")
 	boolean shouldLinkSameLabels = false;
 
+	@Parameter(label = "Link spots whose labels overlap:",
+	           description = "This option assumes that geometry of the labels from one tracklet is not changing dramatically.")
+	boolean shouldLinkOverlappingLabels = false;
+
 	// ----------------- what is currently displayed in the project -----------------
 	@Parameter
 	Source<?> imgSource;
@@ -156,6 +160,8 @@ extends ContextCommand
 		nSpot = modelGraph.vertices().createRef();
 		oSpot = modelGraph.vertices().createRef();
 
+		RandomAccessibleInterval<?> prevImg=null, currImg=null;
+
 		try
 		{
 			//iterate through time points and extract spots
@@ -163,8 +169,12 @@ extends ContextCommand
 			{
 				logServiceRef.info("Processing time point: "+time);
 
+				//NB: don't hold (and block) the extra (prev) image if it is not necessary
+				if (shouldLinkOverlappingLabels) prevImg = currImg;
+				currImg = fetchImage(time);
+
 				imgSource.getSourceTransform(time,viewMipLevel, coordTransImg2World);
-				readSpots( (IterableInterval)Views.iterable( fetchImage(time) ),
+				readSpots( (IterableInterval)Views.iterable( currImg ),
 							  time, coordTransImg2World, modelGraph );
 
 				pbar.setProgress(time+1-timeFrom);
