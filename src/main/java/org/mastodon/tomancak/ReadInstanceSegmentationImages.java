@@ -22,6 +22,7 @@ import org.scijava.plugin.Parameter;
 
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccessibleInterval;
 
 import bdv.viewer.Source;
 import net.imglib2.Cursor;
@@ -81,7 +82,7 @@ extends ContextCommand
 
 
 	private
-	IterableInterval<?> fetchImage(final int time)
+	RandomAccessibleInterval<?> fetchImage(final int time)
 	{
 		if (useExternalImages)
 		{
@@ -90,7 +91,7 @@ extends ContextCommand
 				File.separatorChar,"mask",time);
 
 			logServiceRef.info("Reading image: "+filename);
-			IterableInterval<?> img;
+			RandomAccessibleInterval<?> img;
 			try
 			{
 				img = ImageJFunctions.wrap(new ImagePlus( filename ));
@@ -106,7 +107,7 @@ extends ContextCommand
 			return img;
 		}
 		else
-			return Views.iterable( imgSource.getSource(time,viewMipLevel) );
+			return imgSource.getSource(time,viewMipLevel);
 	}
 
 
@@ -163,7 +164,7 @@ extends ContextCommand
 				logServiceRef.info("Processing time point: "+time);
 
 				imgSource.getSourceTransform(time,viewMipLevel, coordTransImg2World);
-				readSpots( (IterableInterval)fetchImage(time),
+				readSpots( (IterableInterval)Views.iterable( fetchImage(time) ),
 							  time, coordTransImg2World, modelGraph );
 
 				pbar.setProgress(time+1-timeFrom);
