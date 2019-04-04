@@ -1,6 +1,7 @@
 package org.mastodon.tomancak.util;
 
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import ij.ImagePlus;
 import bdv.viewer.Source;
@@ -45,15 +46,22 @@ public class ImgProviders
 			this.fileTemplate = fullPathFileTemplate;
 		}
 
+		//cache reference on the most recently retrieved image
+		Img<?> cachedImg = null;
+		int cachedImgTimePoint;
+
 		@Override
 		public RandomAccessibleInterval<?> getImage(int time)
 		{
-			final String filename = String.format(fileTemplate,time);
+			//reuse the cached image if the same time point requested
+			if (cachedImg != null && cachedImgTimePoint == time) return cachedImg;
 
-			RandomAccessibleInterval<?> img;
+			final String filename = String.format(fileTemplate,time);
 			try
 			{
-				img = ImageJFunctions.wrap(new ImagePlus( filename ));
+				cachedImg = null; //"invalidate" before attempting to read
+				cachedImg = ImageJFunctions.wrap(new ImagePlus( filename ));
+				cachedImgTimePoint = time;
 			}
 			catch (RuntimeException e)
 			{
@@ -61,9 +69,11 @@ public class ImgProviders
 			}
 
 			//make sure we always return some non-null reference
-			if (img == null)
+			if (cachedImg == null)
 				throw new IllegalArgumentException("Error reading image file "+filename);
-			return img;
+			return cachedImg;
+		}
+
 		}
 	}
 
