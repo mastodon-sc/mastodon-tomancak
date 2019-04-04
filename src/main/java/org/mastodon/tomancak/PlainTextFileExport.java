@@ -317,7 +317,7 @@ public class PlainTextFileExport extends AbstractContextual implements MastodonP
 
 		f.write("# from project "+pluginAppModel.getWindowManager().getProjectManager().toString());
 		f.newLine();
-		f.write("# TIME"+delim+"X"+delim+"Y"+delim+"Z"+delim+"TRACK_ID"+delim+"PARENT_TRACK_ID");
+		f.write("# TIME"+delim+"X"+delim+"Y"+delim+"Z"+delim+"TRACK_ID"+delim+"PARENT_TRACK_ID"+delim+"SPOT LABEL");
 		f.newLine();
 		f.newLine();
 
@@ -344,7 +344,8 @@ public class PlainTextFileExport extends AbstractContextual implements MastodonP
 					       +coords[1]+delim
 					       +coords[2]+delim
 					       +ID+delim
-					       +parentID);
+					       +parentID+delim
+					       +s.getLabel());
 					f.newLine();
 				}
 				f.newLine();
