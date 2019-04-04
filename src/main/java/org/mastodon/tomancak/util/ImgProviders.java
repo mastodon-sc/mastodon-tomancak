@@ -48,11 +48,10 @@ public class ImgProviders
 
 
 	//-------------------------------------------------------
-	public class ImgProviderFromDisk implements ImgProvider
+	public static class ImgProviderFromDisk implements ImgProvider
 	{
-		private final String fileTemplate;
-
 		final AffineTransform3D defaultNoTransform = new AffineTransform3D();
+		final String fileTemplate;
 		final VoxelDimensions vd;
 
 		public ImgProviderFromDisk(final String fullPathFileTemplate, final VoxelDimensions vd)
@@ -152,11 +151,11 @@ public class ImgProviders
 
 
 	//-------------------------------------------------------
-	public class ImgProviderFromMastodon implements ImgProvider
+	public static class ImgProviderFromMastodon implements ImgProvider
 	{
-		private final Source<?> imgSource;
-		private final int viewMipLevel;
-		private final int referenceTime;
+		final Source<?> imgSource;
+		final int viewMipLevel;
+		final int referenceTime;
 
 		public ImgProviderFromMastodon(final Source imgSource, final int mipLevel, final int referenceTime)
 		{
