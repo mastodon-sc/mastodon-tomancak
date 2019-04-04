@@ -333,6 +333,7 @@ extends ContextCommand
 
 			//System.out.println("adding spot at "+Util.printCoordinates(m.accCoords)+" with label="+label);
 			nSpot = modelGraph.addVertex( nSpot ).init( time, m.accCoords, cov );
+			nSpot.setLabel(""+label);
 
 			if (shouldLinkSameLabels && recentlyUsedSpots.containsKey(label))
 			{
