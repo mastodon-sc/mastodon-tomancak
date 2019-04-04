@@ -315,7 +315,7 @@ public class PlainTextFileExport extends AbstractContextual implements MastodonP
 		final BufferedWriter f
 			= new BufferedWriter( new FileWriter(selectedFile.getAbsolutePath()) );
 
-		f.write("# from project "+pluginAppModel.getWindowManager().getProjectManager().toString());
+		f.write("# from project "+pluginAppModel.getWindowManager().getProjectManager().getProject().getProjectRoot().getAbsolutePath());
 		f.newLine();
 		f.write("# TIME"+delim+"X"+delim+"Y"+delim+"Z"+delim+"TRACK_ID"+delim+"PARENT_TRACK_ID"+delim+"SPOT LABEL");
 		f.newLine();
