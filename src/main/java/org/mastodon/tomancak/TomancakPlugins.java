@@ -20,13 +20,11 @@ import org.mastodon.revised.ui.keymap.CommandDescriptions;
 import org.scijava.AbstractContextual;
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
-import org.scijava.command.CommandModule;
 import org.scijava.command.CommandService;
-import org.scijava.module.ModuleException;
+import org.scijava.log.LogService;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 import org.scijava.ui.behaviour.util.RunnableAction;
-import org.scijava.ui.swing.widget.SwingInputHarvester;
 
 import static org.mastodon.app.ui.ViewMenuBuilder.item;
 import static org.mastodon.app.ui.ViewMenuBuilder.menu;
@@ -220,47 +218,10 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 	{
 		if ( pluginAppModel == null ) return;
 
-		//particular instance of the plugin
-		ReadInstanceSegmentationImages ip = new ReadInstanceSegmentationImages();
-		ip.setContext(this.getContext());
-
-		//wrap Module around the (existing) command
-		final CommandModule cm = new CommandModule( this.getContext().getService(CommandService.class).getCommand(ip.getClass()), ip );
-
-		//update default values to the current situation
-		ip.imgSource = pluginAppModel.getAppModel().getSharedBdvData().getSources().get(0).getSpimSource();
-		ip.model     = pluginAppModel.getAppModel().getModel();
-
-		ip.timeFrom  = pluginAppModel.getAppModel().getMinTimepoint();
-		ip.timeTill  = pluginAppModel.getAppModel().getMaxTimepoint();
-
-		//mark which fields of the plugin shall not be displayed
-		cm.resolveInput("context");
-		cm.resolveInput("imgSource");
-		cm.resolveInput("model");
-
-		try {
-			//GUI harvest (or just confirm) values for (some) parameters
-			final SwingInputHarvester sih = new SwingInputHarvester();
-			sih.setContext(this.getContext());
-			sih.harvest(cm);
-		} catch (ModuleException e) {
-			//NB: includes ModuleCanceledException which signals 'Cancel' button
-			//flag that the plugin should not be started at all
-			ip = null;
-		}
-
-		if (ip != null)
-		{
-			/*
-			if (ip.inputPath == null)
-				//provide fake input to give more meaningful error later...
-				ip.inputPath = new File("NO INPUT FILE GIVEN");
-			*/
-
-			//starts the importer in a separate thread
-			new Thread(ip,"Mastodon's Instance segmentation importer").start();
-		}
+		this.getContext().getService(CommandService.class).run(
+			ReadInstanceSegmentationImages.class, true,
+			"appModel", pluginAppModel.getAppModel(),
+			"logService", this.getContext().getService(LogService.class));
 	}
 
 	private void exportThreeColumnPointsPerTimepoints()
