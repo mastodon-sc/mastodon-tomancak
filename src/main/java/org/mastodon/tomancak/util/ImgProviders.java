@@ -50,14 +50,25 @@ public class ImgProviders
 	//-------------------------------------------------------
 	public static class ImgProviderFromDisk implements ImgProvider
 	{
-		final AffineTransform3D defaultNoTransform = new AffineTransform3D();
 		final String fileTemplate;
 		final VoxelDimensions vd;
+		final AffineTransform3D resHonouringTransform = new AffineTransform3D();
+
+		void defineResHonouringTransform()
+		{
+		    if (vd.numDimensions() != 3) return;
+
+			final double maxDPI = Math.max( vd.dimension(0), Math.max(vd.dimension(1),vd.dimension(2))) ;
+			resHonouringTransform.set(vd.dimension(0)/maxDPI,0,0,0,
+			                          0,vd.dimension(1)/maxDPI,0,0,
+			                          0,0,vd.dimension(2)/maxDPI,0);
+		}
 
 		public ImgProviderFromDisk(final String fullPathFileTemplate, final VoxelDimensions vd)
 		{
 			this.fileTemplate = fullPathFileTemplate;
 			this.vd = vd;
+			defineResHonouringTransform();
 		}
 
 		public ImgProviderFromDisk(final String path, final String fileTemplate, final VoxelDimensions vd)
@@ -87,6 +98,8 @@ public class ImgProviders
 			{
 				throw new IllegalArgumentException("Error reading image file "+filename+"\n"+e.getMessage());
 			}
+
+			defineResHonouringTransform();
 		}
 
 		public ImgProviderFromDisk(final String path, final String fileTemplate, final int time)
@@ -139,7 +152,7 @@ public class ImgProviders
 		@Override
 		public void getSourceTransform(final AffineTransform3D transform)
 		{
-			transform.set(defaultNoTransform);
+			transform.set(resHonouringTransform);
 		}
 
 		@Override
