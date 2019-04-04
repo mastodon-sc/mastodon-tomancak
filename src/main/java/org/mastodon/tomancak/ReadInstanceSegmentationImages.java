@@ -6,16 +6,15 @@ import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 import javax.swing.BoxLayout;
 
-import ij.ImagePlus;
-import net.imglib2.img.display.imagej.ImageJFunctions;
+import bdv.viewer.SourceAndConverter;
 import org.jhotdraw.samples.svg.gui.ProgressIndicator;
 
-import java.io.File;
-import java.util.HashMap;
-
+import org.mastodon.revised.ui.util.FileChooser;
 import org.scijava.command.Command;
-import org.scijava.command.ContextCommand;
-import org.scijava.log.LogLevel;
+import org.scijava.command.CommandModule;
+import org.scijava.command.CommandService;
+import org.scijava.command.DynamicCommand;
+import org.scijava.module.MutableModuleItem;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Plugin;
 import org.scijava.plugin.Parameter;
@@ -24,7 +23,6 @@ import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 
-import bdv.viewer.Source;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
 import net.imglib2.type.NativeType;
@@ -32,6 +30,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.LinAlgHelpers;
 import net.imglib2.view.Views;
 
+import org.mastodon.revised.mamut.MamutAppModel;
 import org.mastodon.revised.model.AbstractModelImporter;
 import org.mastodon.revised.model.mamut.Spot;
 import org.mastodon.revised.model.mamut.Link;
@@ -40,18 +39,113 @@ import org.mastodon.revised.model.mamut.ModelGraph;
 import org.mastodon.collection.IntRefMap;
 import org.mastodon.collection.RefMaps;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
+
+import org.mastodon.tomancak.util.ImgProviders;
+import org.mastodon.tomancak.util.FileTemplateProvider;
+
 @Plugin( type = Command.class, name = "Instance segmentation importer @ Mastodon" )
 public class ReadInstanceSegmentationImages
-extends ContextCommand
+extends DynamicCommand
 {
-	// ----------------- where is the formated result -----------------
-	//the image data is in this dataset (unless loaded from external images)
-	//@Parameter(label = "Choose (tracks.txt) lineage file that corresponds to the current data:")
-	File inputPath;
+	// ----------------- necessary internal references -----------------
+	@Parameter
+	private LogService logService;
 
-	//@Parameter(label = "Use external images (maskXXX.tif) from next to the lineage file:")
-	boolean useExternalImages = false;
+	@Parameter(persist = false)
+	private MamutAppModel appModel;
 
+	// ----------------- where to read data in -----------------
+	@Parameter(label = "From where to take instance segmentation:",
+	           initializer = "encodeImgSourceChoices", choices = {} )
+	public String imgSourceChoice = "";
+
+	@Parameter(label = "Import from this time point:", min="0")
+	Integer timeFrom;
+
+	@Parameter(label = "Import till this time point:", min="0")
+	Integer timeTill;
+
+	final ArrayList<String> choices = new ArrayList<>(20);
+	void encodeImgSourceChoices()
+	{
+		final ArrayList<SourceAndConverter<?> > mSources = appModel.getSharedBdvData().getSources();
+		for (int i = 0; i < mSources.size(); ++i)
+			choices.add( "View: "+mSources.get(i).getSpimSource().getName() );
+		choices.add( "CTC: result data" );
+		choices.add( "CTC: GT data" );
+		choices.add( "images in own filename format" );
+		getInfo().getMutableInput("imgSourceChoice", String.class).setChoices( choices );
+
+		//provide some default presets
+		MutableModuleItem<Integer> tItem = getInfo().getMutableInput("timeFrom", Integer.class);
+		tItem.setMinimumValue(appModel.getMinTimepoint());
+		tItem.setMaximumValue(appModel.getMaxTimepoint());
+
+		tItem = getInfo().getMutableInput("timeTill", Integer.class);
+		tItem.setMinimumValue(appModel.getMinTimepoint());
+		tItem.setMaximumValue(appModel.getMaxTimepoint());
+
+		timeFrom = appModel.getMinTimepoint();
+		timeTill = appModel.getMaxTimepoint();
+
+		//make sure this will always appear in the menu
+		this.unresolveInput("timeFrom");
+		this.unresolveInput("timeTill");
+	}
+
+	ImgProviders.ImgProvider decodeImgSourceChoices()
+	{
+		if (imgSourceChoice.startsWith("images in own"))
+		{
+			//ask for folder and filename type
+			Future<CommandModule> files = this.getContext().getService(CommandService.class).run(FileTemplateProvider.class,true);
+			try {
+				return new ImgProviders.ImgProviderFromDisk(
+					((File)files.get().getInput("containingFolder")).getAbsolutePath(),
+					(String)files.get().getInput("filenameTemplate"),timeFrom);
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		else if (imgSourceChoice.startsWith("CTC"))
+		{
+			//some CTC format, ask for an images-containing folder
+			File selectedFolder = FileChooser.chooseFile(null, null, null,
+				"Choose folder with the images in the CTC format:",
+				FileChooser.DialogType.LOAD,
+				FileChooser.SelectionMode.DIRECTORIES_ONLY);
+
+			//cancel button ?
+			if (selectedFolder == null) return null;
+
+			if (imgSourceChoice.startsWith("CTC: GT"))
+			{
+				return new ImgProviders.ImgProviderFromDisk(selectedFolder.getAbsolutePath()+File.separator+"TRA","man_track%03d.tif",timeFrom);
+			}
+			else
+			{
+				return new ImgProviders.ImgProviderFromDisk(selectedFolder.getAbsolutePath(),"mask%03d.tif",timeFrom);
+			}
+		}
+		else
+		{
+			//some project's view, have to find the right one
+			for (int i = 0; i < choices.size(); ++i)
+			if (imgSourceChoice.startsWith(choices.get(i)))
+				return new ImgProviders.ImgProviderFromMastodon(appModel.getSharedBdvData().getSources().get(i).getSpimSource(),timeFrom);
+
+			//else not found... strange...
+			return null;
+		}
+	}
+
+	// ----------------- how to read data in -----------------
 	@Parameter(label = "Link spots that come from the same labels:",
 	           description = "This option assumes that labels from the input images are unique for one tracklet.")
 	boolean shouldLinkSameLabels = false;
@@ -65,74 +159,28 @@ extends ContextCommand
 	           min = "0.0", max = "1.0", stepSize = "0.1")
 	double overlapThreshold = 0.3;
 
-	// ----------------- what is currently displayed in the project -----------------
-	@Parameter
-	Source<?> imgSource;
-
-	//use always the highest resolution possible
-	private final int viewMipLevel = 0;
-
-	// ----------------- where to store the result -----------------
-	@Parameter
-	Model model;
-
-	@Parameter(label = "Import from this time point:", min="0")
-	int timeFrom;
-
-	@Parameter(label = "Import till this time point:", min="0")
-	int timeTill;
-
 	@Parameter(label = "Checks if created spots overlap with their markers significantly:")
 	boolean doMatchCheck = true;
-
-	public ReadInstanceSegmentationImages()
-	{
-		//now empty...
-	}
-
-
-	private
-	RandomAccessibleInterval<?> fetchImage(final int time)
-	{
-		if (useExternalImages)
-		{
-			final String filename = String.format("%s%s%s%03d.tif",
-				inputPath.getParentFile().getAbsolutePath(),
-				File.separatorChar,"mask",time);
-
-			logServiceRef.info("Reading image: "+filename);
-			RandomAccessibleInterval<?> img;
-			try
-			{
-				img = ImageJFunctions.wrap(new ImagePlus( filename ));
-			}
-			catch (RuntimeException e)
-			{
-				throw new IllegalArgumentException("Error reading image file "+filename+"\n"+e.getMessage());
-			}
-
-			//make sure we always return some non-null reference
-			if (img == null)
-				throw new IllegalArgumentException("Error reading image file "+filename);
-			return img;
-		}
-		else
-			return imgSource.getSource(time,viewMipLevel);
-	}
 
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void run()
 	{
-		//info or error report
-		logServiceRef = this.getContext().getService(LogService.class).log();
+		final ImgProviders.ImgProvider imgSource = decodeImgSourceChoices();
+		if (imgSource == null) return;
 
-		//reset the shortcut variable
+		logService.info("Considering resolution: "+imgSource.getVoxelDimensions().dimension(0)
+		               +" x "+imgSource.getVoxelDimensions().dimension(1)
+		               +" x "+imgSource.getVoxelDimensions().dimension(2)
+		               +" px/"+imgSource.getVoxelDimensions().unit());
+
+		//define some shortcut variables
+		final Model model = appModel.getModel();
 		final ModelGraph modelGraph = model.getGraph();
 
 		//debug report
-		logServiceRef.info("Time points span is  : "+timeFrom+"-"+timeTill);
+		logService.info("Time points span is   : "+timeFrom+"-"+timeTill);
 
 		//PROGRESS BAR stuff
 		final ButtonHandler pbtnHandler = new ButtonHandler();
@@ -158,7 +206,7 @@ extends ContextCommand
 		final AffineTransform3D coordTransImg2World = new AffineTransform3D();
 
 		//some more dimensionality-based attributes
-		inImgDims = imgSource.getSource(timeFrom,viewMipLevel).numDimensions();
+		inImgDims = imgSource.numDimensions();
 		position = new int[inImgDims];
 
 		//volume and squared lengths of one voxel along all axes
@@ -182,15 +230,15 @@ extends ContextCommand
 		try
 		{
 			//iterate through time points and extract spots
-			for (int time = timeFrom; time <= timeTill && isCanceled() == false && !pbtnHandler.buttonPressed(); ++time)
+			for (int time = timeFrom; time <= timeTill && !pbtnHandler.buttonPressed(); ++time)
 			{
-				logServiceRef.info("Processing time point: "+time);
+				logService.info("Processing time point : "+time);
 
 				//NB: don't hold (and block) the extra (prev) image if it is not necessary
 				if (shouldLinkOverlappingLabels) prevImg = currImg;
-				currImg = fetchImage(time);
+				currImg = imgSource.getImage(time);
 
-				imgSource.getSourceTransform(time,viewMipLevel, coordTransImg2World);
+				imgSource.getSourceTransform(time, coordTransImg2World);
 				readSpots( (IterableInterval)Views.iterable( currImg ), (RandomAccessibleInterval)prevImg,
 							  time, coordTransImg2World, modelGraph );
 
@@ -208,7 +256,7 @@ extends ContextCommand
 		}
 
 		new AbstractModelImporter< Model >( model ){{ finishImport(); }};
-		logServiceRef.info("Done.");
+		logService.info("Done.");
 	}
 
 
@@ -218,7 +266,6 @@ extends ContextCommand
 	private double[] resSqLen;      //aux 1px square lengths
 	private double   resVolume;     //aux 1px volume
 	private double   resArea;       //aux 1px xy-plane area
-	private LogService logServiceRef;
 	private IntRefMap< Spot > recentlyUsedSpots;
 	private Spot nSpot,oSpot;       //spots references
 	private Link linkRef;           //link reference
@@ -437,8 +484,7 @@ extends ContextCommand
 			{
 				//System.out.println((int)m.label.getRealFloat()+": "+m.markerOverlap+" / "+m.size);
 				if (2*m.markerOverlap < m.size)
-					logServiceRef.log(LogLevel.ERROR,
-					                  "time "+time
+					logService.error("time "+time
 					                  +": spot "+recentlyUsedSpots.get((int)m.label.getRealFloat(),nSpot).getLabel()
 					                  +" does not cover image marker "+(int)m.label.getRealFloat());
 			}
