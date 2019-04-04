@@ -11,6 +11,8 @@ import org.jhotdraw.samples.svg.gui.ProgressIndicator;
 
 import org.mastodon.revised.ui.util.FileChooser;
 import org.scijava.command.Command;
+import org.scijava.command.CommandModule;
+import org.scijava.command.CommandService;
 import org.scijava.command.DynamicCommand;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.log.LogService;
@@ -40,7 +42,11 @@ import org.mastodon.collection.RefMaps;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
+
 import org.mastodon.tomancak.util.ImgProviders;
+import org.mastodon.tomancak.util.FileTemplateProvider;
 
 @Plugin( type = Command.class, name = "Instance segmentation importer @ Mastodon" )
 public class ReadInstanceSegmentationImages
@@ -96,8 +102,16 @@ extends DynamicCommand
 	{
 		if (imgSourceChoice.startsWith("images in own"))
 		{
-			//TODO: ask for folder and filename type
-			return null;
+			//ask for folder and filename type
+			Future<CommandModule> files = this.getContext().getService(CommandService.class).run(FileTemplateProvider.class,true);
+			try {
+				return new ImgProviders.ImgProviderFromDisk(
+					((File)files.get().getInput("containingFolder")).getAbsolutePath(),
+					(String)files.get().getInput("filenameTemplate"),timeFrom);
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
 		else if (imgSourceChoice.startsWith("CTC"))
 		{
