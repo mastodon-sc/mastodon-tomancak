@@ -17,8 +17,8 @@ import java.io.File;
  * either externally from a file system or internally from Mastodon's BDV data.
  *
  * One has to first instantiate either the embedded class ImgProviderFromDisk
- * or ImgProviderFromMastodon as the ImgProvider interface, RAI<?> living at
- * some time index 't' can be then obtained with the method getImage(t).
+ * or ImgProviderFromMastodon as the ImgProvider interface, and the {@literal RAI<?>}
+ * living at given time index 't' can be then obtained with the method getImage(t).
  *
  * Note that the ImgProviderFromDisk variant may throw IllegalArgumentException
  * if the corresponding file could not be opened.
@@ -30,19 +30,27 @@ public class ImgProviders
 	public interface ImgProvider
 	{
 		/** the implementing method must return existing non-null image,
-		    or throw IllegalArgumentException */
+		    or throw IllegalArgumentException
+		    @param time time index to be obtained
+			 @return RAI image at the given time index */
 		RandomAccessibleInterval<?> getImage(final int time);
 
-		/** Returns the spatial dimensionality of fetched images. */
+		/** Returns the spatial dimensionality of fetched images.
+		    @return The number of dimensions the output images will have,
+		            most of the time the return value is 3 */
 		int numDimensions();
 
-		/** Returns a reference calibration data. */
+		/** Returns a reference calibration data.
+		    @return Structure that describes resolution of the output images */
 		VoxelDimensions getVoxelDimensions();
 
-		/** Returns a reference image-to-world transformation. */
+		/** Returns a reference image-to-world transformation.
+		    @param transform output param to be filled with the actual transform */
 		void getSourceTransform(final AffineTransform3D transform);
 
-		/** Returns an image-to-world transformation for this time point. */
+		/** Returns an image-to-world transformation for this time point.
+		    @param time input time index for which the transform is desired
+		    @param transform output param to be filled with the actual transform */
 		void getSourceTransform(final int time, final AffineTransform3D transform);
 	}
 
