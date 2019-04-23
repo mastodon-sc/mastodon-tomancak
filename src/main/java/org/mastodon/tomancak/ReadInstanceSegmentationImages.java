@@ -220,7 +220,7 @@ extends DynamicCommand
 			resSqLen[i] *= resSqLen[i];
 		}
 
-		recentlyUsedSpots = RefMaps.createIntRefMap( modelGraph.vertices(), -1, 500 );
+		currFrameSpots = RefMaps.createIntRefMap( modelGraph.vertices(), -1, 500 );
 		linkRef = modelGraph.edgeRef();
 		nSpot = modelGraph.vertices().createRef();
 		oSpot = modelGraph.vertices().createRef();
@@ -266,7 +266,7 @@ extends DynamicCommand
 	private double[] resSqLen;      //aux 1px square lengths
 	private double   resVolume;     //aux 1px volume
 	private double   resArea;       //aux 1px xy-plane area
-	private IntRefMap< Spot > recentlyUsedSpots;
+	private IntRefMap< Spot > currFrameSpots;
 	private Spot nSpot,oSpot;       //spots references
 	private Link linkRef;           //link reference
 	final private double[][] cov = new double[3][3];
@@ -382,12 +382,12 @@ extends DynamicCommand
 			nSpot = modelGraph.addVertex( nSpot ).init( time, m.accCoords, cov );
 			nSpot.setLabel(""+label);
 
-			if (shouldLinkSameLabels && recentlyUsedSpots.containsKey(label))
+			if (shouldLinkSameLabels && currFrameSpots.containsKey(label))
 			{
 				//was detected also in the previous frame
 				//System.out.println("linking spot with its previous occurrence");
 
-				recentlyUsedSpots.get(label, oSpot);
+				currFrameSpots.get(label, oSpot);
 				modelGraph.addEdge( oSpot, nSpot, linkRef ).init();
 			}
 
@@ -428,7 +428,7 @@ extends DynamicCommand
 					if ((double)intSizes.get(oLabel)/(double)m.size >= overlapThreshold)
 					{
 						//this overlap qualifies size-wise
-						recentlyUsedSpots.get(oLabel, oSpot);
+						currFrameSpots.get(oLabel, oSpot);
 
 						//add edge only if there is none such existing already
 						if (modelGraph.getEdge( oSpot, nSpot ) == null)
@@ -438,7 +438,7 @@ extends DynamicCommand
 			}
 
 			//in any case, add-or-replace the association of nSpot to this label
-			recentlyUsedSpots.put(label, nSpot);
+			currFrameSpots.put(label, nSpot);
 
 			//NB: we're not removing finished tracks TODO??
 			//NB: we shall not remove finished tracks until we're sure they are no longer parents to some future tracks
@@ -461,7 +461,7 @@ extends DynamicCommand
 
 				//found some marker voxel, find its spot,
 				//and increase overlap counter if voxel falls into the spot
-				recentlyUsedSpots.get((int)voxelCursor.get().getRealFloat(), nSpot);
+				currFrameSpots.get((int)voxelCursor.get().getRealFloat(), nSpot);
 				nSpot.localize(positionS);
 				nSpot.getCovariance(cov);
 
@@ -485,7 +485,7 @@ extends DynamicCommand
 				//System.out.println((int)m.label.getRealFloat()+": "+m.markerOverlap+" / "+m.size);
 				if (2*m.markerOverlap < m.size)
 					logService.error("time "+time
-					                  +": spot "+recentlyUsedSpots.get((int)m.label.getRealFloat(),nSpot).getLabel()
+					                  +": spot "+currFrameSpots.get((int)m.label.getRealFloat(),nSpot).getLabel()
 					                  +" does not cover image marker "+(int)m.label.getRealFloat());
 			}
 		}
