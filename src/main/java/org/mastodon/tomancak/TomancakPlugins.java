@@ -27,7 +27,7 @@ import org.scijava.ui.behaviour.util.RunnableAction;
 import static org.mastodon.app.ui.ViewMenuBuilder.item;
 import static org.mastodon.app.ui.ViewMenuBuilder.menu;
 
-@Plugin( type = TomancakPlugins.class )
+@Plugin( type = MastodonPlugin.class )
 public class TomancakPlugins extends AbstractContextual implements MastodonPlugin
 {
 	private static final String EXPORT_PHYLOXML = "[tomancak] export phyloxml for selection";
@@ -53,7 +53,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 	/*
 	 * Command descriptions for all provided commands
 	 */
-	@Plugin( type = Descriptions.class )
+	@Plugin( type = CommandDescriptionProvider.class )
 	public static class Descriptions extends CommandDescriptionProvider
 	{
 		public Descriptions()

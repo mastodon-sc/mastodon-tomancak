@@ -21,7 +21,7 @@ import org.scijava.ui.behaviour.util.RunnableAction;
 import static org.mastodon.app.ui.ViewMenuBuilder.item;
 import static org.mastodon.app.ui.ViewMenuBuilder.menu;
 
-@Plugin( type = MergingPlugin.class )
+@Plugin( type = MastodonPlugin.class )
 public class MergingPlugin extends AbstractContextual implements MastodonPlugin
 {
 	private static final String MERGE_PROJECTS = "[tomancak] merge projects";
@@ -38,7 +38,7 @@ public class MergingPlugin extends AbstractContextual implements MastodonPlugin
 	/*
 	 * Command descriptions for all provided commands
 	 */
-	@Plugin( type = Descriptions.class )
+	@Plugin( type = CommandDescriptionProvider.class )
 	public static class Descriptions extends CommandDescriptionProvider
 	{
 		public Descriptions()
