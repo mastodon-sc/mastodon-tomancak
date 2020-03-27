@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>21.0.0</version>
+		<version>28.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -15,11 +15,11 @@
 
 	<name>Tomancak Lab Mastodon Plugins</name>
 	<description>Various Mastodon plugins for use in Tomancak lab projects</description>
-	<url>https://github.com/bigdataviewer/mastodon-tomancak</url>
+	<url>https://github.com/mastodon-sc/mastodon-tomancak</url>
 	<inceptionYear>2018</inceptionYear>
 	<organization>
-		<name>BigDataViewer</name>
-		<url>http://github.com/bigdataviewer</url>
+		<name>Mastodon Science</name>
+		<url>http://github.com/mastodon-sc</url>
 	</organization>
 	<licenses>
 		<license>
@@ -32,17 +32,17 @@
 		<dependency>
 			<groupId>org.mastodon</groupId>
 			<artifactId>mastodon-collection</artifactId>
-			<version>1.0.0-beta-17</version>
+			<version>1.0.0-beta-18</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mastodon</groupId>
 			<artifactId>mastodon-graph</artifactId>
-			<version>1.0.0-beta-16</version>
+			<version>1.0.0-beta-17</version>
 		</dependency>
 		<dependency>
-			<groupId>net.trackmate</groupId>
-			<artifactId>trackmate</artifactId>
-			<version>1.0.0-beta-12</version>
+			<groupId>org.mastodon</groupId>
+			<artifactId>mastodon</artifactId>
+			<version>1.0.0-beta-14</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
@@ -72,22 +72,22 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git:github.com/bigdataviewer/mastodon-tomancak</connection>
-		<developerConnection>scm:git:git@github.com:bigdataviewer/mastodon-tomancak</developerConnection>
+		<connection>scm:git:git:github.com/mastodon-sc/mastodon-tomancak</connection>
+		<developerConnection>scm:git:git@github.com:mastodon-sc/mastodon-tomancak</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/bigdataviewer/mastodon-tomancak</url>
+		<url>https://github.com/mastodon-sc/mastodon-tomancak</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/bigdataviewer/mastodon-tomancak/issues</url>
+		<url>https://github.com/mastodon-sc/mastodon-tomancak/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.com/bigdataviewer/mastodon-tomancak</url>
+		<url>https://travis-ci.com/mastodon-sc/mastodon-tomancak</url>
 	</ciManagement>
 
 	<properties>
-		<package-name>net.trackmate</package-name>
+		<package-name>org.mastodon</package-name>
 
 		<license.licenseName>not licensed yet</license.licenseName>
 		<license.projectName>mastodon-tomancak</license.projectName>
