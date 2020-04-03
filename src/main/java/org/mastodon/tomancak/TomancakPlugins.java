@@ -34,11 +34,13 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 	private static final String FLIP_DESCENDANTS = "[tomancak] flip descendants";
 	private static final String COPY_TAG = "[tomancak] copy tag";
 	private static final String INTERPOLATE_SPOTS = "[tomancak] interpolate spots";
+	private static final String TWEAK_DATASET_PATH = "[tomancak] tweak dataset path";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "not mapped" };
 	private static final String[] COPY_TAG_KEYS = { "not mapped" };
 	private static final String[] INTERPOLATE_SPOTS_KEYS = { "not mapped" };
+	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -48,6 +50,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		menuTexts.put( FLIP_DESCENDANTS, "Flip descendants" );
 		menuTexts.put( COPY_TAG, "Copy Tag..." );
 		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate Missing Spots" );
+		menuTexts.put( TWEAK_DATASET_PATH, "Edit BDV XML Path" );
 	}
 
 	/*
@@ -68,6 +71,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 			descriptions.add( FLIP_DESCENDANTS, FLIP_DESCENDANTS_KEYS, "Flip children in trackscheme graph." );
 			descriptions.add( COPY_TAG, COPY_TAG_KEYS, "Copy tags: everything that has tag A assigned gets B assigned." );
 			descriptions.add( INTERPOLATE_SPOTS, INTERPOLATE_SPOTS_KEYS, "Interpolate missing spots." );
+			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Set the path to the BDV data and whether it is relative or absolute." );
 		}
 	}
 
@@ -79,6 +83,8 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 
 	private final AbstractNamedAction interpolateSpotsAction;
 
+	private final AbstractNamedAction tweakDatasetPathAction;
+
 	private MastodonPluginAppModel pluginAppModel;
 
 	public TomancakPlugins()
@@ -87,6 +93,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		flipDescendantsAction = new RunnableAction( FLIP_DESCENDANTS, this::flipDescendants );
 		copyTagAction = new RunnableAction( COPY_TAG, this::copyTag );
 		interpolateSpotsAction = new RunnableAction( INTERPOLATE_SPOTS, this::interpolateSpots );
+		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		updateEnabledActions();
 	}
 
@@ -106,7 +113,8 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 								item( EXPORT_PHYLOXML ),
 								item( FLIP_DESCENDANTS ),
 								item( INTERPOLATE_SPOTS ),
-								item( COPY_TAG ) ) ) );
+								item( COPY_TAG ),
+								item( TWEAK_DATASET_PATH ) ) ) );
 	}
 
 	@Override
@@ -122,6 +130,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		actions.namedAction( flipDescendantsAction, FLIP_DESCENDANTS_KEYS );
 		actions.namedAction( copyTagAction, COPY_TAG_KEYS );
 		actions.namedAction( interpolateSpotsAction, INTERPOLATE_SPOTS_KEYS );
+		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 	}
 
 	private void updateEnabledActions()
@@ -129,6 +138,9 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		final MamutAppModel appModel = ( pluginAppModel == null ) ? null : pluginAppModel.getAppModel();
 		exportPhyloXmlAction.setEnabled( appModel != null );
 		flipDescendantsAction.setEnabled( appModel != null );
+		copyTagAction.setEnabled( appModel != null );
+		interpolateSpotsAction.setEnabled( appModel != null );
+		tweakDatasetPathAction.setEnabled( appModel != null );
 	}
 
 	private void exportPhyloXml()
@@ -161,6 +173,15 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		}
 	}
 
+	private void tweakDatasetPath()
+	{
+		if ( pluginAppModel != null )
+		{
+			final MamutProject project = pluginAppModel.getWindowManager().getProjectManager().getProject();
+			new DatasetPathDialog( null, project ).setVisible( true );
+		}
+	}
+
 	/*
 	 * Start Mastodon ...
 	 */
@@ -176,7 +197,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		new Context().inject( mastodon );
 		mastodon.run();
 
-		final MamutProject project = new MamutProjectIO().load( projectPath );
-		mastodon.openProject( project );
+//		final MamutProject project = new MamutProjectIO().load( projectPath );
+//		mastodon.openProject( project );
 	}
 }
