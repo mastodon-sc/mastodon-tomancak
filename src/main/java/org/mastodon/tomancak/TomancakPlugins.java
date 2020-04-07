@@ -5,8 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import org.mastodon.app.ui.ViewMenuBuilder;
+import org.mastodon.model.SelectionModel;
 import org.mastodon.plugin.MastodonPlugin;
 import org.mastodon.plugin.MastodonPluginAppModel;
 import org.mastodon.project.MamutProject;
@@ -14,7 +18,9 @@ import org.mastodon.project.MamutProjectIO;
 import org.mastodon.revised.mamut.KeyConfigContexts;
 import org.mastodon.revised.mamut.MamutAppModel;
 import org.mastodon.revised.mamut.Mastodon;
+import org.mastodon.revised.model.mamut.Link;
 import org.mastodon.revised.model.mamut.Model;
+import org.mastodon.revised.model.mamut.Spot;
 import org.mastodon.revised.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.revised.ui.keymap.CommandDescriptions;
 import org.scijava.AbstractContextual;
@@ -35,12 +41,14 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 	private static final String COPY_TAG = "[tomancak] copy tag";
 	private static final String INTERPOLATE_SPOTS = "[tomancak] interpolate spots";
 	private static final String TWEAK_DATASET_PATH = "[tomancak] tweak dataset path";
+	private static final String LABEL_SELECTED_SPOTS = "[tomancak] label spots";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "not mapped" };
 	private static final String[] COPY_TAG_KEYS = { "not mapped" };
 	private static final String[] INTERPOLATE_SPOTS_KEYS = { "not mapped" };
 	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
+	private static final String[] LABEL_SELECTED_SPOTS_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -49,8 +57,9 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		menuTexts.put( EXPORT_PHYLOXML, "Export phyloXML for selection" );
 		menuTexts.put( FLIP_DESCENDANTS, "Flip descendants" );
 		menuTexts.put( COPY_TAG, "Copy Tag..." );
-		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate Missing Spots" );
-		menuTexts.put( TWEAK_DATASET_PATH, "Edit BDV XML Path" );
+		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate missing spots" );
+		menuTexts.put( TWEAK_DATASET_PATH, "Edit BDV XML path..." );
+		menuTexts.put( LABEL_SELECTED_SPOTS, "Label selected spots..." );
 	}
 
 	/*
@@ -72,6 +81,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 			descriptions.add( COPY_TAG, COPY_TAG_KEYS, "Copy tags: everything that has tag A assigned gets B assigned." );
 			descriptions.add( INTERPOLATE_SPOTS, INTERPOLATE_SPOTS_KEYS, "Interpolate missing spots." );
 			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Set the path to the BDV data and whether it is relative or absolute." );
+			descriptions.add( LABEL_SELECTED_SPOTS, LABEL_SELECTED_SPOTS_KEYS, "Set label for all selected spots." );
 		}
 	}
 
@@ -85,6 +95,8 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 
 	private final AbstractNamedAction tweakDatasetPathAction;
 
+	private final AbstractNamedAction labelSelectedSpotsAction;
+
 	private MastodonPluginAppModel pluginAppModel;
 
 	public TomancakPlugins()
@@ -94,6 +106,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		copyTagAction = new RunnableAction( COPY_TAG, this::copyTag );
 		interpolateSpotsAction = new RunnableAction( INTERPOLATE_SPOTS, this::interpolateSpots );
 		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
+		labelSelectedSpotsAction = new RunnableAction( LABEL_SELECTED_SPOTS, this::labelSelectedSpots );
 		updateEnabledActions();
 	}
 
@@ -113,6 +126,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 								item( EXPORT_PHYLOXML ),
 								item( FLIP_DESCENDANTS ),
 								item( INTERPOLATE_SPOTS ),
+								item( LABEL_SELECTED_SPOTS ),
 								item( COPY_TAG ),
 								item( TWEAK_DATASET_PATH ) ) ) );
 	}
@@ -131,6 +145,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		actions.namedAction( copyTagAction, COPY_TAG_KEYS );
 		actions.namedAction( interpolateSpotsAction, INTERPOLATE_SPOTS_KEYS );
 		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
+		actions.namedAction( labelSelectedSpotsAction, LABEL_SELECTED_SPOTS_KEYS );
 	}
 
 	private void updateEnabledActions()
@@ -141,6 +156,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		copyTagAction.setEnabled( appModel != null );
 		interpolateSpotsAction.setEnabled( appModel != null );
 		tweakDatasetPathAction.setEnabled( appModel != null );
+		labelSelectedSpotsAction.setEnabled( appModel != null );
 	}
 
 	private void exportPhyloXml()
@@ -182,6 +198,41 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		}
 	}
 
+	private void labelSelectedSpots()
+	{
+		if ( pluginAppModel != null )
+		{
+			final MamutAppModel appModel = pluginAppModel.getAppModel();
+			final SelectionModel< Spot, Link > selection = appModel.getSelectionModel();
+			final Model model = appModel.getModel();
+			final ReentrantReadWriteLock lock = model.getGraph().getLock();
+			lock.writeLock().lock();
+			try
+			{
+				final Set< Spot > spots = selection.getSelectedVertices();
+				if ( spots.isEmpty() )
+				{
+					JOptionPane.showMessageDialog( null, "No spot selected.", "Label spots", JOptionPane.WARNING_MESSAGE );
+				}
+				else
+				{
+					final String initialValue = spots.iterator().next().getLabel();
+					final Object input = JOptionPane.showInputDialog( null, "Spot label:", "Label spots", JOptionPane.PLAIN_MESSAGE, null, null, initialValue );
+					if ( input != null )
+					{
+						final String label = ( String ) input;
+						spots.forEach( spot -> spot.setLabel( label ) );
+						model.setUndoPoint();
+					}
+				}
+			}
+			finally
+			{
+				lock.writeLock().unlock();
+			}
+		}
+	}
+
 	/*
 	 * Start Mastodon ...
 	 */
@@ -197,7 +248,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 		new Context().inject( mastodon );
 		mastodon.run();
 
-//		final MamutProject project = new MamutProjectIO().load( projectPath );
-//		mastodon.openProject( project );
+		final MamutProject project = new MamutProjectIO().load( projectPath );
+		mastodon.openProject( project );
 	}
 }
