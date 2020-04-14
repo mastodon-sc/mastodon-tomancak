@@ -12,6 +12,7 @@ import org.mastodon.graph.ref.AbstractEdgePool.AbstractEdgeLayout;
 import org.mastodon.graph.ref.AbstractVertexPool;
 import org.mastodon.graph.ref.AbstractVertexPool.AbstractVertexLayout;
 import org.mastodon.graph.ref.GraphImp;
+import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.pool.ByteMappedElement;
@@ -37,9 +38,20 @@ public class MatchingGraph extends GraphImp<
 		MatchingGraph.MatchingEdgePool,
 		MatchingVertex, MatchingEdge, ByteMappedElement >
 {
+	public static MatchingGraph newWithAllSpots( final Model... models )
+	{
+		final List< ModelGraph > graphs = Arrays.stream( models ).map( ds -> ds.getGraph() ).collect( Collectors.toList() );
+		return newWithAllSpots( graphs );
+	}
+
 	public static MatchingGraph newWithAllSpots( final Dataset... datasets )
 	{
 		final List< ModelGraph > graphs = Arrays.stream( datasets ).map( ds -> ds.model().getGraph() ).collect( Collectors.toList() );
+		return newWithAllSpots( graphs );
+	}
+
+	static MatchingGraph newWithAllSpots( final List< ModelGraph > graphs )
+	{
 		final int capacity = graphs.stream().mapToInt( g -> g.vertices().size() ).sum();
 		final MatchingGraph matching = new MatchingGraph( graphs, capacity );
 		final MatchingVertex ref = matching.vertexRef();
