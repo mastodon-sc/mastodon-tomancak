@@ -21,10 +21,14 @@ import org.mastodon.spatial.SpatialIndex;
 
 public class MergeModels
 {
-	public static int getMaxNonEmptyTimepoint( final Model mA )
+	static int getMaxNonEmptyTimepoint( final Model m )
 	{
-		//TODO
-		return MergingUtil.getMaxNonEmptyTimepoint(mA,1000);
+		//this is a bit ugly... both the alg itself and the way it is passing results out of the lambda
+		int[] maxTimepoint = new int[1];
+		m.getGraph().vertices().forEach( s -> maxTimepoint[0] = Math.max( s.getTimepoint(), maxTimepoint[0] ) );
+		//is this faster?
+		//m.getSpatioTemporalIndex().forEach( s -> maxTimepoint[0] = Math.max( s.getTimepoint(), maxTimepoint[0] ) );
+		return maxTimepoint[0];
 	}
 
 	public static void merge(final Model mA, final Model mB, final MergeDatasets.OutputDataSet output, final double distCutoff, final double mahalanobisDistCutoff, final double ratioThreshold )
