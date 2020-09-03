@@ -1,17 +1,17 @@
-package org.mastodon.tomancak;
+package org.mastodon.mamut.tomancak;
 
 import org.mastodon.graph.ref.OutgoingEdges;
-import org.mastodon.revised.mamut.MamutAppModel;
-import org.mastodon.revised.model.mamut.Link;
-import org.mastodon.revised.model.mamut.ModelGraph;
-import org.mastodon.revised.model.mamut.Spot;
+import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.model.Link;
+import org.mastodon.mamut.model.ModelGraph;
+import org.mastodon.mamut.model.Spot;
 
 public class FlipDescendants
 {
 	public static void flipDescendants( final MamutAppModel appModel )
 	{
 		final ModelGraph graph = appModel.getModel().getGraph();
-		Spot spot = appModel.getFocusModel().getFocusedVertex( graph.vertexRef() );
+		final Spot spot = appModel.getFocusModel().getFocusedVertex( graph.vertexRef() );
 		final OutgoingEdges< Link > outgoing = spot.outgoingEdges();
 		if ( outgoing.size() > 1 )
 		{

@@ -1,15 +1,17 @@
-package org.mastodon.tomancak;
-
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import net.imglib2.util.LinAlgHelpers;
-import org.mastodon.collection.RefCollections;
-import org.mastodon.collection.RefList;
-import org.mastodon.revised.model.mamut.Link;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.ModelGraph;
-import org.mastodon.revised.model.mamut.Spot;
+package org.mastodon.mamut.tomancak;
 
 import static net.imglib2.util.LinAlgHelpers.rows;
+
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import org.mastodon.collection.RefCollections;
+import org.mastodon.collection.RefList;
+import org.mastodon.mamut.model.Link;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.ModelGraph;
+import org.mastodon.mamut.model.Spot;
+
+import net.imglib2.util.LinAlgHelpers;
 
 public class InterpolateMissingSpots
 {
@@ -50,8 +52,8 @@ public class InterpolateMissingSpots
 		lock.writeLock().lock();
 		try
 		{
-			RefList< Link > edgesToInterpolate = RefCollections.createRefList( graph.edges() );
-			for ( Link edge : graph.edges() )
+			final RefList< Link > edgesToInterpolate = RefCollections.createRefList( graph.edges() );
+			for ( final Link edge : graph.edges() )
 			{
 				final Spot from = edge.getSource( vref1 );
 				final Spot to = edge.getTarget( vref2 );
@@ -72,7 +74,7 @@ public class InterpolateMissingSpots
 		}
 	}
 
-	private void interpolateEdge( Link edge )
+	private void interpolateEdge( final Link edge )
 	{
 		final Spot from = edge.getSource( vref1 );
 		final Spot to = edge.getTarget( vref2 );

@@ -1,10 +1,11 @@
-package org.mastodon.tomancak.merging;
+package org.mastodon.mamut.tomancak.merging;
 
 import java.util.Comparator;
+
 import org.mastodon.collection.RefCollections;
 import org.mastodon.collection.RefList;
 import org.mastodon.kdtree.IncrementalNearestNeighborSearch;
-import org.mastodon.revised.model.mamut.Spot;
+import org.mastodon.mamut.model.Spot;
 import org.mastodon.spatial.SpatialIndex;
 
 public class MatchCandidates
@@ -66,7 +67,7 @@ public class MatchCandidates
 		}
 	}
 
-	public MatchingGraph pruneMatchingGraph( MatchingGraph graph )
+	public MatchingGraph pruneMatchingGraph( final MatchingGraph graph )
 	{
 		final MatchingGraph matching = MatchingGraph.newWithAllSpots( graph );
 		/*
@@ -91,7 +92,7 @@ public class MatchCandidates
 			while |(i+1) <= |edge|) and (mdist(edge[i+1]) / mdist(edge[i]) > th3)
 		 */
 		final RefList< MatchingEdge > edges = RefCollections.createRefList( graph.edges() );
-		for ( MatchingVertex v : graph.vertices() )
+		for ( final MatchingVertex v : graph.vertices() )
 		{
 			edges.clear();
 			v.outgoingEdges().forEach( edges::add );
@@ -115,7 +116,7 @@ public class MatchCandidates
 		}
 
 		// corresponding matching.v to graph.v
-		MatchingVertex v = graph.vertices().iterator().next(); // from graph
+		final MatchingVertex v = graph.vertices().iterator().next(); // from graph
 		matching.getVertex( v.getSpot() );
 
 		return matching;

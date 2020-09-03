@@ -1,10 +1,10 @@
-package org.mastodon.tomancak.merging;
+package org.mastodon.mamut.tomancak.merging;
 
 import org.mastodon.graph.ref.AbstractVertex;
+import org.mastodon.mamut.model.ModelGraph;
+import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.merging.MatchingGraph.MatchingVertexPool;
 import org.mastodon.pool.ByteMappedElement;
-import org.mastodon.revised.model.mamut.ModelGraph;
-import org.mastodon.revised.model.mamut.Spot;
-import org.mastodon.tomancak.merging.MatchingGraph.MatchingVertexPool;
 
 public class MatchingVertex extends AbstractVertex< MatchingVertex, MatchingEdge, MatchingVertexPool, ByteMappedElement >
 {

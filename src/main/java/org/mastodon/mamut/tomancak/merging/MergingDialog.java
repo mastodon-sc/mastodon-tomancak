@@ -1,4 +1,4 @@
-package org.mastodon.tomancak.merging;
+package org.mastodon.mamut.tomancak.merging;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -25,8 +26,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
-import org.mastodon.revised.ui.util.ExtensionFileFilter;
-import org.mastodon.revised.ui.util.FileChooser;
+
+import org.mastodon.ui.util.ExtensionFileFilter;
+import org.mastodon.ui.util.FileChooser;
 
 public class MergingDialog extends JDialog
 {
@@ -216,7 +218,7 @@ public class MergingDialog extends JDialog
 		setVisible( false );
 	}
 
-	public static void main( String[] args )
+	public static void main( final String[] args )
 	{
 		new MergingDialog( null ).setVisible( true );
 	}

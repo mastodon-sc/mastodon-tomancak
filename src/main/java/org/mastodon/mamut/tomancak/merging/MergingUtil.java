@@ -1,16 +1,17 @@
-package org.mastodon.tomancak.merging;
+package org.mastodon.mamut.tomancak.merging;
+
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.model.SpotPool;
+import org.mastodon.mamut.project.MamutProject;
+import org.mastodon.properties.ObjPropertyMap;
+import org.mastodon.spatial.SpatialIndex;
+import org.mastodon.spatial.SpatioTemporalIndex;
+import org.mastodon.util.DummySpimData;
 
 import bdv.spimdata.SpimDataMinimal;
 import bdv.spimdata.XmlIoSpimDataMinimal;
 import mpicbg.spim.data.SpimDataException;
-import org.mastodon.project.MamutProject;
-import org.mastodon.properties.ObjPropertyMap;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.Spot;
-import org.mastodon.revised.model.mamut.SpotPool;
-import org.mastodon.revised.util.DummySpimData;
-import org.mastodon.spatial.SpatialIndex;
-import org.mastodon.spatial.SpatioTemporalIndex;
 
 public class MergingUtil
 {
@@ -20,7 +21,7 @@ public class MergingUtil
 	public static boolean hasLabel( final Spot spot )
 	{
 		final SpotPool pool = ( SpotPool ) spot.getModelGraph().vertices().getRefPool();
-		ObjPropertyMap< Spot, String > labels = ( ObjPropertyMap< Spot, String > ) pool.labelProperty();
+		final ObjPropertyMap< Spot, String > labels = ( ObjPropertyMap< Spot, String > ) pool.labelProperty();
 		return labels.isSet( spot );
 	}
 
@@ -28,7 +29,7 @@ public class MergingUtil
 	 * Returns number of timepoints in {@code project}.
 	 * To to that, loads spimdata for {@code project}.
 	 */
-	public static int getNumTimepoints( MamutProject project )
+	public static int getNumTimepoints( final MamutProject project )
 	{
 		try
 		{

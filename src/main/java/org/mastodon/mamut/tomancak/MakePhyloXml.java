@@ -1,11 +1,12 @@
-package org.mastodon.tomancak;
+package org.mastodon.mamut.tomancak;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
 import javax.swing.JOptionPane;
-import mpicbg.spim.data.XmlHelpers;
+
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -22,6 +23,10 @@ import org.mastodon.graph.ref.AbstractListenableEdge;
 import org.mastodon.graph.ref.AbstractListenableEdgePool;
 import org.mastodon.graph.ref.AbstractListenableVertex;
 import org.mastodon.graph.ref.AbstractListenableVertexPool;
+import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.model.Link;
+import org.mastodon.mamut.model.ModelGraph;
+import org.mastodon.mamut.model.Spot;
 import org.mastodon.pool.ByteMappedElement;
 import org.mastodon.pool.ByteMappedElementArray;
 import org.mastodon.pool.SingleArrayMemPool;
@@ -29,13 +34,11 @@ import org.mastodon.pool.attributes.IntAttribute;
 import org.mastodon.pool.attributes.IntAttributeValue;
 import org.mastodon.properties.IntPropertyMap;
 import org.mastodon.properties.ObjPropertyMap;
-import org.mastodon.revised.mamut.MamutAppModel;
-import org.mastodon.revised.model.mamut.Link;
-import org.mastodon.revised.model.mamut.ModelGraph;
-import org.mastodon.revised.model.mamut.Spot;
-import org.mastodon.revised.ui.util.FileChooser;
-import org.mastodon.revised.ui.util.XmlFileFilter;
 import org.mastodon.spatial.HasTimepoint;
+import org.mastodon.ui.util.FileChooser;
+import org.mastodon.ui.util.XmlFileFilter;
+
+import mpicbg.spim.data.XmlHelpers;
 
 // http://www.phyloxml.org/
 public class MakePhyloXml
@@ -120,7 +123,7 @@ public class MakePhyloXml
 			final Spot sgspot = subgraph.addVertex( vref1 ).init( spot.getTimepoint(), pos, cov );
 			sgspot.setLabel( spot.getLabel() );
 			spotToSubgraph.put( spot, sgspot, vref2 );
-			for ( Link inedge : spot.incomingEdges() )
+			for ( final Link inedge : spot.incomingEdges() )
 			{
 				final Spot sgparent = spotToSubgraph.get( inedge.getSource( vref3 ), vref4 );
 				if ( sgparent != null )
@@ -136,7 +139,7 @@ public class MakePhyloXml
 		branchGraphRoot = branchGraph.getBranchVertex( subgraphRoot, branchGraph.vertexRef() );
 
 		labels = new ObjPropertyMap<>( branchGraph.vertices().getRefPool() );
-		for ( BranchEdge be : branchGraph.edges() )
+		for ( final BranchEdge be : branchGraph.edges() )
 		{
 			final Link edge = branchGraph.getLinkedEdge( be, eref );
 			final Spot source = edge.getSource( vref1 );
@@ -153,7 +156,7 @@ public class MakePhyloXml
 		}
 
 		lengths = new IntPropertyMap< BranchEdge >( branchGraph.edges().getRefPool(), -1 );
-		for ( BranchEdge be : branchGraph.edges() )
+		for ( final BranchEdge be : branchGraph.edges() )
 		{
 			Link edge = branchGraph.getLinkedEdge( be, eref );
 			int length = 1;
@@ -192,7 +195,7 @@ public class MakePhyloXml
 			final Element clade = new Element( "clade" );
 			clade.addContent( XmlHelpers.textElement( "name", labels.get( branchGraphRoot ) ) );
 			clade.addContent( XmlHelpers.intElement( "branch_length", 0 ) );
-			for ( BranchEdge outgoing : branchGraphRoot.outgoingEdges() )
+			for ( final BranchEdge outgoing : branchGraphRoot.outgoingEdges() )
 				clade.addContent( toXml( outgoing ) );
 			phylogeny.addContent( clade );
 		}
@@ -205,14 +208,14 @@ public class MakePhyloXml
 		return new Document( root );
 	}
 
-	private Element toXml( BranchEdge be )
+	private Element toXml( final BranchEdge be )
 	{
 		final Element clade = new Element( "clade" );
 
 		final BranchVertex target = be.getTarget();
 		clade.addContent( XmlHelpers.textElement( "name", labels.get( target ) ) );
 		clade.addContent( XmlHelpers.intElement( "branch_length", lengths.get( be ) ) );
-		for ( BranchEdge outgoing : target.outgoingEdges() )
+		for ( final BranchEdge outgoing : target.outgoingEdges() )
 			clade.addContent( toXml( outgoing ) );
 
 		return clade;
