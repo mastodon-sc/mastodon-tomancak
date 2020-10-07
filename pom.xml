@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.mastodon</groupId>
-		<artifactId>pom-mastodon</artifactId>
-		<version>1.0.0-beta-1-SNAPSHOT</version>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>29.2.1</version>
 	</parent>
 
 	<artifactId>mastodon-tomancak</artifactId>
@@ -28,16 +28,19 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>${mastodon.group}</groupId>
+			<groupId>org.mastodon</groupId>
 			<artifactId>mastodon-collection</artifactId>
+			<version>${mastodon-collection.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${mastodon.group}</groupId>
+			<groupId>org.mastodon</groupId>
 			<artifactId>mastodon-graph</artifactId>
+			<version>${mastodon-graph.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${mastodon.group}</groupId>
+			<groupId>org.mastodon</groupId>
 			<artifactId>mastodon</artifactId>
+			<version>${mastodon.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
@@ -85,6 +88,10 @@
 		<license.projectName>mastodon-tomancak</license.projectName>
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch</license.copyrightOwners>
+
+		<mastodon-collection.version>1.0.0-beta-19</mastodon-collection.version>
+		<mastodon-graph.version>1.0.0-beta-18</mastodon-graph.version>
+		<mastodon.version>1.0.0-beta-17-SNAPSHOT</mastodon.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>deploy-to-scijava</releaseProfiles>
