@@ -1,28 +1,29 @@
-package org.mastodon.tomancak.merging;
+package org.mastodon.mamut.tomancak.merging;
+
+import static org.mastodon.app.ui.ViewMenuBuilder.item;
+import static org.mastodon.app.ui.ViewMenuBuilder.menu;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.mastodon.app.ui.ViewMenuBuilder;
-import org.mastodon.plugin.MastodonPlugin;
-import org.mastodon.plugin.MastodonPluginAppModel;
-import org.mastodon.project.MamutProject;
-import org.mastodon.revised.mamut.KeyConfigContexts;
-import org.mastodon.revised.mamut.MamutAppModel;
-import org.mastodon.revised.ui.keymap.CommandDescriptionProvider;
-import org.mastodon.revised.ui.keymap.CommandDescriptions;
+import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.plugin.MamutPlugin;
+import org.mastodon.mamut.plugin.MamutPluginAppModel;
+import org.mastodon.mamut.project.MamutProject;
+import org.mastodon.ui.keymap.CommandDescriptionProvider;
+import org.mastodon.ui.keymap.CommandDescriptions;
+import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.AbstractContextual;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 import org.scijava.ui.behaviour.util.RunnableAction;
 
-import static org.mastodon.app.ui.ViewMenuBuilder.item;
-import static org.mastodon.app.ui.ViewMenuBuilder.menu;
-
-@Plugin( type = MastodonPlugin.class )
-public class MergingPlugin extends AbstractContextual implements MastodonPlugin
+@Plugin( type = MamutPlugin.class )
+public class MergingPlugin extends AbstractContextual implements MamutPlugin
 {
 	private static final String MERGE_PROJECTS = "[tomancak] merge projects";
 
@@ -55,7 +56,7 @@ public class MergingPlugin extends AbstractContextual implements MastodonPlugin
 
 	private final AbstractNamedAction mergeProjectsAction;
 
-	private MastodonPluginAppModel pluginAppModel;
+	private MamutPluginAppModel pluginAppModel;
 
 	public MergingPlugin()
 	{
@@ -64,7 +65,7 @@ public class MergingPlugin extends AbstractContextual implements MastodonPlugin
 	}
 
 	@Override
-	public void setAppModel( final MastodonPluginAppModel model )
+	public void setAppPluginModel( final MamutPluginAppModel model )
 	{
 		this.pluginAppModel = model;
 		updateEnabledActions();
@@ -119,7 +120,7 @@ public class MergingPlugin extends AbstractContextual implements MastodonPlugin
 				final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( pluginAppModel.getAppModel().getModel() );
 				MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
 			}
-			catch( Exception e )
+			catch( final Exception e )
 			{
 				e.printStackTrace();
 			}

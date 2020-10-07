@@ -1,25 +1,26 @@
-package org.mastodon.tomancak.merging;
+package org.mastodon.mamut.tomancak.merging;
 
 import java.io.File;
 import java.io.IOException;
+
 import org.mastodon.collection.RefMaps;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.graph.algorithm.traversal.UndirectedDepthFirstIterator;
-import org.mastodon.project.MamutProject;
-import org.mastodon.project.MamutProjectIO;
-import org.mastodon.revised.model.mamut.Link;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.ModelGraph;
-import org.mastodon.revised.model.mamut.ModelImporter;
-import org.mastodon.revised.model.mamut.Spot;
-import org.mastodon.revised.model.tag.ObjTags;
-import org.mastodon.revised.model.tag.TagSetModel;
-import org.mastodon.revised.model.tag.TagSetStructure;
-import org.mastodon.revised.model.tag.TagSetStructure.Tag;
-import org.mastodon.revised.model.tag.TagSetStructure.TagSet;
+import org.mastodon.mamut.importer.ModelImporter;
+import org.mastodon.mamut.model.Link;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.ModelGraph;
+import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.project.MamutProject;
+import org.mastodon.mamut.project.MamutProjectIO;
+import org.mastodon.mamut.tomancak.InterpolateMissingSpots;
+import org.mastodon.mamut.tomancak.merging.MergeTags.TagSetStructureMaps;
+import org.mastodon.model.tag.ObjTags;
+import org.mastodon.model.tag.TagSetModel;
+import org.mastodon.model.tag.TagSetStructure;
+import org.mastodon.model.tag.TagSetStructure.Tag;
+import org.mastodon.model.tag.TagSetStructure.TagSet;
 import org.mastodon.spatial.SpatialIndex;
-import org.mastodon.tomancak.InterpolateMissingSpots;
-import org.mastodon.tomancak.merging.MergeTags.TagSetStructureMaps;
 
 public class MergeDatasets
 {
@@ -42,7 +43,7 @@ public class MergeDatasets
 			this( new Model() );
 		}
 
-		public OutputDataSet( Model model )
+		public OutputDataSet( final Model model )
 		{
 			this.model = model;
 			tagSetStructure = new TagSetStructure();
@@ -51,7 +52,7 @@ public class MergeDatasets
 			labelConflictTagSet = tagSetStructure.createTagSet( "Merge Conflict (Labels)" );
 		}
 
-		public void setDatasetXmlFile( File file )
+		public void setDatasetXmlFile( final File file )
 		{
 			datasetXmlFile = file;
 		}
@@ -78,7 +79,7 @@ public class MergeDatasets
 			return model;
 		}
 
-		public Tag addSourceTag( String name, int color )
+		public Tag addSourceTag( final String name, final int color )
 		{
 			final TagSet ts = tagSetStructure.createTagSet( "Merge Source " + name );
 			final Tag tag = ts.createTag( name, color );
@@ -86,21 +87,21 @@ public class MergeDatasets
 			return tag;
 		}
 
-		public Tag addConflictTag( String name, int color )
+		public Tag addConflictTag( final String name, final int color )
 		{
 			final Tag tag = conflictTagSet.createTag( name, color );
 			model.getTagSetModel().setTagSetStructure( tagSetStructure );
 			return tag;
 		}
 
-		public Tag addTagConflictTag( String name, int color )
+		public Tag addTagConflictTag( final String name, final int color )
 		{
 			final Tag tag = tagConflictTagSet.createTag( name, color );
 			model.getTagSetModel().setTagSetStructure( tagSetStructure );
 			return tag;
 		}
 
-		public Tag addLabelConflictTag( String name, int color )
+		public Tag addLabelConflictTag( final String name, final int color )
 		{
 			final Tag tag = labelConflictTagSet.createTag( name, color );
 			model.getTagSetModel().setTagSetStructure( tagSetStructure );
@@ -154,7 +155,7 @@ public class MergeDatasets
 */
 		final ModelGraph graphA = dsA.model().getGraph();
 		final RefRefMap< Spot, Spot > mapAtoDest = RefMaps.createRefRefMap( graphA.vertices(), graph.vertices() );
-		for ( Spot spotA : graphA.vertices() )
+		for ( final Spot spotA : graphA.vertices() )
 		{
 			final int tp = spotA.getTimepoint();
 			spotA.localize( pos );
@@ -171,7 +172,7 @@ public class MergeDatasets
 			add edge (a1',a2') and translated (a1,a2) tags
 */
 		final RefRefMap< Link, Link > mapAtoDestLinks = RefMaps.createRefRefMap( graphA.edges(), graph.edges() );
-		for ( Link linkA : graphA.edges() )
+		for ( final Link linkA : graphA.edges() )
 		{
 			final Spot source = mapAtoDest.get( linkA.getSource() );
 			final Spot target = mapAtoDest.get( linkA.getTarget() );
@@ -207,7 +208,7 @@ public class MergeDatasets
 		for ( int timepoint = 0; timepoint <= maxTimepoint; timepoint++ )
 		{
 			final SpatialIndex< Spot > indexB = dsB.model().getSpatioTemporalIndex().getSpatialIndex( timepoint );
-			for ( Spot spotB : indexB )
+			for ( final Spot spotB : indexB )
 			{
 				final MatchingVertex mvB = matching.getVertex( spotB );
 
@@ -282,7 +283,7 @@ public class MergeDatasets
 			add translated (b1,b2) tags, checking for conflicts
 */
 		final RefRefMap< Link, Link > mapBtoDestLinks = RefMaps.createRefRefMap( graphB.edges(), graph.edges() );
-		for ( Link linkB : graphB.edges() )
+		for ( final Link linkB : graphB.edges() )
 		{
 			final Spot source = mapBtoDest.get( linkB.getSource() );
 			final Spot target = mapBtoDest.get( linkB.getTarget() );
@@ -325,10 +326,10 @@ public class MergeDatasets
 					set t" for a'
 		analogous for links in A...
 */
-		for ( Spot spotA : graphA.vertices() )
+		for ( final Spot spotA : graphA.vertices() )
 		{
 			final Spot destSpot = mapAtoDest.get( spotA );
-			for ( TagSet tagSet : tssA.getTagSets() )
+			for ( final TagSet tagSet : tssA.getTagSets() )
 			{
 				final Tag tag = tsmA.getVertexTags().tags( tagSet ).get( spotA );
 				if ( tag != null )
@@ -341,10 +342,10 @@ public class MergeDatasets
 				}
 			}
 		}
-		for ( Link linkA : graphA.edges() )
+		for ( final Link linkA : graphA.edges() )
 		{
 			final Link destLink = mapAtoDestLinks.get( linkA );
-			for ( TagSet tagSet : tssA.getTagSets() )
+			for ( final TagSet tagSet : tssA.getTagSets() )
 			{
 				final Tag tag = tsmA.getEdgeTags().tags( tagSet ).get( linkA );
 				if ( tag != null )
@@ -375,10 +376,10 @@ public class MergeDatasets
 						set t" for b'
 		analogous for links in B...
 */
-		for ( Spot spotB : graphB.vertices() )
+		for ( final Spot spotB : graphB.vertices() )
 		{
 			final Spot destSpot = mapBtoDest.get( spotB );
-			for ( TagSet tagSet : tssB.getTagSets() )
+			for ( final TagSet tagSet : tssB.getTagSets() )
 			{
 				final Tag tag = tsmB.getVertexTags().tags( tagSet ).get( spotB );
 				if ( tag != null )
@@ -397,10 +398,10 @@ public class MergeDatasets
 				}
 			}
 		}
-		for ( Link linkB : graphB.edges() )
+		for ( final Link linkB : graphB.edges() )
 		{
 			final Link destLink = mapBtoDestLinks.get( linkB );
-			for ( TagSet tagSet : tssB.getTagSets() )
+			for ( final TagSet tagSet : tssB.getTagSets() )
 			{
 				final Tag tag = tsmB.getEdgeTags().tags( tagSet ).get( linkB );
 				if ( tag != null )
@@ -429,7 +430,7 @@ public class MergeDatasets
 		 * ========================================
 		 */
 
-		for ( Spot spotA : graphA.vertices() )
+		for ( final Spot spotA : graphA.vertices() )
 		{
 			if ( MergingUtil.hasLabel( spotA ) )
 			{
@@ -438,7 +439,7 @@ public class MergeDatasets
 			}
 		}
 
-		for ( Spot spotB : graphB.vertices() )
+		for ( final Spot spotB : graphB.vertices() )
 		{
 			if ( MergingUtil.hasLabel( spotB ) )
 			{
@@ -478,7 +479,7 @@ public class MergeDatasets
 			vref2 = matchingGraph.vertexRef();
 		}
 
-		public boolean isUnmatched( MatchingVertex mv )
+		public boolean isUnmatched( final MatchingVertex mv )
 		{
 			return mv.edges().isEmpty();
 		}
@@ -487,7 +488,7 @@ public class MergeDatasets
 		 * {@code true} if the best target of {@code mv}, has {@code mv} as its best target in return.
 		 * Assumes that outgoing edges are sorted by increasing mahalanobis distance.
 		 */
-		public boolean isPerfectlyMatched( MatchingVertex mv )
+		public boolean isPerfectlyMatched( final MatchingVertex mv )
 		{
 			if ( mv.outgoingEdges().isEmpty() )
 				return false;

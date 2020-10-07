@@ -1,4 +1,4 @@
-package org.mastodon.tomancak;
+package org.mastodon.mamut.tomancak;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
@@ -6,23 +6,20 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -30,18 +27,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
-import org.mastodon.project.MamutProject;
-import org.mastodon.revised.model.mamut.Link;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.Spot;
-import org.mastodon.revised.model.tag.ObjTags;
-import org.mastodon.revised.model.tag.TagSetModel;
-import org.mastodon.revised.model.tag.TagSetStructure;
-import org.mastodon.revised.model.tag.TagSetStructure.Tag;
-import org.mastodon.revised.model.tag.TagSetStructure.TagSet;
-import org.mastodon.revised.ui.util.ExtensionFileFilter;
-import org.mastodon.revised.ui.util.FileChooser;
-import org.mastodon.tomancak.merging.MergingDialog;
+
+import org.mastodon.mamut.project.MamutProject;
+import org.mastodon.ui.util.ExtensionFileFilter;
+import org.mastodon.ui.util.FileChooser;
 
 public class DatasetPathDialog extends JDialog
 {

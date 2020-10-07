@@ -1,10 +1,11 @@
-package org.mastodon.tomancak.merging;
-
-import net.imglib2.util.LinAlgHelpers;
-import org.mastodon.revised.model.mamut.Spot;
+package org.mastodon.mamut.tomancak.merging;
 
 import static net.imglib2.util.LinAlgHelpers.cols;
 import static net.imglib2.util.LinAlgHelpers.rows;
+
+import org.mastodon.mamut.model.Spot;
+
+import net.imglib2.util.LinAlgHelpers;
 
 /**
  * Adapted from EllipsoidInsideTest, which was in turn adapted from ScreenVertexMath.

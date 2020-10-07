@@ -1,4 +1,4 @@
-package org.mastodon.tomancak;
+package org.mastodon.mamut.tomancak;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -26,14 +27,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
-import org.mastodon.revised.model.mamut.Link;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.Spot;
-import org.mastodon.revised.model.tag.ObjTags;
-import org.mastodon.revised.model.tag.TagSetModel;
-import org.mastodon.revised.model.tag.TagSetStructure;
-import org.mastodon.revised.model.tag.TagSetStructure.Tag;
-import org.mastodon.revised.model.tag.TagSetStructure.TagSet;
+
+import org.mastodon.mamut.model.Link;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.Spot;
+import org.mastodon.model.tag.ObjTags;
+import org.mastodon.model.tag.TagSetModel;
+import org.mastodon.model.tag.TagSetStructure;
+import org.mastodon.model.tag.TagSetStructure.Tag;
+import org.mastodon.model.tag.TagSetStructure.TagSet;
 
 public class CopyTagDialog extends JDialog
 {
@@ -133,10 +135,10 @@ public class CopyTagDialog extends JDialog
 		{
 			final TagSetModel< Spot, Link > tsm = model.getTagSetModel();
 			final ObjTags< Spot > vertexTags = tsm.getVertexTags();
-			for ( Spot spot : vertexTags.getTaggedWith( from ) )
+			for ( final Spot spot : vertexTags.getTaggedWith( from ) )
 				vertexTags.set( spot, to );
 			final ObjTags< Link > edgeTags = tsm.getEdgeTags();
-			for ( Link link : edgeTags.getTaggedWith( from ) )
+			for ( final Link link : edgeTags.getTaggedWith( from ) )
 				edgeTags.set( link, to );
 			model.setUndoPoint();
 		}

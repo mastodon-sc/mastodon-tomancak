@@ -1,12 +1,10 @@
-package org.mastodon.tomancak.merging;
+package org.mastodon.mamut.tomancak.merging;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.mastodon.collection.IntRefMap;
 import org.mastodon.collection.ref.IntRefArrayMap;
 import org.mastodon.graph.ref.AbstractEdgePool;
@@ -14,13 +12,17 @@ import org.mastodon.graph.ref.AbstractEdgePool.AbstractEdgeLayout;
 import org.mastodon.graph.ref.AbstractVertexPool;
 import org.mastodon.graph.ref.AbstractVertexPool.AbstractVertexLayout;
 import org.mastodon.graph.ref.GraphImp;
+import org.mastodon.mamut.model.ModelGraph;
+import org.mastodon.mamut.model.Spot;
 import org.mastodon.pool.ByteMappedElement;
 import org.mastodon.pool.ByteMappedElementArray;
 import org.mastodon.pool.SingleArrayMemPool;
 import org.mastodon.pool.attributes.DoubleAttribute;
 import org.mastodon.pool.attributes.IndexAttribute;
-import org.mastodon.revised.model.mamut.ModelGraph;
-import org.mastodon.revised.model.mamut.Spot;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 
 /**
  * Graph that represents potential matches between Spots in two (or more) models.
@@ -41,8 +43,8 @@ public class MatchingGraph extends GraphImp<
 		final int capacity = graphs.stream().mapToInt( g -> g.vertices().size() ).sum();
 		final MatchingGraph matching = new MatchingGraph( graphs, capacity );
 		final MatchingVertex ref = matching.vertexRef();
-		for ( ModelGraph graph : graphs )
-			for ( Spot spot : graph.vertices() )
+		for ( final ModelGraph graph : graphs )
+			for ( final Spot spot : graph.vertices() )
 				matching.getVertex( spot, ref );
 		return matching;
 	}
@@ -51,11 +53,11 @@ public class MatchingGraph extends GraphImp<
 	 * Initialize a new MatchingGraph with all MatchingVertices from {@code graph}
 	 * (but no edges).
 	 */
-	public static MatchingGraph newWithAllSpots( MatchingGraph graph )
+	public static MatchingGraph newWithAllSpots( final MatchingGraph graph )
 	{
 		final MatchingGraph matching = new MatchingGraph( graph.vertexPool.modelGraphs, graph.vertexPool.size() );
 		final MatchingVertex ref = matching.vertexRef();
-		for ( MatchingVertex v : graph.vertices() )
+		for ( final MatchingVertex v : graph.vertices() )
 			matching.superAddVertex( ref ).init( v.graphId(), v.spotId() );
 		return matching;
 	}

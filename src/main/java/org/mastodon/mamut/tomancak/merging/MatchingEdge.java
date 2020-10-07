@@ -1,8 +1,8 @@
-package org.mastodon.tomancak.merging;
+package org.mastodon.mamut.tomancak.merging;
 
 import org.mastodon.graph.ref.AbstractEdge;
+import org.mastodon.mamut.tomancak.merging.MatchingGraph.MatchingEdgePool;
 import org.mastodon.pool.ByteMappedElement;
-import org.mastodon.tomancak.merging.MatchingGraph.MatchingEdgePool;
 
 public class MatchingEdge extends AbstractEdge< MatchingEdge, MatchingVertex, MatchingEdgePool, ByteMappedElement >
 {

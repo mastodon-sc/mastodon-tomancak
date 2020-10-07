@@ -1,13 +1,14 @@
-package org.mastodon.tomancak.merging;
+package org.mastodon.mamut.tomancak.merging;
+
+import static org.mastodon.mamut.tomancak.merging.MergingUtil.getMaxNonEmptyTimepoint;
+import static org.mastodon.mamut.tomancak.merging.MergingUtil.getNumTimepoints;
 
 import java.io.IOException;
-import org.mastodon.project.MamutProject;
-import org.mastodon.project.MamutProjectIO;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.Spot;
 
-import static org.mastodon.tomancak.merging.MergingUtil.getMaxNonEmptyTimepoint;
-import static org.mastodon.tomancak.merging.MergingUtil.getNumTimepoints;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.project.MamutProject;
+import org.mastodon.mamut.project.MamutProjectIO;
 
 /**
  * Reads model from a mastodon project file.
@@ -24,7 +25,7 @@ public class Dataset
 
 	private final int maxNonEmptyTimepoint;
 
-	public Dataset( String path ) throws IOException
+	public Dataset( final String path ) throws IOException
 	{
 		project = new MamutProjectIO().load( path );
 		numTimepoints = getNumTimepoints( project );
@@ -58,7 +59,7 @@ public class Dataset
  	 */
 	public void verify() throws IllegalStateException
 	{
-		for ( Spot spot : model.getGraph().vertices() )
+		for ( final Spot spot : model.getGraph().vertices() )
 		{
 			if ( spot.incomingEdges().size() > 1 )
 				throw new IllegalStateException( spot + " has more than one parent" );

@@ -1,4 +1,7 @@
-package org.mastodon.tomancak;
+package org.mastodon.mamut.tomancak;
+
+import static org.mastodon.app.ui.ViewMenuBuilder.item;
+import static org.mastodon.app.ui.ViewMenuBuilder.menu;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,22 +10,24 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+
 import org.mastodon.app.ui.ViewMenuBuilder;
+import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.Mastodon;
+import org.mastodon.mamut.model.Link;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.plugin.MamutPlugin;
+import org.mastodon.mamut.plugin.MamutPluginAppModel;
+import org.mastodon.mamut.project.MamutProject;
+import org.mastodon.mamut.project.MamutProjectIO;
 import org.mastodon.model.SelectionModel;
-import org.mastodon.plugin.MastodonPlugin;
-import org.mastodon.plugin.MastodonPluginAppModel;
-import org.mastodon.project.MamutProject;
-import org.mastodon.project.MamutProjectIO;
-import org.mastodon.revised.mamut.KeyConfigContexts;
-import org.mastodon.revised.mamut.MamutAppModel;
-import org.mastodon.revised.mamut.Mastodon;
-import org.mastodon.revised.model.mamut.Link;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.Spot;
-import org.mastodon.revised.ui.keymap.CommandDescriptionProvider;
-import org.mastodon.revised.ui.keymap.CommandDescriptions;
+import org.mastodon.ui.keymap.CommandDescriptionProvider;
+import org.mastodon.ui.keymap.CommandDescriptions;
+import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.AbstractContextual;
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
@@ -30,11 +35,8 @@ import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 import org.scijava.ui.behaviour.util.RunnableAction;
 
-import static org.mastodon.app.ui.ViewMenuBuilder.item;
-import static org.mastodon.app.ui.ViewMenuBuilder.menu;
-
-@Plugin( type = MastodonPlugin.class )
-public class TomancakPlugins extends AbstractContextual implements MastodonPlugin
+@Plugin( type = MamutPlugin.class )
+public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 {
 	private static final String EXPORT_PHYLOXML = "[tomancak] export phyloxml for selection";
 	private static final String FLIP_DESCENDANTS = "[tomancak] flip descendants";
@@ -97,7 +99,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 
 	private final AbstractNamedAction labelSelectedSpotsAction;
 
-	private MastodonPluginAppModel pluginAppModel;
+	private MamutPluginAppModel pluginAppModel;
 
 	public TomancakPlugins()
 	{
@@ -111,7 +113,7 @@ public class TomancakPlugins extends AbstractContextual implements MastodonPlugi
 	}
 
 	@Override
-	public void setAppModel( final MastodonPluginAppModel model )
+	public void setAppPluginModel( final MamutPluginAppModel model )
 	{
 		this.pluginAppModel = model;
 		updateEnabledActions();
