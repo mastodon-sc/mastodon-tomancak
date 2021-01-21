@@ -13,8 +13,6 @@ import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.model.tag.TagSetStructure.Tag;
 import org.mastodon.model.tag.TagSetStructure.TagSet;
-import org.mastodon.mamut.tomancak.merging.*;
-import org.mastodon.mamut.tomancak.merging.MergeTags;
 import org.mastodon.mamut.tomancak.merging.MergeTags.TagSetStructureMaps;
 import org.mastodon.mamut.tomancak.InterpolateMissingSpots;
 import org.mastodon.spatial.SpatialIndex;
