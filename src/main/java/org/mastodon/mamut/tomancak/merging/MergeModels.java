@@ -8,6 +8,7 @@ import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.merging.MergeDatasets.OutputDataSet;
 import org.mastodon.model.tag.ObjTags;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
@@ -21,23 +22,29 @@ public class MergeModels
 {
 	static int getMaxNonEmptyTimepoint( final Model m )
 	{
-		//this is a bit ugly... both the alg itself and the way it is passing results out of the lambda
-		int[] maxTimepoint = new int[1];
-		m.getGraph().vertices().forEach( s -> maxTimepoint[0] = Math.max( s.getTimepoint(), maxTimepoint[0] ) );
-		//is this faster?
-		//m.getSpatioTemporalIndex().forEach( s -> maxTimepoint[0] = Math.max( s.getTimepoint(), maxTimepoint[0] ) );
-		return maxTimepoint[0];
+		int maxTimepoint = 0;
+		for ( final Spot s : m.getGraph().vertices() )
+			maxTimepoint = Math.max( maxTimepoint, s.getTimepoint() );
+		return maxTimepoint;
 	}
 
-	public static void merge(final Model mA, final Model mB, final MergeDatasets.OutputDataSet output, final double distCutoff, final double mahalanobisDistCutoff, final double ratioThreshold )
+	public static void merge( final Model mA, final Model mB, final OutputDataSet output,
+			final double distCutoff, final double mahalanobisDistCutoff, final double ratioThreshold )
+	{
+		final int minTimepoint = 0;
+		final int maxTimepoint = Math.max( getMaxNonEmptyTimepoint( mA ), getMaxNonEmptyTimepoint( mB ) );
+		merge( mA, mB, output, minTimepoint, maxTimepoint, distCutoff, mahalanobisDistCutoff, ratioThreshold );
+	}
+
+	public static void merge( final Model mA, final Model mB, final OutputDataSet output,
+			final int minTimepoint, final int maxTimepoint,
+			final double distCutoff, final double mahalanobisDistCutoff, final double ratioThreshold )
 	{
 		new ModelImporter( output.getModel() ){{ startImport(); }};
 
 		InterpolateMissingSpots.interpolate( mA );
 		InterpolateMissingSpots.interpolate( mB );
 
-		final int minTimepoint = 0;
-		final int maxTimepoint = Math.max( getMaxNonEmptyTimepoint( mA ), getMaxNonEmptyTimepoint( mB ) );
 		final MatchCandidates candidates = new MatchCandidates( distCutoff, mahalanobisDistCutoff, ratioThreshold );
 		final MatchingGraph matching = candidates.pruneMatchingGraph( candidates.buildMatchingGraph( mA, mB, minTimepoint, maxTimepoint ) );
 		final MatchingGraphUtils utils = new MatchingGraphUtils( matching );

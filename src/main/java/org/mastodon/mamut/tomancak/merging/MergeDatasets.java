@@ -109,6 +109,10 @@ public class MergeDatasets
 
 	public static void merge( final Dataset dsA, final Dataset dsB, final OutputDataSet output, final double distCutoff, final double mahalanobisDistCutoff, final double ratioThreshold )
 	{
-		MergeModels.merge( dsA.model(), dsB.model(), output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
+		final int minTimepoint = 0;
+		final int maxTimepoint = Math.max( dsA.maxNonEmptyTimepoint(), dsB.maxNonEmptyTimepoint() );
+		MergeModels.merge( dsA.model(), dsB.model(), output,
+				minTimepoint, maxTimepoint,
+				distCutoff, mahalanobisDistCutoff, ratioThreshold );
 	}
 }

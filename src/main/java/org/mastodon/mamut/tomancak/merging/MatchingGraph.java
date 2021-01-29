@@ -50,7 +50,7 @@ public class MatchingGraph extends GraphImp<
 		return newWithAllSpots( graphs );
 	}
 
-	static MatchingGraph newWithAllSpots( final List< ModelGraph > graphs )
+	public static MatchingGraph newWithAllSpots( final List< ModelGraph > graphs )
 	{
 		final int capacity = graphs.stream().mapToInt( g -> g.vertices().size() ).sum();
 		final MatchingGraph matching = new MatchingGraph( graphs, capacity );
