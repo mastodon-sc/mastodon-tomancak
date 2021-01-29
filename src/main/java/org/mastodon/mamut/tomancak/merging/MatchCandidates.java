@@ -5,6 +5,7 @@ import java.util.Comparator;
 import org.mastodon.collection.RefCollections;
 import org.mastodon.collection.RefList;
 import org.mastodon.kdtree.IncrementalNearestNeighborSearch;
+import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.spatial.SpatialIndex;
 
@@ -30,11 +31,16 @@ public class MatchCandidates
 
 	public MatchingGraph buildMatchingGraph( final Dataset dsA, final Dataset dsB, final int minTimepoint, final int maxTimepoint )
 	{
-		final MatchingGraph matching = MatchingGraph.newWithAllSpots( dsA, dsB );
+		return buildMatchingGraph( dsA.model(), dsB.model(), minTimepoint, maxTimepoint );
+	}
+
+	public MatchingGraph buildMatchingGraph(final Model mA, final Model mB, final int minTimepoint, final int maxTimepoint )
+	{
+		final MatchingGraph matching = MatchingGraph.newWithAllSpots( mA, mB );
 		for ( int timepoint = minTimepoint; timepoint <= maxTimepoint; timepoint++ )
 		{
-			final SpatialIndex< Spot > indexA = dsA.model().getSpatioTemporalIndex().getSpatialIndex( timepoint );
-			final SpatialIndex< Spot > indexB = dsB.model().getSpatioTemporalIndex().getSpatialIndex( timepoint );
+			final SpatialIndex< Spot > indexA = mA.getSpatioTemporalIndex().getSpatialIndex( timepoint );
+			final SpatialIndex< Spot > indexB = mB.getSpatioTemporalIndex().getSpatialIndex( timepoint );
 			addCandidates( matching, indexA, indexB );
 			addCandidates( matching, indexB, indexA );
 		}
