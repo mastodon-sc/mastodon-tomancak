@@ -10,7 +10,7 @@
 
 	<groupId>org.mastodon</groupId>
 	<artifactId>mastodon-tomancak</artifactId>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 
 	<name>Tomancak Lab Mastodon Plugins</name>
 	<description>Various Mastodon plugins for use in Tomancak lab projects</description>
