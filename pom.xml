@@ -75,7 +75,7 @@
 
 	<properties>
 		<package-name>org.mastodon</package-name>
-		<license.licenseName>not licensed yet</license.licenseName>
+		<license.licenseName>bsd_2</license.licenseName>
 		<license.projectName>mastodon-tomancak</license.projectName>
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch</license.copyrightOwners>
