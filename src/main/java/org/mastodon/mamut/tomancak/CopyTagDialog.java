@@ -67,6 +67,9 @@ import org.mastodon.model.tag.TagSetStructure.TagSet;
 
 public class CopyTagDialog extends JDialog
 {
+
+	private static final long serialVersionUID = 1L;
+
 	private final TagSelectionPanel tspFrom;
 
 	private final TagSelectionPanel tspTo;
@@ -201,6 +204,9 @@ public class CopyTagDialog extends JDialog
 
 	static class TagSelectionPanel extends JPanel
 	{
+
+		private static final long serialVersionUID = 1L;
+
 		private final JComboBox< Item< TagSet > > cbTagSets;
 		private final JComboBox< Item< Tag > > cbTags;
 
@@ -232,7 +238,11 @@ public class CopyTagDialog extends JDialog
 			}
 			else
 			{
-				final Item< TagSet >[] tagSetItems = tss.getTagSets().stream().map( tagset -> new Item<>( tagset, tagset.getName() ) ).toArray( Item[]::new );
+				@SuppressWarnings( "unchecked" )
+				final Item< TagSet >[] tagSetItems = tss.getTagSets()
+						.stream()
+						.map( tagset -> new Item<>( tagset, tagset.getName() ) )
+						.toArray( Item[]::new );
 				cbTagSets.setModel( new DefaultComboBoxModel<>( tagSetItems ) );
 				cbTagSets.setSelectedIndex( 0 );
 			}
@@ -241,6 +251,7 @@ public class CopyTagDialog extends JDialog
 
 		private void refreshTags()
 		{
+			@SuppressWarnings( "unchecked" )
 			final Item< TagSet > tagSetItem = ( Item< TagSet > ) cbTagSets.getSelectedItem();
 			if ( tagSetItem == null )
 			{
@@ -249,7 +260,11 @@ public class CopyTagDialog extends JDialog
 			else
 			{
 				final TagSet ts = tagSetItem.get();
-				final Item< Tag >[] tagItems = ts.getTags().stream().map( tag -> new Item<>( tag, tag.label() ) ).toArray( Item[]::new );
+				@SuppressWarnings( "unchecked" )
+				final Item< Tag >[] tagItems = ts.getTags()
+						.stream()
+						.map( tag -> new Item<>( tag, tag.label() ) )
+						.toArray( Item[]::new );
 				cbTags.setModel( new DefaultComboBoxModel<>( tagItems ) );
 			}
 		}
@@ -261,6 +276,7 @@ public class CopyTagDialog extends JDialog
 
 		Tag getSelected()
 		{
+			@SuppressWarnings( "unchecked" )
 			final Item< Tag > tagItem = ( Item< Tag > ) cbTags.getSelectedItem();
 			return tagItem == null ? null : tagItem.get();
 		}

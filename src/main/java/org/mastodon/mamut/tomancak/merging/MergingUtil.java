@@ -54,6 +54,7 @@ public class MergingUtil
 	public static boolean hasLabel( final Spot spot )
 	{
 		final SpotPool pool = ( SpotPool ) spot.getModelGraph().vertices().getRefPool();
+		@SuppressWarnings( "unchecked" )
 		final ObjPropertyMap< Spot, String > labels = ( ObjPropertyMap< Spot, String > ) pool.labelProperty();
 		return labels.isSet( spot );
 	}
