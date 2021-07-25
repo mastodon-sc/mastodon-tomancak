@@ -36,14 +36,14 @@ import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.InterpolateMissingSpots;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets.OutputDataSet;
+import org.mastodon.mamut.tomancak.merging.MergeTags.TagSetStructureMaps;
 import org.mastodon.model.tag.ObjTags;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.model.tag.TagSetStructure.Tag;
 import org.mastodon.model.tag.TagSetStructure.TagSet;
-import org.mastodon.mamut.tomancak.merging.MergeTags.TagSetStructureMaps;
-import org.mastodon.mamut.tomancak.InterpolateMissingSpots;
 import org.mastodon.spatial.SpatialIndex;
 
 public class MergeModels
@@ -430,8 +430,14 @@ public class MergeModels
 		}
 
 		/**
-		 * {@code true} if the best target of {@code mv}, has {@code mv} as its best target in return.
-		 * Assumes that outgoing edges are sorted by increasing mahalanobis distance.
+		 * {@code true} if the best target of {@code mv}, has {@code mv} as its
+		 * best target in return. Assumes that outgoing edges are sorted by
+		 * increasing mahalanobis distance.
+		 * 
+		 * @param mv
+		 *            the vertex.
+		 * @return <code>true</code> if the best target of {@code mv}, has
+		 *         {@code mv} as its best target in return.
 		 */
 		public boolean isPerfectlyMatched( final MatchingVertex mv )
 		{

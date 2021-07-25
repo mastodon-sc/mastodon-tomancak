@@ -44,7 +44,12 @@ import mpicbg.spim.data.SpimDataException;
 public class MergingUtil
 {
 	/**
-	 * Returns true if {@code spot} has a set label (vs label generated from id).
+	 * Returns <code>true</code> if {@code spot} has a set label (vs label
+	 * generated from id).
+	 * 
+	 * @param spot
+	 *            the spot.
+	 * @return <code>true</code> if {@code spot} has a set label
 	 */
 	public static boolean hasLabel( final Spot spot )
 	{
@@ -54,8 +59,12 @@ public class MergingUtil
 	}
 
 	/**
-	 * Returns number of timepoints in {@code project}.
-	 * To to that, loads spimdata for {@code project}.
+	 * Returns number of time-points in {@code project}. To to that, loads
+	 * {@code spimdata} for {@code project}.
+	 * 
+	 * @param project
+	 *            the project.
+	 * @return the number of time-points in the project.
 	 */
 	public static int getNumTimepoints( final MamutProject project )
 	{
@@ -77,6 +86,12 @@ public class MergingUtil
 
 	/**
 	 * Returns the largest timepoint (index) where model has a least one spot.
+	 * 
+	 * @param model
+	 *            the model.
+	 * @param numTimepoints
+	 *            the number of time-points in the model.
+	 * @return the largest timepoint (index) where model has a least one spot.
 	 */
 	public static int getMaxNonEmptyTimepoint( final Model model, final int numTimepoints )
 	{

@@ -44,7 +44,16 @@ public class MergeTags
 	}
 
 	/**
-	 * Adds all TagSets from {@code source} to {@code target}, prefixed with {@code prefix}.
+	 * Adds all TagSets from {@code source} to {@code target}, prefixed with
+	 * {@code prefix}.
+	 * 
+	 * @param target
+	 *            the target {@link TagSetStructure}.
+	 * @param source
+	 *            the source {@link TagSetStructure}.
+	 * @param prefix
+	 *            the prefix to add.
+	 * @return a new {@link TagSetStructureMaps} with the merged TagSets.
 	 */
 	public static TagSetStructureMaps addTagSetStructureCopy( final TagSetStructure target, final TagSetStructure source, final String prefix )
 	{
@@ -64,6 +73,12 @@ public class MergeTags
 
 	/**
 	 * Merge all TagSets from {@code source} into {@code merged}.
+	 * 
+	 * @param merged
+	 *            the target {@link TagSetStructure}.
+	 * @param source
+	 *            the source {@link TagSetStructure}.
+	 * @return a new {@link TagSetStructureMaps} with the merged TagSets.
 	 */
 	public static TagSetStructureMaps mergeTagSetStructure( final TagSetStructure merged, final TagSetStructure source )
 	{

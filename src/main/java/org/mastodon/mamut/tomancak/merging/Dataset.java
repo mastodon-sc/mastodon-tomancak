@@ -83,8 +83,12 @@ public class Dataset
 	}
 
 	/**
-	 * Checks that the model graph is a forest.
- 	 */
+	 * Checks that the model graph is a forest. That is: all spots must have at
+	 * most 1 parent, and at most 2 children.
+	 * 
+	 * @throws IllegalStateException
+	 *             if the model is not a forest.
+	 */
 	public void verify() throws IllegalStateException
 	{
 		for ( final Spot spot : model.getGraph().vertices() )

@@ -75,7 +75,9 @@ public class MergeDatasets
 
 		/**
 		 * @param projectRoot
-		 * 		where to store the new project
+		 *            where to store the new project
+		 * @throws IOException
+		 *             if an input/ouput problem occurs.
 		 */
 		public void saveProject( final File projectRoot ) throws IOException
 		{

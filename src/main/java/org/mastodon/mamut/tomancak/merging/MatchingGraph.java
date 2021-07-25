@@ -90,8 +90,12 @@ public class MatchingGraph extends GraphImp<
 	}
 
 	/**
-	 * Initialize a new MatchingGraph with all MatchingVertices from {@code graph}
-	 * (but no edges).
+	 * Initialize a new MatchingGraph with all MatchingVertices from
+	 * {@code graph} (but no edges).
+	 * 
+	 * @param graph
+	 *            the source graph.
+	 * @return a new {@link MatchingGraph}.
 	 */
 	public static MatchingGraph newWithAllSpots( final MatchingGraph graph )
 	{

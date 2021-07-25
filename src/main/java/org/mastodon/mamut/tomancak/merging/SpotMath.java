@@ -47,7 +47,15 @@ public class SpotMath
 	private final double[][] P = new double[ 3 ][ 3 ];
 
 	/**
-	 * Returns {@code true} if the center of {@code s2} is contained in {@code s1} ellipsoid.
+	 * Returns {@code true} if the center of {@code s2} is contained in
+	 * {@code s1} ellipsoid.
+	 * 
+	 * @param s1
+	 *            the first spot.
+	 * @param s2
+	 *            the second spot.
+	 * @return <code>true</code> if <code>s2</code> center is contained in
+	 *         <code>s1</code> ellipsoid.
 	 */
 	public boolean containsCenter( final Spot s1, final Spot s2 )
 	{
@@ -55,7 +63,14 @@ public class SpotMath
 	}
 
 	/**
-	 * Returns the squared mahalanobis distance of the center of {@code s2} to {@code s1} ellipsoid.
+	 * Returns the squared Mahalanobis distance of the center of {@code s2} to
+	 * {@code s1} ellipsoid.
+	 * 
+	 * @param s1
+	 *            the first spot.
+	 * @param s2
+	 *            the second spot.
+	 * @return the squared Mahalanobis distance.
 	 */
 	public double mahalanobisDistSqu( final Spot s1, final Spot s2 )
 	{
