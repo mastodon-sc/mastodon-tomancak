@@ -1,2 +1,2 @@
-[![](https://travis-ci.com/mastodon-sc/mastodon-tomancak.svg?branch=master)](https://travis-ci.com/mastodon-sc/mastodon-tomancak)
+[![](https://github.com/mastodon-sc/mastodon-tomancak/actions/workflows/build-main.yml/badge.svg)](https://github.com/mastodon-sc/mastodon-tomancak/actions/workflows/build-main.yml)
 
