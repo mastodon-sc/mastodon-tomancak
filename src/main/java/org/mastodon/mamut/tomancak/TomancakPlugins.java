@@ -48,6 +48,7 @@ import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.mamut.project.MamutProject;
+import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
 import org.mastodon.model.SelectionModel;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.ui.keymap.CommandDescriptions;
@@ -67,6 +68,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String INTERPOLATE_SPOTS = "[tomancak] interpolate spots";
 	private static final String TWEAK_DATASET_PATH = "[tomancak] tweak dataset path";
 	private static final String LABEL_SELECTED_SPOTS = "[tomancak] label spots";
+	private static final String COMPACT_LINEAGE_VIEW = "[tomancak] lineage tree view";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "not mapped" };
@@ -74,6 +76,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] INTERPOLATE_SPOTS_KEYS = { "not mapped" };
 	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 	private static final String[] LABEL_SELECTED_SPOTS_KEYS = { "not mapped" };
+	private static final String[] COMPACT_LINEAGE_VIEW_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -85,6 +88,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate missing spots" );
 		menuTexts.put( TWEAK_DATASET_PATH, "Edit BDV XML path..." );
 		menuTexts.put( LABEL_SELECTED_SPOTS, "Label selected spots..." );
+		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show compact lineage");
 	}
 
 	/*
@@ -107,6 +111,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( INTERPOLATE_SPOTS, INTERPOLATE_SPOTS_KEYS, "Interpolate missing spots." );
 			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Set the path to the BDV data and whether it is relative or absolute." );
 			descriptions.add( LABEL_SELECTED_SPOTS, LABEL_SELECTED_SPOTS_KEYS, "Set label for all selected spots." );
+			descriptions.add( COMPACT_LINEAGE_VIEW, COMPACT_LINEAGE_VIEW_KEYS, "Show compact representation of the lineage tree.");
 		}
 	}
 
@@ -122,6 +127,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction labelSelectedSpotsAction;
 
+	private final AbstractNamedAction lineageTreeViewAction;
+
 	private MamutPluginAppModel pluginAppModel;
 
 	public TomancakPlugins()
@@ -132,6 +139,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		interpolateSpotsAction = new RunnableAction( INTERPOLATE_SPOTS, this::interpolateSpots );
 		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		labelSelectedSpotsAction = new RunnableAction( LABEL_SELECTED_SPOTS, this::labelSelectedSpots );
+		lineageTreeViewAction = new RunnableAction( COMPACT_LINEAGE_VIEW, this::showLineageView );
 		updateEnabledActions();
 	}
 
@@ -153,7 +161,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 								item( INTERPOLATE_SPOTS ),
 								item( LABEL_SELECTED_SPOTS ),
 								item( COPY_TAG ),
-								item( TWEAK_DATASET_PATH ) ) ) );
+								item( TWEAK_DATASET_PATH ),
+								item( COMPACT_LINEAGE_VIEW ) ) ) );
 	}
 
 	@Override
@@ -171,6 +180,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( interpolateSpotsAction, INTERPOLATE_SPOTS_KEYS );
 		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 		actions.namedAction( labelSelectedSpotsAction, LABEL_SELECTED_SPOTS_KEYS );
+		actions.namedAction( lineageTreeViewAction, COMPACT_LINEAGE_VIEW_KEYS );
 	}
 
 	private void updateEnabledActions()
@@ -182,6 +192,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		interpolateSpotsAction.setEnabled( appModel != null );
 		tweakDatasetPathAction.setEnabled( appModel != null );
 		labelSelectedSpotsAction.setEnabled( appModel != null );
+		lineageTreeViewAction.setEnabled( appModel != null );
 	}
 
 	private void exportPhyloXml()
@@ -257,4 +268,13 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			}
 		}
 	}
+
+	private void showLineageView() {
+		if( pluginAppModel == null )
+			return;
+		CompactLineageFrame frame =
+			new CompactLineageFrame(pluginAppModel.getAppModel());
+		frame.setVisible(true);
+	}
+
 }
