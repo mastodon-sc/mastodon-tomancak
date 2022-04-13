@@ -80,7 +80,7 @@
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch</license.copyrightOwners>
 
-		<mastodon.version>1.0.0-beta-19</mastodon.version>
+		<mastodon.version>1.0.0-beta-20</mastodon.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
