@@ -40,24 +40,34 @@ import org.mastodon.model.tag.TagSetStructure;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class FlipDescendants
 {
 	public static void flipDescendants( final MamutAppModel appModel )
 	{
 		final ModelGraph graph = appModel.getModel().getGraph();
-		final TagSetModel< Spot, Link > tagSetModel = appModel.getModel().getTagSetModel();
-		final Spot spot = appModel.getFocusModel().getFocusedVertex( graph.vertexRef() );
-		final OutgoingEdges< Link > outgoing = spot.outgoingEdges();
-		if ( outgoing.size() > 1 )
+		ReentrantReadWriteLock.WriteLock lock = graph.getLock().writeLock();
+		lock.lock();
+		try
 		{
-			final Link first = outgoing.get( 0 );
-			final Spot target = first.getTarget();
-			Map< TagSetStructure.TagSet, TagSetStructure.Tag > tagMap = getTags( tagSetModel, first );
-			graph.remove( first );
-			final Link newLink = graph.addEdge( spot, target ).init();
-			setTags( tagSetModel, tagMap, newLink );
-			graph.notifyGraphChanged();
+			final TagSetModel<Spot, Link> tagSetModel = appModel.getModel().getTagSetModel();
+			final Spot spot = appModel.getFocusModel().getFocusedVertex( graph.vertexRef() );
+			final OutgoingEdges<Link> outgoing = spot.outgoingEdges();
+			if ( outgoing.size() > 1 )
+			{
+				final Link first = outgoing.get( 0 );
+				final Spot target = first.getTarget();
+				Map<TagSetStructure.TagSet, TagSetStructure.Tag> tagMap = getTags( tagSetModel, first );
+				graph.remove( first );
+				final Link newLink = graph.addEdge( spot, target ).init();
+				setTags( tagSetModel, tagMap, newLink );
+				graph.notifyGraphChanged();
+			}
+		}
+		finally
+		{
+			lock.unlock();
 		}
 	}
 
