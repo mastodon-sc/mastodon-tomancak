@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -33,21 +33,47 @@ import org.mastodon.mamut.MamutAppModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.model.tag.ObjTags;
+import org.mastodon.model.tag.TagSetModel;
+import org.mastodon.model.tag.TagSetStructure;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class FlipDescendants
 {
 	public static void flipDescendants( final MamutAppModel appModel )
 	{
 		final ModelGraph graph = appModel.getModel().getGraph();
+		final TagSetModel< Spot, Link > tagSetModel = appModel.getModel().getTagSetModel();
 		final Spot spot = appModel.getFocusModel().getFocusedVertex( graph.vertexRef() );
 		final OutgoingEdges< Link > outgoing = spot.outgoingEdges();
 		if ( outgoing.size() > 1 )
 		{
 			final Link first = outgoing.get( 0 );
 			final Spot target = first.getTarget();
+			Map< TagSetStructure.TagSet, TagSetStructure.Tag > tagMap = getTags( tagSetModel, first );
 			graph.remove( first );
-			graph.addEdge( spot, target ).init();
+			final Link newLink = graph.addEdge( spot, target ).init();
+			setTags( tagSetModel, tagMap, newLink );
 			graph.notifyGraphChanged();
 		}
+	}
+
+	private static Map< TagSetStructure.TagSet, TagSetStructure.Tag > getTags( TagSetModel< Spot, Link > tagSetModel, Link link )
+	{
+		Map< TagSetStructure.TagSet, TagSetStructure.Tag > tagMap = new HashMap<>();
+		final ObjTags< Link > edgeTagsMap = tagSetModel.getEdgeTags();
+		List< TagSetStructure.TagSet > tagSets = tagSetModel.getTagSetStructure().getTagSets();
+		for ( TagSetStructure.TagSet tagSet : tagSets )
+			tagMap.put( tagSet, edgeTagsMap.tags( tagSet ).get( link ) );
+		return tagMap;
+	}
+
+	private static void setTags( TagSetModel< Spot, Link > tagSetModel, Map< TagSetStructure.TagSet, TagSetStructure.Tag > tagMap, Link newLink )
+	{
+		final ObjTags< Link > edgeTagsMap = tagSetModel.getEdgeTags();
+		tagMap.forEach( ( tagSet, tag ) -> edgeTagsMap.tags( tagSet ).set( newLink, tag ) );
 	}
 }
