@@ -31,6 +31,7 @@ package org.mastodon.mamut.tomancak;
 import org.mastodon.graph.ref.OutgoingEdges;
 import org.mastodon.mamut.MamutAppModel;
 import org.mastodon.mamut.model.Link;
+import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.model.tag.ObjTags;
@@ -46,12 +47,13 @@ public class FlipDescendants
 {
 	public static void flipDescendants( final MamutAppModel appModel )
 	{
-		final ModelGraph graph = appModel.getModel().getGraph();
+		final Model model = appModel.getModel();
+		final ModelGraph graph = model.getGraph();
 		ReentrantReadWriteLock.WriteLock lock = graph.getLock().writeLock();
 		lock.lock();
 		try
 		{
-			final TagSetModel<Spot, Link> tagSetModel = appModel.getModel().getTagSetModel();
+			final TagSetModel<Spot, Link> tagSetModel = model.getTagSetModel();
 			final Spot spot = appModel.getFocusModel().getFocusedVertex( graph.vertexRef() );
 			final OutgoingEdges<Link> outgoing = spot.outgoingEdges();
 			if ( outgoing.size() > 1 )
@@ -69,6 +71,7 @@ public class FlipDescendants
 		{
 			lock.unlock();
 		}
+		model.setUndoPoint();
 	}
 
 	private static Map< TagSetStructure.TagSet, TagSetStructure.Tag > getTags( TagSetModel< Spot, Link > tagSetModel, Link link )
