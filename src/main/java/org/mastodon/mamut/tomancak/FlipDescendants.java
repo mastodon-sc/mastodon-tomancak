@@ -38,40 +38,48 @@ import org.mastodon.model.tag.ObjTags;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class FlipDescendants
 {
 	public static void flipDescendants( final MamutAppModel appModel )
 	{
+		final Spot spot = appModel.getFocusModel().getFocusedVertex( appModel.getModel().getGraph().vertexRef() );
 		final Model model = appModel.getModel();
+		flipDescendants( model, Collections.singleton( spot ) );
+	}
+
+	public static void flipDescendants( Model model, Collection<Spot> spots )
+	{
 		final ModelGraph graph = model.getGraph();
-		ReentrantReadWriteLock.WriteLock lock = graph.getLock().writeLock();
-		lock.lock();
+		ReentrantReadWriteLock lock = graph.getLock();
+		lock.writeLock().lock();
 		try
 		{
-			final TagSetModel<Spot, Link> tagSetModel = model.getTagSetModel();
-			final Spot spot = appModel.getFocusModel().getFocusedVertex( graph.vertexRef() );
-			final OutgoingEdges<Link> outgoing = spot.outgoingEdges();
-			if ( outgoing.size() > 1 )
-			{
-				final Link first = outgoing.get( 0 );
-				final Spot target = first.getTarget();
-				Map<TagSetStructure.TagSet, TagSetStructure.Tag> tagMap = getTags( tagSetModel, first );
-				graph.remove( first );
-				final Link newLink = graph.addEdge( spot, target ).init();
-				setTags( tagSetModel, tagMap, newLink );
-				graph.notifyGraphChanged();
-			}
+			for(final Spot spot : spots )
+				flipChildren( graph, model.getTagSetModel(), spot );
+			model.setUndoPoint();
 		}
 		finally
 		{
-			lock.unlock();
+			lock.writeLock().unlock();
 		}
-		model.setUndoPoint();
+		graph.notifyGraphChanged();
+	}
+
+	private static void flipChildren( ModelGraph graph, TagSetModel<Spot, Link> tagSetModel, Spot spot )
+	{
+		final OutgoingEdges<Link> outgoing = spot.outgoingEdges();
+		if ( outgoing.size() > 1 )
+		{
+			final Link first = outgoing.get( 0 );
+			final Spot target = first.getTarget();
+			Map<TagSetStructure.TagSet, TagSetStructure.Tag> tagMap = getTags( tagSetModel, first );
+			graph.remove( first );
+			final Link newLink = graph.addEdge( spot, target ).init();
+			setTags( tagSetModel, tagMap, newLink );
+		}
 	}
 
 	private static Map< TagSetStructure.TagSet, TagSetStructure.Tag > getTags( TagSetModel< Spot, Link > tagSetModel, Link link )

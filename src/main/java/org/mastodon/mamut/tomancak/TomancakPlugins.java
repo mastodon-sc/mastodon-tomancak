@@ -49,6 +49,7 @@ import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.mamut.project.MamutProject;
 import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
+import org.mastodon.mamut.tomancak.sort_tree.SortTreeDialog;
 import org.mastodon.model.SelectionModel;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.ui.keymap.CommandDescriptions;
@@ -69,6 +70,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String TWEAK_DATASET_PATH = "[tomancak] tweak dataset path";
 	private static final String LABEL_SELECTED_SPOTS = "[tomancak] label spots";
 	private static final String COMPACT_LINEAGE_VIEW = "[tomancak] lineage tree view";
+	private static final String SORT_TREE = "[tomancak] sort tree";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "not mapped" };
@@ -77,6 +79,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 	private static final String[] LABEL_SELECTED_SPOTS_KEYS = { "not mapped" };
 	private static final String[] COMPACT_LINEAGE_VIEW_KEYS = { "not mapped" };
+	private static final String[] SORT_TREE_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -88,7 +91,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate missing spots" );
 		menuTexts.put( TWEAK_DATASET_PATH, "Edit BDV XML path..." );
 		menuTexts.put( LABEL_SELECTED_SPOTS, "Label selected spots..." );
-		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show compact lineage");
+		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show compact lineage" );
+		menuTexts.put( SORT_TREE, "Sort lineage tree..." );
 	}
 
 	/*
@@ -112,6 +116,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Set the path to the BDV data and whether it is relative or absolute." );
 			descriptions.add( LABEL_SELECTED_SPOTS, LABEL_SELECTED_SPOTS_KEYS, "Set label for all selected spots." );
 			descriptions.add( COMPACT_LINEAGE_VIEW, COMPACT_LINEAGE_VIEW_KEYS, "Show compact representation of the lineage tree.");
+			descriptions.add( SORT_TREE, SORT_TREE_KEYS, "Sort selected node according to tagged anchors.");
 		}
 	}
 
@@ -129,6 +134,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction lineageTreeViewAction;
 
+	private final AbstractNamedAction sortTreeAction;
+
 	private MamutPluginAppModel pluginAppModel;
 
 	public TomancakPlugins()
@@ -140,6 +147,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		labelSelectedSpotsAction = new RunnableAction( LABEL_SELECTED_SPOTS, this::labelSelectedSpots );
 		lineageTreeViewAction = new RunnableAction( COMPACT_LINEAGE_VIEW, this::showLineageView );
+		sortTreeAction = new RunnableAction( SORT_TREE, this::sortTree );
 		updateEnabledActions();
 	}
 
@@ -162,7 +170,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 								item( LABEL_SELECTED_SPOTS ),
 								item( COPY_TAG ),
 								item( TWEAK_DATASET_PATH ),
-								item( COMPACT_LINEAGE_VIEW ) ) ) );
+								item( COMPACT_LINEAGE_VIEW ),
+								item( SORT_TREE )) ) );
 	}
 
 	@Override
@@ -181,6 +190,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 		actions.namedAction( labelSelectedSpotsAction, LABEL_SELECTED_SPOTS_KEYS );
 		actions.namedAction( lineageTreeViewAction, COMPACT_LINEAGE_VIEW_KEYS );
+		actions.namedAction( sortTreeAction, SORT_TREE_KEYS );
 	}
 
 	private void updateEnabledActions()
@@ -193,6 +203,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		tweakDatasetPathAction.setEnabled( appModel != null );
 		labelSelectedSpotsAction.setEnabled( appModel != null );
 		lineageTreeViewAction.setEnabled( appModel != null );
+		sortTreeAction.setEnabled( appModel != null );
 	}
 
 	private void exportPhyloXml()
@@ -267,6 +278,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 				lock.writeLock().unlock();
 			}
 		}
+	}
+
+	private void sortTree() {
+		SortTreeDialog.showDialog( pluginAppModel.getAppModel() );
 	}
 
 	private void showLineageView() {
