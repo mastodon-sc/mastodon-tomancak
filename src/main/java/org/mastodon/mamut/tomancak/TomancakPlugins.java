@@ -164,14 +164,16 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		return Arrays.asList(
 				menu( "Plugins",
 						menu( "Tomancak lab",
-								item( EXPORT_PHYLOXML ),
-								item( FLIP_DESCENDANTS ),
-								item( INTERPOLATE_SPOTS ),
 								item( LABEL_SELECTED_SPOTS ),
 								item( COPY_TAG ),
 								item( TWEAK_DATASET_PATH ),
-								item( COMPACT_LINEAGE_VIEW ),
-								item( SORT_TREE )) ) );
+								item( COMPACT_LINEAGE_VIEW )),
+						menu( "Trees Management",
+								item( INTERPOLATE_SPOTS ),
+								item( FLIP_DESCENDANTS ),
+								item( SORT_TREE )),
+						menu( "Exports",
+								item( EXPORT_PHYLOXML )) ) );
 	}
 
 	@Override
