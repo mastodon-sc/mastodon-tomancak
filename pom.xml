@@ -41,6 +41,11 @@
 			<groupId>org.scijava</groupId>
 			<artifactId>ui-behaviour</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>net.preibisch</groupId>
+			<artifactId>multiview-reconstruction</artifactId>
+			<version>0.11.5</version>
+		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
@@ -80,7 +85,7 @@
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch</license.copyrightOwners>
 
-		<mastodon.version>1.0.0-beta-26</mastodon.version>
+		<mastodon.version>1.0.0-beta-27-SNAPSHOT</mastodon.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
