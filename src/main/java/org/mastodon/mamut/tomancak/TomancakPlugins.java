@@ -49,6 +49,9 @@ import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.mamut.project.MamutProject;
 import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
+import org.mastodon.mamut.tomancak.merging.Dataset;
+import org.mastodon.mamut.tomancak.merging.MergeDatasets;
+import org.mastodon.mamut.tomancak.merging.MergingDialog;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeDialog;
 import org.mastodon.model.SelectionModel;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
@@ -70,6 +73,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String LABEL_SELECTED_SPOTS = "[trees] label selected spots";
 	private static final String COMPACT_LINEAGE_VIEW = "[displays] show compact lineage";
 	private static final String SORT_TREE = "[trees] sort lineage tree";
+	private static final String MERGE_PROJECTS = "merge projects";
 	private static final String TWEAK_DATASET_PATH = "fix project image path";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
@@ -79,6 +83,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] LABEL_SELECTED_SPOTS_KEYS = { "not mapped" };
 	private static final String[] COMPACT_LINEAGE_VIEW_KEYS = { "not mapped" };
 	private static final String[] SORT_TREE_KEYS = { "not mapped" };
+	private static final String[] MERGE_PROJECTS_KEYS = { "not mapped" };
 	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
@@ -92,6 +97,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( LABEL_SELECTED_SPOTS, "Label Selected Spots" );
 		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show Compact Lineage" );
 		menuTexts.put( SORT_TREE, "Sort Lineage Tree" );
+		menuTexts.put( MERGE_PROJECTS, "Merge Two Projects" );
 		menuTexts.put( TWEAK_DATASET_PATH, "Fix Image Path" );
 	}
 
@@ -116,6 +122,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( LABEL_SELECTED_SPOTS, LABEL_SELECTED_SPOTS_KEYS, "Set label for all selected spots." );
 			descriptions.add( COMPACT_LINEAGE_VIEW, COMPACT_LINEAGE_VIEW_KEYS, "Show compact representation of the lineage tree.");
 			descriptions.add( SORT_TREE, SORT_TREE_KEYS, "Sort selected node according to tagged anchors.");
+			descriptions.add( MERGE_PROJECTS, MERGE_PROJECTS_KEYS, "Merge two Mastodon projects into one." );
 			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Allows to insert new path to the BDV data and whether it is relative or absolute." );
 		}
 	}
@@ -134,6 +141,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction sortTreeAction;
 
+	private final AbstractNamedAction mergeProjectsAction;
+
 	private final AbstractNamedAction tweakDatasetPathAction;
 
 	private MamutPluginAppModel pluginAppModel;
@@ -147,6 +156,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		labelSelectedSpotsAction = new RunnableAction( LABEL_SELECTED_SPOTS, this::labelSelectedSpots );
 		lineageTreeViewAction = new RunnableAction( COMPACT_LINEAGE_VIEW, this::showLineageView );
 		sortTreeAction = new RunnableAction( SORT_TREE, this::sortTree );
+		mergeProjectsAction = new RunnableAction( MERGE_PROJECTS, this::mergeProjects );
 		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		updateEnabledActions();
 	}
@@ -174,7 +184,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 						menu( "Exports",
 								item( EXPORT_PHYLOXML )) ),
 				menu( "File",
-						item( TWEAK_DATASET_PATH )) );
+						item( TWEAK_DATASET_PATH ),
+						item( MERGE_PROJECTS )) );
 	}
 
 	@Override
@@ -193,6 +204,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( labelSelectedSpotsAction, LABEL_SELECTED_SPOTS_KEYS );
 		actions.namedAction( lineageTreeViewAction, COMPACT_LINEAGE_VIEW_KEYS );
 		actions.namedAction( sortTreeAction, SORT_TREE_KEYS );
+		actions.namedAction( mergeProjectsAction, MERGE_PROJECTS_KEYS );
 		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 	}
 
@@ -206,6 +218,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		labelSelectedSpotsAction.setEnabled( appModel != null );
 		lineageTreeViewAction.setEnabled( appModel != null );
 		sortTreeAction.setEnabled( appModel != null );
+		mergeProjectsAction.setEnabled( appModel != null );
 		tweakDatasetPathAction.setEnabled( appModel != null );
 	}
 
@@ -284,6 +297,36 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		CompactLineageFrame frame =
 			new CompactLineageFrame(pluginAppModel.getAppModel());
 		frame.setVisible(true);
+	}
+
+	private MergingDialog mergingDialog;
+
+	private void mergeProjects()
+	{
+		if ( mergingDialog == null )
+			mergingDialog = new MergingDialog( null );
+		mergingDialog.onMerge( () ->
+		{
+			try
+			{
+				final String pathA = mergingDialog.getPathA();
+				final String pathB = mergingDialog.getPathB();
+				final double distCutoff = mergingDialog.getDistCutoff();
+				final double mahalanobisDistCutoff = mergingDialog.getMahalanobisDistCutoff();
+				final double ratioThreshold = mergingDialog.getRatioThreshold();
+
+				final Dataset dsA = new Dataset( pathA );
+				final Dataset dsB = new Dataset( pathB );
+				pluginAppModel.getWindowManager().getProjectManager().open( new MamutProject( null, dsA.project().getDatasetXmlFile() ) );
+				final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( pluginAppModel.getAppModel().getModel() );
+				MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
+			}
+			catch( final Exception e )
+			{
+				e.printStackTrace();
+			}
+		} );
+		mergingDialog.setVisible( true );
 	}
 
 	private void tweakDatasetPath()
