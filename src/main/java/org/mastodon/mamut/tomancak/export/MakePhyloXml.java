@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.mastodon.mamut.tomancak;
+package org.mastodon.mamut.tomancak.export;
 
 import java.io.File;
 import java.io.FileOutputStream;

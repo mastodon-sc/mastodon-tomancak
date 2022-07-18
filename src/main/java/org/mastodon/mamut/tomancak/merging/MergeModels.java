@@ -36,7 +36,7 @@ import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.InterpolateMissingSpots;
+import org.mastodon.mamut.tomancak.spots.InterpolateMissingSpots;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets.OutputDataSet;
 import org.mastodon.mamut.tomancak.merging.MergeTags.TagSetStructureMaps;
 import org.mastodon.model.tag.ObjTags;

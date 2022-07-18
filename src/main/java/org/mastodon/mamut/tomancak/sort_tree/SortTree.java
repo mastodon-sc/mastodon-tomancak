@@ -35,7 +35,6 @@ import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.FlipDescendants;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
