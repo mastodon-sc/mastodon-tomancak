@@ -45,12 +45,16 @@ import org.scijava.plugin.Plugin;
 public class FilterOutSolists implements Command
 {
 	@Parameter(visibility = ItemVisibility.MESSAGE, persist = false, required = false)
-	final String hintMsg = "Solist has no ancestors and no descendants, plus the conditions below:";
+	final String hintMsg = "A spot-solist has no ancestors and no descendants, plus the optional conditions below:";
 
-	@Parameter
+	@Parameter(label = "And the spot must appear in the last time point:",
+			description = "Lonely spots at the end of the video are much harder" +
+					"to find compared to lonely spots at the beginning.")
 	private boolean isInTheLastTimePoint = true;
 
-	@Parameter
+	@Parameter(label = "And the spot's label consists of numbers only:",
+			description = "A label that is not a number only suggests that" +
+					"user has curated this spot.")
 	private boolean hasLabelMadeOfNumbersOnly = true;
 
 	@Parameter(persist = false)
