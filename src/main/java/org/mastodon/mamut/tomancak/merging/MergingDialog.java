@@ -91,7 +91,7 @@ public class MergingDialog extends JDialog
 
 		c.gridy = 0;
 		c.gridx = 0;
-		content.add( new JLabel( "Project A" ), c );
+		content.add( new JLabel( "Project A: " ), c );
 		pathATextField = new JTextField( "" );
 		c.gridx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -103,7 +103,7 @@ public class MergingDialog extends JDialog
 
 		++c.gridy;
 		c.gridx = 0;
-		content.add( new JLabel( "Project B" ), c );
+		content.add( new JLabel( "Project B: " ), c );
 		pathBTextField = new JTextField( "" );
 		c.gridx = 1;
 		content.add( pathBTextField, c );
@@ -114,21 +114,21 @@ public class MergingDialog extends JDialog
 
 		++c.gridy;
 		c.gridx = 0;
-		content.add( new JLabel( "absolute distance cutoff" ), c );
+		content.add( new JLabel( "Absolute distance cutoff: " ), c );
 		distCutoffTextField = new JTextField( "1000" );
 		c.gridx = 1;
 		content.add( distCutoffTextField, c );
 
 		++c.gridy;
 		c.gridx = 0;
-		content.add( new JLabel( "mahalanobis distance cutoff" ), c );
+		content.add( new JLabel( "Mahalanobis distance cutoff: " ), c );
 		mahalanobisDistCutoffTextField = new JTextField( "1" );
 		c.gridx = 1;
 		content.add( mahalanobisDistCutoffTextField, c );
 
 		++c.gridy;
 		c.gridx = 0;
-		content.add( new JLabel( "ratio threshold" ), c );
+		content.add( new JLabel( "Ratio threshold: " ), c );
 		ratioThresholdTextField = new JTextField( "2" );
 		c.gridx = 1;
 		content.add( ratioThresholdTextField, c );
