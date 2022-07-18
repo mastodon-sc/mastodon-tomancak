@@ -85,14 +85,14 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	static
 	{
-		menuTexts.put( EXPORT_PHYLOXML, "Export phyloXML for selection" );
-		menuTexts.put( FLIP_DESCENDANTS, "Flip descendants" );
-		menuTexts.put( COPY_TAG, "Copy Tag..." );
-		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate missing spots" );
-		menuTexts.put( TWEAK_DATASET_PATH, "Edit BDV XML path..." );
-		menuTexts.put( LABEL_SELECTED_SPOTS, "Label selected spots..." );
-		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show compact lineage" );
-		menuTexts.put( SORT_TREE, "Sort lineage tree..." );
+		menuTexts.put( EXPORT_PHYLOXML, "Export phyloXML for Selection" );
+		menuTexts.put( FLIP_DESCENDANTS, "Flip Descendants" );
+		menuTexts.put( COPY_TAG, "Copy Tag" );
+		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate Missing Spots" );
+		menuTexts.put( LABEL_SELECTED_SPOTS, "Label Selected Spots" );
+		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show Compact Lineage" );
+		menuTexts.put( SORT_TREE, "Sort Lineage Tree" );
+		menuTexts.put( TWEAK_DATASET_PATH, "Fix Image Path" );
 	}
 
 	/*
