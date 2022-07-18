@@ -63,23 +63,23 @@ import org.scijava.ui.behaviour.util.RunnableAction;
 @Plugin( type = MamutPlugin.class )
 public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 {
-	private static final String EXPORT_PHYLOXML = "[tomancak] export phyloxml for selection";
-	private static final String FLIP_DESCENDANTS = "[tomancak] flip descendants";
-	private static final String COPY_TAG = "[tomancak] copy tag";
-	private static final String INTERPOLATE_SPOTS = "[tomancak] interpolate spots";
-	private static final String TWEAK_DATASET_PATH = "[tomancak] tweak dataset path";
-	private static final String LABEL_SELECTED_SPOTS = "[tomancak] label spots";
-	private static final String COMPACT_LINEAGE_VIEW = "[tomancak] lineage tree view";
-	private static final String SORT_TREE = "[tomancak] sort tree";
+	private static final String EXPORT_PHYLOXML = "[exports] export phyloxml for selection";
+	private static final String FLIP_DESCENDANTS = "[trees] flip descendants";
+	private static final String COPY_TAG = "copy tag";
+	private static final String INTERPOLATE_SPOTS = "[trees] interpolate missing spots";
+	private static final String LABEL_SELECTED_SPOTS = "[trees] label selected spots";
+	private static final String COMPACT_LINEAGE_VIEW = "[displays] show compact lineage";
+	private static final String SORT_TREE = "[trees] sort lineage tree";
+	private static final String TWEAK_DATASET_PATH = "fix project image path";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "not mapped" };
 	private static final String[] COPY_TAG_KEYS = { "not mapped" };
 	private static final String[] INTERPOLATE_SPOTS_KEYS = { "not mapped" };
-	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 	private static final String[] LABEL_SELECTED_SPOTS_KEYS = { "not mapped" };
 	private static final String[] COMPACT_LINEAGE_VIEW_KEYS = { "not mapped" };
 	private static final String[] SORT_TREE_KEYS = { "not mapped" };
+	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -128,13 +128,13 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction interpolateSpotsAction;
 
-	private final AbstractNamedAction tweakDatasetPathAction;
-
 	private final AbstractNamedAction labelSelectedSpotsAction;
 
 	private final AbstractNamedAction lineageTreeViewAction;
 
 	private final AbstractNamedAction sortTreeAction;
+
+	private final AbstractNamedAction tweakDatasetPathAction;
 
 	private MamutPluginAppModel pluginAppModel;
 
@@ -144,10 +144,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		flipDescendantsAction = new RunnableAction( FLIP_DESCENDANTS, this::flipDescendants );
 		copyTagAction = new RunnableAction( COPY_TAG, this::copyTag );
 		interpolateSpotsAction = new RunnableAction( INTERPOLATE_SPOTS, this::interpolateSpots );
-		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		labelSelectedSpotsAction = new RunnableAction( LABEL_SELECTED_SPOTS, this::labelSelectedSpots );
 		lineageTreeViewAction = new RunnableAction( COMPACT_LINEAGE_VIEW, this::showLineageView );
 		sortTreeAction = new RunnableAction( SORT_TREE, this::sortTree );
+		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		updateEnabledActions();
 	}
 
@@ -190,10 +190,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( flipDescendantsAction, FLIP_DESCENDANTS_KEYS );
 		actions.namedAction( copyTagAction, COPY_TAG_KEYS );
 		actions.namedAction( interpolateSpotsAction, INTERPOLATE_SPOTS_KEYS );
-		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 		actions.namedAction( labelSelectedSpotsAction, LABEL_SELECTED_SPOTS_KEYS );
 		actions.namedAction( lineageTreeViewAction, COMPACT_LINEAGE_VIEW_KEYS );
 		actions.namedAction( sortTreeAction, SORT_TREE_KEYS );
+		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 	}
 
 	private void updateEnabledActions()
@@ -203,10 +203,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		flipDescendantsAction.setEnabled( appModel != null );
 		copyTagAction.setEnabled( appModel != null );
 		interpolateSpotsAction.setEnabled( appModel != null );
-		tweakDatasetPathAction.setEnabled( appModel != null );
 		labelSelectedSpotsAction.setEnabled( appModel != null );
 		lineageTreeViewAction.setEnabled( appModel != null );
 		sortTreeAction.setEnabled( appModel != null );
+		tweakDatasetPathAction.setEnabled( appModel != null );
 	}
 
 	private void exportPhyloXml()
@@ -236,15 +236,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		{
 			final Model model = pluginAppModel.getAppModel().getModel();
 			InterpolateMissingSpots.interpolate( model );
-		}
-	}
-
-	private void tweakDatasetPath()
-	{
-		if ( pluginAppModel != null )
-		{
-			final MamutProject project = pluginAppModel.getWindowManager().getProjectManager().getProject();
-			new DatasetPathDialog( null, project ).setVisible( true );
 		}
 	}
 
@@ -295,4 +286,12 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		frame.setVisible(true);
 	}
 
+	private void tweakDatasetPath()
+	{
+		if ( pluginAppModel != null )
+		{
+			final MamutProject project = pluginAppModel.getWindowManager().getProjectManager().getProject();
+			new DatasetPathDialog( null, project ).setVisible( true );
+		}
+	}
 }
