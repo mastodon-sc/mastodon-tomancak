@@ -77,7 +77,7 @@ public class DatasetPathDialog extends JDialog
 		c.gridy = 0;
 		c.gridx = 0;
 		c.weightx = 0.0;
-		content.add( new JLabel( "BDV dataset path" ), c );
+		content.add( new JLabel( "Current BDV dataset path: " ), c );
 
 		final JTextField pathTextField = new JTextField( project.getDatasetXmlFile().getAbsolutePath() );
 		c.gridx = 1;
@@ -94,7 +94,7 @@ public class DatasetPathDialog extends JDialog
 
 		++c.gridy;
 		c.gridx = 0;
-		content.add( new JLabel( "store absolute path" ), c );
+		content.add( new JLabel( "Store as absolute path: " ), c );
 		final JCheckBox storeAbsoluteCheckBox = new JCheckBox();
 		storeAbsoluteCheckBox.setSelected( !project.isDatasetXmlPathRelative() );
 		c.gridx = 1;

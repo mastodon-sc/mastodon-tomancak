@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.mastodon.mamut.tomancak;
+package org.mastodon.mamut.tomancak.spots;
 
 import static net.imglib2.util.LinAlgHelpers.rows;
 

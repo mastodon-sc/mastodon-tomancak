@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.mastodon.mamut.tomancak;
+package org.mastodon.mamut.tomancak.sort_tree;
 
 import org.mastodon.graph.ref.OutgoingEdges;
 import org.mastodon.mamut.MamutAppModel;
