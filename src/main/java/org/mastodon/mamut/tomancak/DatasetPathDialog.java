@@ -38,6 +38,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -64,10 +66,35 @@ public class DatasetPathDialog extends JDialog
 {
 	private final MamutProject project;
 
+	final Path projectRootWoMastodonFile;
+
+	String tellXmlFilePath(final Path xmlFilePath, final boolean tellAsAbsolutePath) {
+		if ( tellAsAbsolutePath ) {
+			if ( xmlFilePath.isAbsolute() )
+				return xmlFilePath.toString();
+			else
+				return projectRootWoMastodonFile.resolve( xmlFilePath ).toString();
+		} else {
+			//should create relative paths
+			if ( xmlFilePath.isAbsolute() )
+				return projectRootWoMastodonFile.relativize( xmlFilePath ).toString();
+			else
+				return xmlFilePath.toString();
+		}
+	}
+
+	String tellProjectPath(final boolean tellAsAbsolutePath) {
+		return tellAsAbsolutePath ? "(this path is not considered now)" : projectRootWoMastodonFile.toString();
+	}
+
 	public DatasetPathDialog( final Frame owner, final MamutProject project )
 	{
 		super( owner, "Edit Dataset Path...", false );
 		this.project = project;
+
+		final boolean projectInContainerFile = project.getProjectRoot().isFile();
+		projectRootWoMastodonFile = projectInContainerFile ?
+				project.getProjectRoot().toPath().getParent() : project.getProjectRoot().toPath();
 
 		final JPanel content = new JPanel();
 		content.setLayout( new GridBagLayout() );
@@ -76,16 +103,30 @@ public class DatasetPathDialog extends JDialog
 		final GridBagConstraints c = new GridBagConstraints();
 		c.gridy = 0;
 		c.gridx = 0;
-		c.weightx = 0.0;
-		content.add( new JLabel( "Current BDV dataset path: " ), c );
-
-		final JTextField pathTextField = new JTextField( project.getDatasetXmlFile().getAbsolutePath() );
-		c.gridx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 0.0;
+		content.add( new JLabel( "Current project path: " ), c );
+
+		c.gridx = 1;
+		final JLabel rootPathTextField = new JLabel( tellProjectPath( !project.isDatasetXmlPathRelative() ) );
+		content.add( rootPathTextField, c );
+
+		++c.gridy;
+		c.gridx = 0;
+		content.add( new JLabel( "Current BDV dataset path: " ), c );
+
+		String initialPathValue = tellXmlFilePath( project.getDatasetXmlFile().toPath(), !project.isDatasetXmlPathRelative() );
+		if (projectInContainerFile && project.isDatasetXmlPathRelative() && initialPathValue.startsWith("..")) {
+			//this is hacky, it removes the leading "../" or "..\" from the (for sure!) relative path,
+			//which was here to "get out of" the .mastodon container file and which confuses the Java Path functions
+			initialPathValue = initialPathValue.substring(3);
+		}
+		final JTextField xmlPathTextField = new JTextField( initialPathValue );
+		c.gridx = 1;
 		c.weightx = 1.0;
-		content.add( pathTextField, c );
-		pathTextField.setColumns( 20 );
+		content.add( xmlPathTextField, c );
+		xmlPathTextField.setColumns( 50 );
 
 		final JButton browseButton = new JButton( "Browse" );
 		c.gridx = 2;
@@ -97,6 +138,7 @@ public class DatasetPathDialog extends JDialog
 		content.add( new JLabel( "Store as absolute path: " ), c );
 		final JCheckBox storeAbsoluteCheckBox = new JCheckBox();
 		storeAbsoluteCheckBox.setSelected( !project.isDatasetXmlPathRelative() );
+
 		c.gridx = 1;
 		content.add( storeAbsoluteCheckBox, c );
 
@@ -129,22 +171,36 @@ public class DatasetPathDialog extends JDialog
 				final File file = FileChooser.chooseFile(
 						true,
 						DatasetPathDialog.this,
-						path.getText(),
+						tellXmlFilePath(Paths.get(path.getText()),true),
 						new ExtensionFileFilter( "xml" ),
 						dialogTitle,
 						FileChooser.DialogType.LOAD,
 						FileChooser.SelectionMode.FILES_ONLY );
 				if ( file != null )
-					path.setText( file.getAbsolutePath() );
+					path.setText( tellXmlFilePath( file.toPath(), storeAbsoluteCheckBox.isSelected() ) );
 			}
 		}
-		browseButton.addActionListener( new Browse( pathTextField, "Select BDV XML file" ) );
+		browseButton.addActionListener( new Browse( xmlPathTextField, "Select BDV XML file" ) );
+
+		storeAbsoluteCheckBox.addActionListener( e -> {
+			rootPathTextField.setText( tellProjectPath( storeAbsoluteCheckBox.isSelected() ) );
+			xmlPathTextField.setText( tellXmlFilePath( Paths.get( xmlPathTextField.getText() ), storeAbsoluteCheckBox.isSelected() ) );
+		} );
 
 		ok.addActionListener( e -> {
-			final String path = pathTextField.getText();
+			final String path = xmlPathTextField.getText();
 			final boolean relative = !storeAbsoluteCheckBox.isSelected();
-			project.setDatasetXmlFile( new File( path ) );
+
+			File xmlFilePath;
+			if ( relative && projectInContainerFile ) {
+				xmlFilePath = new File( ".." + File.separator + path);
+				System.out.println("Storing BDV xml path with '..' prepended (to get outside the .mastodon container file).");
+			} else {
+				xmlFilePath = new File( path );
+			}
+			project.setDatasetXmlFile( xmlFilePath );
 			project.setDatasetXmlPathRelative( relative );
+			System.out.println("Storing BDV xml path as " + xmlFilePath + " (should be relative: " + relative + ")");
 			close();
 		} );
 
