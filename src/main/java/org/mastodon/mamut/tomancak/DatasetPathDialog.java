@@ -64,7 +64,6 @@ import org.mastodon.ui.util.FileChooser;
 
 public class DatasetPathDialog extends JDialog
 {
-	private final MamutProject project;
 
 	final Path projectRootWoMastodonFile;
 
@@ -90,7 +89,6 @@ public class DatasetPathDialog extends JDialog
 	public DatasetPathDialog( final Frame owner, final MamutProject project )
 	{
 		super( owner, "Edit Dataset Path...", false );
-		this.project = project;
 
 		final boolean projectInContainerFile = project.getProjectRoot().isFile();
 		projectRootWoMastodonFile = projectInContainerFile ?
