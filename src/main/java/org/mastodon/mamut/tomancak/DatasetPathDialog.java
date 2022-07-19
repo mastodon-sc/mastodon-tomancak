@@ -29,6 +29,7 @@
 package org.mastodon.mamut.tomancak;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -47,6 +48,7 @@ import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonModel;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -144,6 +146,20 @@ public class DatasetPathDialog extends JDialog
 
 		c.gridx = 1;
 		content.add( storeAbsoluteCheckBox, c );
+
+		c.gridx = 2;
+		final JButton testButton = new JButton( "Test Path" );
+		content.add( testButton, c );
+		//
+		final Color normalBgColor = xmlPathTextField.getBackground();
+		testButton.addChangeListener(l -> {
+			if ( testButton.getModel().isPressed() ) {
+				final File f = new File( tellXmlFilePath( Paths.get( xmlPathTextField.getText() ), true ) );
+				xmlPathTextField.setBackground( f.isFile() ? Color.GREEN : Color.RED );
+			} else {
+				xmlPathTextField.setBackground( normalBgColor );
+			}
+		});
 
 		final JPanel infoLine = new JPanel();
 		infoLine.setLayout( new BoxLayout( infoLine, BoxLayout.LINE_AXIS ) );
