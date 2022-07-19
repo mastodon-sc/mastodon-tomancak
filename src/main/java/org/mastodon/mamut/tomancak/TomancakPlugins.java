@@ -69,15 +69,15 @@ import org.scijava.ui.behaviour.util.RunnableAction;
 @Plugin( type = MamutPlugin.class )
 public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 {
-	private static final String EXPORT_PHYLOXML = "[exports] export phyloxml for selection";
-	private static final String FLIP_DESCENDANTS = "[trees] flip descendants";
-	private static final String COPY_TAG = "copy tag";
-	private static final String INTERPOLATE_SPOTS = "[trees] interpolate missing spots";
-	private static final String LABEL_SELECTED_SPOTS = "[trees] label selected spots";
-	private static final String COMPACT_LINEAGE_VIEW = "[displays] show compact lineage";
-	private static final String SORT_TREE = "[trees] sort lineage tree";
-	private static final String MERGE_PROJECTS = "merge projects";
-	private static final String TWEAK_DATASET_PATH = "fix project image path";
+	private static final String EXPORT_PHYLOXML = "[tomancak] export phyloxml for selection";
+	private static final String FLIP_DESCENDANTS = "[tomancak] flip lineage descendants";
+	private static final String COPY_TAG = "[tomancak] copy tag";
+	private static final String INTERPOLATE_SPOTS = "[tomancak] interpolate missing spots";
+	private static final String LABEL_SELECTED_SPOTS = "[tomancak] label selected spots";
+	private static final String COMPACT_LINEAGE_VIEW = "[tomancak] show compact lineage";
+	private static final String SORT_TREE = "[tomancak] sort lineage tree";
+	private static final String MERGE_PROJECTS = "[tomancak] merge projects";
+	private static final String TWEAK_DATASET_PATH = "[tomancak] fix project image path";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "not mapped" };
