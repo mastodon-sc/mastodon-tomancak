@@ -83,7 +83,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "not mapped" };
 	private static final String[] COPY_TAG_KEYS = { "not mapped" };
 	private static final String[] INTERPOLATE_SPOTS_KEYS = { "not mapped" };
-	private static final String[] LABEL_SELECTED_SPOTS_KEYS = { "not mapped" };
+	private static final String[] LABEL_SELECTED_SPOTS_KEYS = { "F2" };
 	private static final String[] COMPACT_LINEAGE_VIEW_KEYS = { "not mapped" };
 	private static final String[] SORT_TREE_KEYS = { "not mapped" };
 	private static final String[] MERGE_PROJECTS_KEYS = { "not mapped" };
