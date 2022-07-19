@@ -88,7 +88,7 @@ public class DatasetPathDialog extends JDialog
 
 	public DatasetPathDialog( final Frame owner, final MamutProject project )
 	{
-		super( owner, "Edit Dataset Path...", false );
+		super( owner, "Edit Dataset Path...", true );
 
 		final boolean projectInContainerFile = project.getProjectRoot().isFile();
 		projectRootWoMastodonFile = projectInContainerFile ?
