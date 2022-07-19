@@ -116,8 +116,8 @@ public class DatasetPathDialog extends JDialog
 
 		String initialPathValue = tellXmlFilePath( project.getDatasetXmlFile().toPath(), !project.isDatasetXmlPathRelative() );
 		if (projectInContainerFile && project.isDatasetXmlPathRelative() && initialPathValue.startsWith("..")) {
-			//this is hacky, it removes the leading "../" or "..\" from the (for sure!) relative path,
-			//which was here to "get out of" the .mastodon container file and which confuses the Java Path functions
+			//this is hacky, it removes the leading "../" or "..\" from the (for sure!) relative path, which
+			//was here to "get out of" the .mastodon container file, and which also confuses the Java Path functions...
 			initialPathValue = initialPathValue.substring(3);
 		}
 		final JTextField xmlPathTextField = new JTextField( initialPathValue );
@@ -189,13 +189,9 @@ public class DatasetPathDialog extends JDialog
 			final String path = xmlPathTextField.getText();
 			final boolean relative = !storeAbsoluteCheckBox.isSelected();
 
-			File xmlFilePath;
-			if ( relative && projectInContainerFile ) {
-				xmlFilePath = new File( ".." + File.separator + path);
-				System.out.println("Storing BDV xml path with '..' prepended (to get outside the .mastodon container file).");
-			} else {
-				xmlFilePath = new File( path );
-			}
+			//always give the absolute path! -- the underlying spim_data library "relativyfies"
+			//the path on its own (provided the set..Xml..Relative() is set to true)
+			File xmlFilePath = new File( tellXmlFilePath( Paths.get(path), true ) );
 			project.setDatasetXmlFile( xmlFilePath );
 			project.setDatasetXmlPathRelative( relative );
 			System.out.println("Storing BDV xml path as " + xmlFilePath + " (should be relative: " + relative + ")");
