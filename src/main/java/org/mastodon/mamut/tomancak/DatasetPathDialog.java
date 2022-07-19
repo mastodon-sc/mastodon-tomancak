@@ -67,6 +67,10 @@ public class DatasetPathDialog extends JDialog
 
 	final Path projectRootWoMastodonFile;
 
+	static Path convertFromWinOrLeaveAsIs(final Path relativePath) {
+		return Paths.get( relativePath.toString().replace( "\\", "/" ) );
+	}
+
 	String tellXmlFilePath(final Path xmlFilePath, final boolean tellAsAbsolutePath) {
 		if ( tellAsAbsolutePath ) {
 			if ( xmlFilePath.isAbsolute() )
@@ -114,7 +118,8 @@ public class DatasetPathDialog extends JDialog
 		c.gridx = 0;
 		content.add( new JLabel( "Current BDV dataset path: " ), c );
 
-		String initialPathValue = tellXmlFilePath( project.getDatasetXmlFile().toPath(), !project.isDatasetXmlPathRelative() );
+		String initialPathValue = tellXmlFilePath( convertFromWinOrLeaveAsIs( project.getDatasetXmlFile().toPath() ),
+				!project.isDatasetXmlPathRelative() );
 		if (projectInContainerFile && project.isDatasetXmlPathRelative() && initialPathValue.startsWith("..")) {
 			//this is hacky, it removes the leading "../" or "..\" from the (for sure!) relative path, which
 			//was here to "get out of" the .mastodon container file, and which also confuses the Java Path functions...
