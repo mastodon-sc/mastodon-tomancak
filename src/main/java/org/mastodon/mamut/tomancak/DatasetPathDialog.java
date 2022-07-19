@@ -140,6 +140,11 @@ public class DatasetPathDialog extends JDialog
 		c.gridx = 1;
 		content.add( storeAbsoluteCheckBox, c );
 
+		final JPanel infoLine = new JPanel();
+		infoLine.setLayout( new BoxLayout( infoLine, BoxLayout.LINE_AXIS ) );
+		infoLine.add( Box.createHorizontalGlue() );
+		infoLine.add( new JLabel( "Save the project eventually to make the changes permanent." ) );
+
 		final JPanel buttons = new JPanel();
 		final JButton cancel = new JButton("Cancel");
 		final JButton ok = new JButton("OK");
@@ -148,7 +153,8 @@ public class DatasetPathDialog extends JDialog
 		buttons.add( cancel );
 		buttons.add( ok );
 
-		getContentPane().add( content, BorderLayout.CENTER );
+		getContentPane().add( content, BorderLayout.NORTH );
+		getContentPane().add( infoLine, BorderLayout.CENTER );
 		getContentPane().add( buttons, BorderLayout.SOUTH );
 
 		class Browse implements ActionListener
