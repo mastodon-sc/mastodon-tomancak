@@ -35,16 +35,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import javax.swing.JOptionPane;
 
 import org.mastodon.app.ui.ViewMenuBuilder;
 import org.mastodon.mamut.MamutAppModel;
-import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
-import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.mamut.project.MamutProject;
@@ -59,7 +53,6 @@ import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeDialog;
 import org.mastodon.mamut.tomancak.spots.FilterOutSolists;
 import org.mastodon.mamut.tomancak.spots.InterpolateMissingSpots;
-import org.mastodon.model.SelectionModel;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.ui.keymap.CommandDescriptions;
 import org.mastodon.ui.keymap.KeyConfigContexts;
@@ -294,33 +287,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		if ( pluginAppModel != null )
 		{
 			final MamutAppModel appModel = pluginAppModel.getAppModel();
-			final SelectionModel< Spot, Link > selection = appModel.getSelectionModel();
-			final Model model = appModel.getModel();
-			final ReentrantReadWriteLock lock = model.getGraph().getLock();
-			lock.writeLock().lock();
-			try
-			{
-				final Set< Spot > spots = selection.getSelectedVertices();
-				if ( spots.isEmpty() )
-				{
-					JOptionPane.showMessageDialog( null, "No spot selected.", "Label spots", JOptionPane.WARNING_MESSAGE );
-				}
-				else
-				{
-					final String initialValue = spots.iterator().next().getLabel();
-					final Object input = JOptionPane.showInputDialog( null, "Spot label:", "Label spots", JOptionPane.PLAIN_MESSAGE, null, null, initialValue );
-					if ( input != null )
-					{
-						final String label = ( String ) input;
-						spots.forEach( spot -> spot.setLabel( label ) );
-						model.setUndoPoint();
-					}
-				}
-			}
-			finally
-			{
-				lock.writeLock().unlock();
-			}
+			LabelSelectedSpots.labelSelectedSpot( appModel );
 		}
 	}
 
