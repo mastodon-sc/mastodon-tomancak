@@ -81,13 +81,13 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String TWEAK_DATASET_PATH = "[tomancak] fix project image path";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
-	private static final String[] FLIP_DESCENDANTS_KEYS = { "not mapped" };
+	private static final String[] FLIP_DESCENDANTS_KEYS = { "ctrl E" };
 	private static final String[] COPY_TAG_KEYS = { "not mapped" };
 	private static final String[] INTERPOLATE_SPOTS_KEYS = { "not mapped" };
 	private static final String[] LABEL_SELECTED_SPOTS_KEYS = { "F2" };
 	private static final String[] CHANGE_BRANCH_LABELS_KEYS = { "shift F2" };
 	private static final String[] COMPACT_LINEAGE_VIEW_KEYS = { "not mapped" };
-	private static final String[] SORT_TREE_KEYS = { "not mapped" };
+	private static final String[] SORT_TREE_KEYS = { "ctrl S" };
 	private static final String[] REMOVE_SOLISTS_SPOTS_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_LINEAGE_LENGTHS_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_SPOTS_COUNTS_KEYS = { "not mapped" };
