@@ -4,33 +4,27 @@ import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.project.MamutProjectIO;
 import org.scijava.Context;
+import javax.swing.JFileChooser;
 import javax.swing.WindowConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.io.IOException;
 import mpicbg.spim.data.SpimDataException;
 
 
 public class StartMastodonOnProject {
-	/*
-	public static Context getContextFromImageJ() {
-		return new ImageJ().getContext();
-	}
-	*/
-
-	public static Context getContextANew() {
-		return new Context();
-	}
 
 	public static void main(String[] args) {
 		try {
+			String projectPath = fileOpenDialog();
+
 			//not sure what this is good for but see it everywhere...
 			//(seems to give no effect on Linux)
 			System.setProperty( "apple.laf.useScreenMenuBar", "true" );
 
 			//the central hub, a container to hold all
-			final WindowManager windowManager = new WindowManager( getContextANew() );
-			windowManager.getProjectManager().open(
-					new MamutProjectIO().load( "/a/particular/project.mastodon" ), true );
+			final WindowManager windowManager = new WindowManager( new Context() );
+			windowManager.getProjectManager().open( new MamutProjectIO().load( projectPath ) );
 
 			//a GUI element wrapping around the hub
 			final MainWindow win = new MainWindow(windowManager);
@@ -46,5 +40,13 @@ public class StartMastodonOnProject {
 		} catch (IOException | SpimDataException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static String fileOpenDialog()
+	{
+		JFileChooser fileChooser = new JFileChooser("Open Mastodon Project");
+		fileChooser.setFileFilter( new FileNameExtensionFilter( "Mastodon Project (*.mastodon)", "mastodon" ) );
+		fileChooser.showOpenDialog( null );
+		return fileChooser.getSelectedFile().getAbsolutePath();
 	}
 }
