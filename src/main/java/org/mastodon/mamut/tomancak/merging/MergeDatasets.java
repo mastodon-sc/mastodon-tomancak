@@ -2,7 +2,7 @@
  * #%L
  * mastodon-tomancak
  * %%
- * Copyright (C) 2018 - 2021 Tobias Pietzsch
+ * Copyright (C) 2018 - 2022 Tobias Pietzsch
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
