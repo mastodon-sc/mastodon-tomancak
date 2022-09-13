@@ -69,7 +69,7 @@ public class SortTreeUtils
 		}
 	}
 
-	static double scalarProduct( double[] a, double[] b )
+	public static double scalarProduct( double[] a, double[] b )
 	{
 		assert a.length == b.length;
 		double sum = 0;
@@ -90,7 +90,7 @@ public class SortTreeUtils
 		return result;
 	}
 
-	static double[] subtract( double[] a, double[] b )
+	public static double[] subtract( double[] a, double[] b )
 	{
 		double[] direction = new double[ 3 ];
 		for ( int i = 0; i < 3; i++ )
@@ -226,7 +226,7 @@ public class SortTreeUtils
 			averages.set( i, value );
 	}
 
-	static int getNumberOfTimePoints( ModelGraph graph )
+	public static int getNumberOfTimePoints( ModelGraph graph )
 	{
 		int max = -1;
 		for(Spot spot : graph.vertices())
