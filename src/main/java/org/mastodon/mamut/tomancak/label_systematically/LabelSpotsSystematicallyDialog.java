@@ -16,6 +16,7 @@ import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.util.Collection;
+import java.util.concurrent.locks.Lock;
 
 public class LabelSpotsSystematicallyDialog extends JDialog
 {
@@ -94,7 +95,16 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 		ModelGraph graph = model.getGraph();
 		boolean renameUnnamed = renameUnnamedCheckbox.isSelected();
 		boolean renameLabelsEndingWith1Or2 = endsWith1or2Checkbox.isSelected();
-		LabelSpotsSystematically.setLabelsBasedOnInternExtern( center, graph, renameUnnamed, renameLabelsEndingWith1Or2 );
+		Lock writeLock = model.getGraph().getLock().writeLock();
+		try
+		{
+			LabelSpotsSystematically.setLabelsBasedOnInternExtern( graph, center, renameUnnamed, renameLabelsEndingWith1Or2 );
+			model.setUndoPoint();
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
 		dispose();
 	}
 

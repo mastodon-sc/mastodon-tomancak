@@ -1,4 +1,4 @@
-package org.mastodon.mamut.tomancak.label_systematically;
+package org.mastodon.mamut.tomancak.sort_tree;
 
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;

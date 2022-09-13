@@ -28,6 +28,7 @@
  */
 package org.mastodon.mamut.tomancak.sort_tree;
 
+import org.mastodon.collection.RefList;
 import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
@@ -35,6 +36,7 @@ import org.mastodon.mamut.model.Spot;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Predicate;
 
 /**
  * Methods for sorting the lineage tree in a {@link ModelGraph}.
@@ -48,42 +50,42 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class SortTree
 {
 
-	public static void sort( Model model, Collection<Spot> vertices, Collection<Spot> leftAnchors, Collection<Spot> rightAnchors )
+	public static void sortLeftRightAnchors( Model model, Collection<Spot> vertices, Collection<Spot> leftAnchors, Collection<Spot> rightAnchors )
 	{
-		ReentrantReadWriteLock lock = model.getGraph().getLock();
-		lock.writeLock().lock();
+		sort( model, vertices, new LeftRightOrder( model.getGraph(), leftAnchors, rightAnchors ) );
+	}
+
+	public static void sortInternExtern( Model model, Collection<Spot> vertices, Collection<Spot> centerSpots )
+	{
+		sort( model, vertices, new InternExternOrder( model.getGraph(), centerSpots ) );
+	}
+
+	public static void sort( Model model, Collection<Spot> vertices, Predicate<Spot> order )
+	{
+		ModelGraph graph = model.getGraph();
+		ReentrantReadWriteLock.WriteLock lock = graph.getLock().writeLock();
+		lock.lock();
 		try
 		{
-			int numberOfTimePoints = SortTreeUtils.getNumberOfTimePoints( model.getGraph() );
-			// calculate directions
-			List<double[]> left = SortTreeUtils.calculateAndInterpolateAveragePosition( numberOfTimePoints, leftAnchors );
-			List<double[]> right = SortTreeUtils.calculateAndInterpolateAveragePosition( numberOfTimePoints, rightAnchors );
-			List<double[]> directions = SortTreeUtils.subtract( right, left );
-			// find vertices to be flipped
-			Collection<Spot> toBeFlipped = findSpotsToBeFlipped( model.getGraph(), vertices, directions );
-			// flip vertices
+			RefList<Spot> toBeFlipped = findSpotsToBeFlipped( graph, vertices, order );
 			FlipDescendants.flipDescendants( model, toBeFlipped );
 		}
-		finally {
-			lock.writeLock().unlock();
+		finally
+		{
+			lock.unlock();
 		}
 	}
 
-	public static Collection<Spot> findSpotsToBeFlipped( ModelGraph graph, Collection<Spot> selection, List<double[]> sortingDirections )
+	private static RefList<Spot> findSpotsToBeFlipped( ModelGraph graph, Collection<Spot> vertices, Predicate<Spot> correctOrder )
 	{
-		RefArrayList<Spot> result = new RefArrayList<>( graph.vertices().getRefPool() );
-		for(Spot spot : selection)
-			if( isSortingWrong(graph, spot, sortingDirections.get(spot.getTimepoint())) )
-				result.add(spot);
-		return result;
+		RefList<Spot> toBeFlipped = new RefArrayList<>( graph.vertices().getRefPool() );
+		for(Spot spot : vertices )
+		{
+			boolean needsToBeFlipped = spot.outgoingEdges().size() == 2
+					&& !correctOrder.test( spot );
+			if ( needsToBeFlipped )
+				toBeFlipped.add( spot );
+		}
+		return toBeFlipped;
 	}
-
-	private static boolean isSortingWrong( ModelGraph graph, Spot spot, double[] sortingDirection )
-	{
-		if(spot.outgoingEdges().size() != 2)
-			return false;
-		double[] divisionDirection = SortTreeUtils.directionOfCellDevision( graph, spot );
-		return SortTreeUtils.scalarProduct(sortingDirection, divisionDirection) < 0;
-	}
-
 }

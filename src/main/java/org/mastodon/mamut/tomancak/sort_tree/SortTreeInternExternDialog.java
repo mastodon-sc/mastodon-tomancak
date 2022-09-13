@@ -64,7 +64,7 @@ public class SortTreeInternExternDialog extends JDialog
 	{
 		Collection<Spot> center = centerLandmark.getSelectedSpots();
 		Collection<Spot> selectedSpots = nodesToSort.getSelectedSpots();
-		SortTreeInternExtern.sort( appModel.getModel(), selectedSpots, center );
+		SortTree.sortInternExtern( appModel.getModel(), selectedSpots, center );
 	}
 
 	private static void centerWindow( Window frame) {

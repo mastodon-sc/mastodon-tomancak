@@ -36,7 +36,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 
-public class SortTreeDialog extends JDialog
+public class SortTreeLeftRightDialog extends JDialog
 {
 	private static final String description = "<html>"
 			+ "<b>Sort the order of the sub lineages in the trackscheme.</b><br>"
@@ -49,7 +49,7 @@ public class SortTreeDialog extends JDialog
 	private final SelectSpotsComponent rightLandmark;
 	private final SelectSpotsComponent nodesToSort;
 
-	private SortTreeDialog( MamutAppModel appModel ) {
+	private SortTreeLeftRightDialog( MamutAppModel appModel ) {
 		super(( Frame ) null, "Sort Lineage Tree", false);
 		setResizable( false );
 		this.appModel = appModel;
@@ -81,7 +81,7 @@ public class SortTreeDialog extends JDialog
 
 	public static void showDialog(MamutAppModel model)
 	{
-		SortTreeDialog dialog = new SortTreeDialog(model);
+		SortTreeLeftRightDialog dialog = new SortTreeLeftRightDialog(model);
 		dialog.setDefaultCloseOperation( DISPOSE_ON_CLOSE );
 		dialog.setVisible( true );
 	}
@@ -91,7 +91,7 @@ public class SortTreeDialog extends JDialog
 		Collection<Spot> left = leftLandmark.getSelectedSpots();
 		Collection<Spot> right = rightLandmark.getSelectedSpots();
 		Collection<Spot> selectedSpot = nodesToSort.getSelectedSpots();
-		SortTree.sort( appModel.getModel(), selectedSpot, left, right );
+		SortTree.sortLeftRightAnchors( appModel.getModel(), selectedSpot, left, right );
 	}
 
 	private static void centerWindow(Window frame) {

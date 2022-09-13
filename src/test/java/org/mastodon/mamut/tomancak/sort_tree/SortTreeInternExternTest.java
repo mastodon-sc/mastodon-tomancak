@@ -29,7 +29,7 @@ public class SortTreeInternExternTest
 		// add center marker
 		Spot center = graph.addVertex().init( 0, array(5,5,5), 1 );
 		// sort
-		SortTreeInternExtern.sort(model, graph.vertices(), Collections.singleton(center));
+		SortTree.sortInternExtern(model, graph.vertices(), Collections.singleton(center));
 		// assert
 		assertEquals(aIntern, a.outgoingEdges().iterator().next().getTarget());
 		assertEquals(bIntern, b.outgoingEdges().iterator().next().getTarget());

@@ -17,7 +17,7 @@ public class LabelSpotsSystematicallyTest
 		Spot a = addSpot(graph, "a");
 		Spot a1 = addSpotAsDescendantOf(graph, "", a);
 		Spot a2 = addSpotAsDescendantOf(graph, "", a);
-		LabelSpotsSystematically.setLabels(graph, spot -> true, new TrackSchemeOrder() );
+		LabelSpotsSystematically.setLabels(graph, spot -> true, ignore -> true );
 		assertEquals("a1", a1.getLabel());
 		assertEquals("a2", a2.getLabel());
 	}
@@ -30,7 +30,7 @@ public class LabelSpotsSystematicallyTest
 		Spot noname = addSpotAsDescendantOf(graph, "239847", a);
 		BranchFilter filter = new BranchFilter( graph );
 		filter.setMatchUnnamed( true );
-		LabelSpotsSystematically.setLabels(graph, filter, new TrackSchemeOrder() );
+		LabelSpotsSystematically.setLabels(graph, filter, ignore -> true );
 		assertEquals("cellname", named.getLabel());
 		assertEquals("a2", noname.getLabel());
 	}
@@ -64,9 +64,7 @@ public class LabelSpotsSystematicallyTest
 		Spot b = addSpot(graph, "b", array(6, 2, 2));
 		Spot b1 = addSpotAsDescendantOf(graph, "3", b, array(5, 2, 2)); // intern
 		Spot b2 = addSpotAsDescendantOf(graph, "4", b, array(7, 2, 2)); // extern
-		BranchFilter branchFilter = new BranchFilter( graph );
-		branchFilter.setMatchUnnamed( true );
-		LabelSpotsSystematically.setLabels( graph, branchFilter, new InternExternOrder( graph, Collections.singleton(center) ) );
+		LabelSpotsSystematically.setLabelsBasedOnInternExtern( graph, Collections.singleton( center ), true, false);
 		assertEquals("a1", a1.getLabel());
 		assertEquals("a2", a2.getLabel());
 		assertEquals("b1", b1.getLabel());

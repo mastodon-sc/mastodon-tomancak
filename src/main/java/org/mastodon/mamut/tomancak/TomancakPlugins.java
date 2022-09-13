@@ -51,7 +51,7 @@ import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
 import org.mastodon.mamut.tomancak.merging.MergingDialog;
 import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
-import org.mastodon.mamut.tomancak.sort_tree.SortTreeDialog;
+import org.mastodon.mamut.tomancak.sort_tree.SortTreeLeftRightDialog;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeInternExternDialog;
 import org.mastodon.mamut.tomancak.spots.FilterOutSolists;
 import org.mastodon.mamut.tomancak.spots.InterpolateMissingSpots;
@@ -323,7 +323,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	}
 
 	private void sortTree() {
-		SortTreeDialog.showDialog( pluginAppModel.getAppModel() );
+		SortTreeLeftRightDialog.showDialog( pluginAppModel.getAppModel() );
 	}
 
 	private void sortTreeInternExtern()
