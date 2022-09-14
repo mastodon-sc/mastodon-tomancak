@@ -24,7 +24,7 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 	private static final String description = "<html>"
 			+ "Derive the name of child cells from the name of the parent,<br>"
 			+ "by appending a \"1\" or a \"2\" to the parent cell name.<br>"
-			+ "The child cell closer to the center landmark get \"1\" appended.<br>"
+			+ "The child cell closer to the center landmark gets \"1\" appended.<br>"
 			+ "The child cell further away from the center landmark gets \"2\" appended."
 			+ "</html>";
 
@@ -43,8 +43,8 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 		setResizable( false );
 		this.appModel = appModel;
 		this.centerLandmark = new SelectSpotsComponent( appModel );
-		this.renameUnnamedCheckbox = initializeCheckbox( "Cells that don't have a name. (The name is a number)" );
-		this.endsWith1or2Checkbox = initializeCheckbox( "Cells whose name ends with \"1\" or \"2\"." );
+		this.renameUnnamedCheckbox = initializeCheckbox( "Rename cells, that don't have a name. (The name is a number)" );
+		this.endsWith1or2Checkbox = initializeCheckbox( "Rename cells, whose name ends with \"1\" or \"2\"." );
 		this.actionButton = new JButton( "Rename" );
 		this.actionButton.addActionListener( ignore -> renameButtonClicked() );
 		setActionButtonEnabled();
