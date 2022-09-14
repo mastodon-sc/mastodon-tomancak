@@ -100,9 +100,8 @@ public class SelectSpotsComponent extends JButton
 		addStringMenu( menu );
 		if ( hasEntireGraphItem || hasSelectedNodesItem )
 			menu.add( new JSeparator() );
-		menu.add( addLineagesMenu() );
-		menu.add( new JSeparator() );
-		addTagMenu( menu );
+		addLineagesMenu(menu);
+		addTagMenu(menu);
 		menu.show( this, 0, getHeight() );
 	}
 
@@ -122,27 +121,58 @@ public class SelectSpotsComponent extends JButton
 		}
 	}
 
-	private void addTagMenu( JPopupMenu menu )
+	private void addTagMenu(JPopupMenu menu)
 	{
+		menu.add(new JSeparator());
+		menu.add(new JLabel("Tag:"));
+		menu.add(new JSeparator());
 		TagSetStructure tagSetStructure = mastodonModel.getTagSetModel().getTagSetStructure();
 		for ( TagSetStructure.TagSet tagSet : tagSetStructure.getTagSets() )
 			menu.add( createTagSetMenu( tagSet ) );
 	}
 
-	private JMenu addLineagesMenu()
+	private void addLineagesMenu( JPopupMenu parentMenu )
 	{
-		JMenu menu = new JMenu( "Lineage" );
+		parentMenu.add(new JSeparator());
+		parentMenu.add(new JLabel("Lineage:"));
+		parentMenu.add(new JSeparator());
 		List<Spot> roots = getRoots();
 		roots.sort( Comparator.comparing( Spot::getLabel ) );
-		Iterator<Spot> iterator = roots.iterator();
-		for ( int part = 1; iterator.hasNext(); part++ )
+		if(roots.size() < 10)
 		{
-			JMenu partMenu = new JMenu( "part " + part );
-			for ( int i = 0; i < 10 && iterator.hasNext(); i++ )
-				partMenu.add( createLineageMenuItem( iterator.next() ) );
-			menu.add( partMenu );
+			for ( Spot root : roots )
+				parentMenu.add( createLineageMenuItem( root ) );
 		}
-		return menu;
+		else
+			addSubdividedLineageMenu( parentMenu, roots );
+	}
+
+	private void addSubdividedLineageMenu( JPopupMenu popupMenu, List<Spot> roots )
+	{
+		List<Spot> other = new ArrayList<>();
+		Map<Character, List<Spot>> map = new LinkedHashMap<>();
+		char[] alphabet = "0123456789".toCharArray();
+		for(char key: alphabet)
+			map.put( key, new ArrayList<>() );
+		for(Spot root : roots) {
+			Character character = root.getLabel().charAt( 0 );
+			if(map.containsKey( character ))
+				map.get( character ).add( root );
+			else
+				other.add( root );
+		}
+		map.forEach( (key, list) -> addLineageSubMenu( popupMenu, "\"" + key + "...\"", list ) );
+		addLineageSubMenu( popupMenu, "\"A-Z...\"", other );
+	}
+
+	private void addLineageSubMenu( JPopupMenu parentMenu, String title, List<Spot> list )
+	{
+		if ( list.isEmpty() )
+			return;
+		JMenu menu = new JMenu( title );
+		for(Spot root : list )
+			menu.add( createLineageMenuItem( root ) );
+		parentMenu.add( menu );
 	}
 
 	private JMenuItem createLineageMenuItem( Spot root )
