@@ -46,6 +46,8 @@ public class FlipDescendants
 	public static void flipDescendants( final MamutAppModel appModel )
 	{
 		final Spot spot = appModel.getFocusModel().getFocusedVertex( appModel.getModel().getGraph().vertexRef() );
+		if(spot == null)
+			return;
 		final Model model = appModel.getModel();
 		flipDescendants( model, Collections.singleton( spot ) );
 	}
