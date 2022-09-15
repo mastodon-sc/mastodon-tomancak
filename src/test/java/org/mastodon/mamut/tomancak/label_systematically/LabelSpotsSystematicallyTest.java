@@ -64,7 +64,7 @@ public class LabelSpotsSystematicallyTest
 		Spot b = addSpot(graph, "b", array(6, 2, 2));
 		Spot b1 = addSpotAsDescendantOf(graph, "3", b, array(5, 2, 2)); // intern
 		Spot b2 = addSpotAsDescendantOf(graph, "4", b, array(7, 2, 2)); // extern
-		LabelSpotsSystematically.setLabelsBasedOnInternExtern( graph, Collections.singleton( center ), true, false);
+		LabelSpotsSystematically.setLabelsBasedOnInternExtern( graph, Collections.singleton( center ), graph.vertices(), true, false);
 		assertEquals("a1", a1.getLabel());
 		assertEquals("a2", a2.getLabel());
 		assertEquals("b1", b1.getLabel());

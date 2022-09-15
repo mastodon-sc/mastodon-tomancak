@@ -32,6 +32,8 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 
 	private final SelectSpotsComponent centerLandmark;
 
+	private final SelectSpotsComponent selectSpots;
+
 	private final JCheckBox renameUnnamedCheckbox;
 
 	private final JCheckBox endsWith1or2Checkbox;
@@ -43,37 +45,29 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 		setResizable( false );
 		this.appModel = appModel;
 		this.centerLandmark = new SelectSpotsComponent( appModel );
-		this.renameUnnamedCheckbox = initializeCheckbox( "Rename cells, that don't have a name. (The name is a number)" );
-		this.endsWith1or2Checkbox = initializeCheckbox( "Rename cells, whose name ends with \"1\" or \"2\"." );
+		this.selectSpots =new SelectSpotsComponent( appModel );
+		selectSpots.addSelectedNodesItem();
+		selectSpots.addEntireGraphItem();
+		selectSpots.setSelectedNodes();
+		this.renameUnnamedCheckbox = new JCheckBox( "that don't have a name. (The name is a number)" );
+		this.endsWith1or2Checkbox = new JCheckBox( "whose name ends with \"1\" or \"2\"." );
 		this.actionButton = new JButton( "Rename" );
 		this.actionButton.addActionListener( ignore -> renameButtonClicked() );
-		setActionButtonEnabled();
 		initGui();
-	}
-
-	private void setActionButtonEnabled()
-	{
-		actionButton.setEnabled( renameUnnamedCheckbox.isSelected()
-				|| endsWith1or2Checkbox.isSelected() );
-	}
-
-	private JCheckBox initializeCheckbox( String text )
-	{
-		JCheckBox renameUnnamedCheckbox = new JCheckBox( text );
-		renameUnnamedCheckbox.addActionListener( ignore -> setActionButtonEnabled() );
-		return renameUnnamedCheckbox;
 	}
 
 	private void initGui()
 	{
-		setLayout( new MigLayout("insets dialog","[]") );
-		add(new JLabel(description), "wrap");
-		add(new JLabel("Center landmark:"), "split 2");
+		setLayout( new MigLayout("insets dialog","[][grow]") );
+		add(new JLabel(description), "span, wrap");
+		add(new JLabel("Center landmark:"));
 		add( centerLandmark, "grow, wrap");
-		add(new JLabel("Which cells to rename:"), "wrap");
+		add(new JLabel("Which cells to rename:"));
+		add( selectSpots, "grow, wrap" );
+		add( new JLabel("Only rename cells:"));
 		add( renameUnnamedCheckbox, "wrap" );
-		add( endsWith1or2Checkbox, "wrap" );
-		add( actionButton, "split 2, align right" );
+		add( endsWith1or2Checkbox, "skip, wrap" );
+		add( actionButton, "span, split 2, align right" );
 		JButton cancelButton = new JButton( "Cancel" );
 		cancelButton.addActionListener( ignore -> dispose() );
 		add( cancelButton, "align right" );
@@ -90,7 +84,6 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 
 	private void renameButtonClicked()
 	{
-		Collection<Spot> center = centerLandmark.getSelectedSpots();
 		Model model = appModel.getModel();
 		ModelGraph graph = model.getGraph();
 		boolean renameUnnamed = renameUnnamedCheckbox.isSelected();
@@ -99,7 +92,9 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 		writeLock.lock();
 		try
 		{
-			LabelSpotsSystematically.setLabelsBasedOnInternExtern( graph, center, renameUnnamed, renameLabelsEndingWith1Or2 );
+			Collection<Spot> center = centerLandmark.getSelectedSpots();
+			Collection<Spot> selected = selectSpots.getSelectedSpots();
+			LabelSpotsSystematically.setLabelsBasedOnInternExtern( graph, center, selected, renameUnnamed, renameLabelsEndingWith1Or2 );
 			model.setUndoPoint();
 		}
 		finally

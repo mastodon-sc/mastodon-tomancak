@@ -12,13 +12,20 @@ import java.util.function.Predicate;
 public class LabelSpotsSystematically
 {
 
-	public static void setLabelsBasedOnInternExtern( ModelGraph graph, Collection<Spot> center, boolean renameUnnamed, boolean renameLabelsEndingWith1Or2 )
+	public static void setLabelsBasedOnInternExtern( ModelGraph graph, Collection<Spot> center, Collection<Spot> selected, boolean renameUnnamed, boolean renameLabelsEndingWith1Or2 )
 	{
-		BranchFilter branchFilter = new BranchFilter( graph );
-		branchFilter.setMatchUnnamed( renameUnnamed );
-		if ( renameLabelsEndingWith1Or2 )
-			branchFilter.setLabelFilter(label -> label.endsWith( "1" ) || label.endsWith( "2" ));
-		setLabels( graph, branchFilter, new InternExternOrder( graph, center ) );
+		Predicate<Spot> filter = selected == graph.vertices()
+				? spot -> true // NB: because graph.vertices().contains(...) is not implemented.
+				: selected::contains;
+		if(renameUnnamed || renameLabelsEndingWith1Or2)
+		{
+			BranchFilter branchFilter = new BranchFilter( graph );
+			branchFilter.setMatchUnnamed( renameUnnamed );
+			if ( renameLabelsEndingWith1Or2 )
+				branchFilter.setLabelEndsWith1or2Filter();
+			filter = filter.and( branchFilter );
+		}
+		setLabels( graph, filter, new InternExternOrder( graph, center ) );
 	}
 
 	static void setLabels( ModelGraph graph, Predicate<Spot> filter, Predicate<Spot> correctOrder )
