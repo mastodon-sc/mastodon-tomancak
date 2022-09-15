@@ -96,6 +96,7 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 		boolean renameUnnamed = renameUnnamedCheckbox.isSelected();
 		boolean renameLabelsEndingWith1Or2 = endsWith1or2Checkbox.isSelected();
 		Lock writeLock = model.getGraph().getLock().writeLock();
+		writeLock.lock();
 		try
 		{
 			LabelSpotsSystematically.setLabelsBasedOnInternExtern( graph, center, renameUnnamed, renameLabelsEndingWith1Or2 );
