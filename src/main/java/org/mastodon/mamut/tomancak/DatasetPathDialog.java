@@ -61,6 +61,7 @@ import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 
+import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.mamut.project.MamutProject;
 import org.mastodon.ui.util.ExtensionFileFilter;
 import org.mastodon.ui.util.FileChooser;
@@ -92,6 +93,12 @@ public class DatasetPathDialog extends JDialog
 	String tellProjectPath(final boolean tellAsAbsolutePath) {
 		return tellAsAbsolutePath ? "(this path is not considered now)" : projectRootWoMastodonFile.toString();
 	}
+
+	public DatasetPathDialog( final Frame owner, final MamutPluginAppModel appModel ) {
+		this( owner, appModel.getWindowManager().getProjectManager().getProject() );
+		this.appModel = appModel;
+	}
+	private MamutPluginAppModel appModel = null;
 
 	public DatasetPathDialog( final Frame owner, final MamutProject project )
 	{
@@ -231,7 +238,7 @@ public class DatasetPathDialog extends JDialog
 		cancel.addActionListener( e -> close() );
 
 		dummy.addActionListener( e -> {
-			final DummyImageDataParams params = new DummyImageDataParams(owner);
+			final DummyImageDataParams params = new DummyImageDataParams(owner, appModel);
 			if (!params.wasOkClosed) return;
 
 			rootPathTextField.setText( tellProjectPath( true ) );
@@ -281,7 +288,7 @@ public class DatasetPathDialog extends JDialog
 
 
 	static class DummyImageDataParams extends JDialog {
-		public DummyImageDataParams( final Frame owner ) {
+		public DummyImageDataParams( final Frame owner, final MamutPluginAppModel appModel ) {
 			super( owner, "Adjust Dummy Dataset Parameters", true );
 
 			final JPanel content = new JPanel();
@@ -322,6 +329,31 @@ public class DatasetPathDialog extends JDialog
 			content.add( tpSpinner, c );
 
 			c.gridy++;
+			c.gridx = 0;
+			final JButton fromSpots = new JButton("From spots");
+			if (appModel == null) {
+				fromSpots.setEnabled(false);
+			} else {
+				fromSpots.addActionListener( l -> {
+					final double[] max = new double[3];
+					final double[] pos = new double[3];
+					appModel.getAppModel()
+							.getModel()
+							.getSpatioTemporalIndex()
+							.forEach(s -> {
+								s.localize(pos);
+								if (pos[0] > max[0]) max[0] = pos[0];
+								if (pos[1] > max[1]) max[1] = pos[1];
+								if (pos[2] > max[2]) max[2] = pos[2];
+							} );
+					xSpinner.setValue( (int)Math.floor(1.1*max[0]) );
+					ySpinner.setValue( (int)Math.floor(1.1*max[1]) );
+					zSpinner.setValue( (int)Math.floor(1.1*max[2]) );
+					tpSpinner.setValue(appModel.getAppModel().getMaxTimepoint()+1);
+				} );
+			}
+			content.add( fromSpots, c );
+			//
 			c.gridx = 1;
 			final JButton ok = new JButton("OK");
 			ok.addActionListener( l -> {

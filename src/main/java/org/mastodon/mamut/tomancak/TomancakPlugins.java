@@ -394,8 +394,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	{
 		if ( pluginAppModel != null )
 		{
-			final MamutProject project = pluginAppModel.getWindowManager().getProjectManager().getProject();
-			new DatasetPathDialog( null, project ).setVisible( true );
+			new DatasetPathDialog( null, pluginAppModel ).setVisible( true );
 		}
 	}
 
