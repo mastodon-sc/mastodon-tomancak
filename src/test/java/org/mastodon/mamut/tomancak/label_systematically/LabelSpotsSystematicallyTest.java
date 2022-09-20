@@ -55,16 +55,16 @@ public class LabelSpotsSystematicallyTest
 	}
 
 	@Test
-	public void testRenameCellsAsInternExtern() {
+	public void testRenameCellsAsExternIntern() {
 		ModelGraph graph = new ModelGraph();
 		Spot a = addSpot(graph, "a", array(2, 2, 2));
-		Spot a2 = addSpotAsDescendantOf(graph, "1", a, array(1, 2, 2)); // extern
-		Spot a1 = addSpotAsDescendantOf(graph, "2", a, array(3, 2, 2)); // intern
+		Spot a1 = addSpotAsDescendantOf(graph, "2", a, array(1, 2, 2)); // extern
+		Spot a2 = addSpotAsDescendantOf(graph, "1", a, array(3, 2, 2)); // intern
 		Spot center = addSpot(graph, "center", array(4, 2, 2));
 		Spot b = addSpot(graph, "b", array(6, 2, 2));
-		Spot b1 = addSpotAsDescendantOf(graph, "3", b, array(5, 2, 2)); // intern
-		Spot b2 = addSpotAsDescendantOf(graph, "4", b, array(7, 2, 2)); // extern
-		LabelSpotsSystematically.setLabelsBasedOnInternExtern( graph, Collections.singleton( center ), graph.vertices(), true, false);
+		Spot b2 = addSpotAsDescendantOf(graph, "4", b, array(5, 2, 2)); // intern
+		Spot b1 = addSpotAsDescendantOf(graph, "3", b, array(7, 2, 2)); // extern
+		LabelSpotsSystematically.setLabelsBasedOnExternIntern( graph, Collections.singleton( center ), graph.vertices(), true, false);
 		assertEquals("a1", a1.getLabel());
 		assertEquals("a2", a2.getLabel());
 		assertEquals("b1", b1.getLabel());

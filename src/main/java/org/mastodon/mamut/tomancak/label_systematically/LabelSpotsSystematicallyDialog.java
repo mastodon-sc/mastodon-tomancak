@@ -24,8 +24,8 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 	private static final String description = "<html>"
 			+ "Derive the name of child cells from the name of the parent,<br>"
 			+ "by appending a \"1\" or a \"2\" to the parent cell name.<br>"
-			+ "The child cell closer to the center landmark gets \"1\" appended.<br>"
-			+ "The child cell further away from the center landmark gets \"2\" appended."
+			+ "The child cell further away from the center landmark gets \"1\" appended.<br>"
+			+ "The child cell closer to the center landmark gets \"2\" appended."
 			+ "</html>";
 
 	private final MamutAppModel appModel;
@@ -94,7 +94,7 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 		{
 			Collection<Spot> center = centerLandmark.getSelectedSpots();
 			Collection<Spot> selected = selectSpots.getSelectedSpots();
-			LabelSpotsSystematically.setLabelsBasedOnInternExtern( graph, center, selected, renameUnnamed, renameLabelsEndingWith1Or2 );
+			LabelSpotsSystematically.setLabelsBasedOnExternIntern( graph, center, selected, renameUnnamed, renameLabelsEndingWith1Or2 );
 			model.setUndoPoint();
 		}
 		finally

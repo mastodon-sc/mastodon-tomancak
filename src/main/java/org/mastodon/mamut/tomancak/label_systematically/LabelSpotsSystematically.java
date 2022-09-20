@@ -3,7 +3,7 @@ package org.mastodon.mamut.tomancak.label_systematically;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.sort_tree.InternExternOrder;
+import org.mastodon.mamut.tomancak.sort_tree.ExternInternOrder;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 public class LabelSpotsSystematically
 {
 
-	public static void setLabelsBasedOnInternExtern( ModelGraph graph, Collection<Spot> center, Collection<Spot> selected, boolean renameUnnamed, boolean renameLabelsEndingWith1Or2 )
+	public static void setLabelsBasedOnExternIntern( ModelGraph graph, Collection<Spot> center, Collection<Spot> selected, boolean renameUnnamed, boolean renameLabelsEndingWith1Or2 )
 	{
 		Predicate<Spot> filter = selected == graph.vertices()
 				? spot -> true // NB: because graph.vertices().contains(...) is not implemented.
@@ -25,7 +25,7 @@ public class LabelSpotsSystematically
 				branchFilter.setLabelEndsWith1or2Filter();
 			filter = filter.and( branchFilter );
 		}
-		setLabels( graph, filter, new InternExternOrder( graph, center ) );
+		setLabels( graph, filter, new ExternInternOrder( graph, center ) );
 	}
 
 	static void setLabels( ModelGraph graph, Predicate<Spot> filter, Predicate<Spot> correctOrder )

@@ -55,9 +55,9 @@ public class SortTree
 		sort( model, vertices, new LeftRightOrder( model.getGraph(), leftAnchors, rightAnchors ) );
 	}
 
-	public static void sortInternExtern( Model model, Collection<Spot> vertices, Collection<Spot> centerSpots )
+	public static void sortExternIntern( Model model, Collection<Spot> vertices, Collection<Spot> centerSpots )
 	{
-		sort( model, vertices, new InternExternOrder( model.getGraph(), centerSpots ) );
+		sort( model, vertices, new ExternInternOrder( model.getGraph(), centerSpots ) );
 	}
 
 	public static void sort( Model model, Collection<Spot> vertices, Predicate<Spot> order )
