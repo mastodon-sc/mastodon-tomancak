@@ -9,7 +9,7 @@ import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
-public class SortTreeInternExternTest
+public class SortTreeExternInternTest
 {
 	@Test
 	public void test() {
@@ -29,10 +29,10 @@ public class SortTreeInternExternTest
 		// add center marker
 		Spot center = graph.addVertex().init( 0, array(5,5,5), 1 );
 		// sort
-		SortTree.sortInternExtern(model, graph.vertices(), Collections.singleton(center));
+		SortTree.sortExternIntern(model, graph.vertices(), Collections.singleton(center));
 		// assert
-		assertEquals(aIntern, a.outgoingEdges().iterator().next().getTarget());
-		assertEquals(bIntern, b.outgoingEdges().iterator().next().getTarget());
+		assertEquals(aExtern, a.outgoingEdges().iterator().next().getTarget());
+		assertEquals(bExtern, b.outgoingEdges().iterator().next().getTarget());
 	}
 
 	private double[] array( double... values )

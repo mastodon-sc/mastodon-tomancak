@@ -13,12 +13,12 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.util.Collection;
 
-public class SortTreeInternExternDialog extends JDialog
+public class SortTreeExternInternDialog extends JDialog
 {
 	private static final String description = "<html>"
 			+ "<b>Sort the order of the sub lineages in the trackscheme.</b><br>"
-			+ "Cells closer to the center landmark, are put to the left side.<br>"
-			+ "Cells further away from the center landmark, are put to the right side."
+			+ "Cells further away from the center landmark, are put to the left side.<br>"
+			+ "Cells closer to the center landmark, are put to the right side."
 			+ "</html>";
 
 	private final MamutAppModel appModel;
@@ -26,7 +26,7 @@ public class SortTreeInternExternDialog extends JDialog
 	private final SelectSpotsComponent centerLandmark;
 	private final SelectSpotsComponent nodesToSort;
 
-	private SortTreeInternExternDialog( MamutAppModel appModel ) {
+	private SortTreeExternInternDialog( MamutAppModel appModel ) {
 		super(( Frame ) null, "Sort Lineage Tree", false);
 		setResizable( false );
 		this.appModel = appModel;
@@ -55,7 +55,7 @@ public class SortTreeInternExternDialog extends JDialog
 
 	public static void showDialog(MamutAppModel model)
 	{
-		SortTreeInternExternDialog dialog = new SortTreeInternExternDialog(model);
+		SortTreeExternInternDialog dialog = new SortTreeExternInternDialog(model);
 		dialog.setDefaultCloseOperation( DISPOSE_ON_CLOSE );
 		dialog.setVisible( true );
 	}
@@ -64,7 +64,7 @@ public class SortTreeInternExternDialog extends JDialog
 	{
 		Collection<Spot> center = centerLandmark.getSelectedSpots();
 		Collection<Spot> selectedSpots = nodesToSort.getSelectedSpots();
-		SortTree.sortInternExtern( appModel.getModel(), selectedSpots, center );
+		SortTree.sortExternIntern( appModel.getModel(), selectedSpots, center );
 	}
 
 	private static void centerWindow( Window frame) {
