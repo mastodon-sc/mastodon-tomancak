@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 
 import javax.swing.JOptionPane;
 
@@ -119,7 +120,7 @@ public class MakePhyloXml
 
 	private final Spot root;
 
-	private final IntPropertyMap< BranchEdge > lengths;
+	private final IntPropertyMap< BranchVertex > lengths;
 
 	private final ObjPropertyMap< BranchVertex, String > labels;
 
@@ -138,6 +139,7 @@ public class MakePhyloXml
 		final Spot vref3 = subgraph.vertexRef();
 		final Spot vref4 = subgraph.vertexRef();
 		final Link eref = subgraph.edgeRef();
+		final Spot vref = subgraph.vertexRef();
 		final double[] pos = new double[ 3 ];
 		final double[][] cov = new double[ 3 ][ 3 ];
 
@@ -167,35 +169,31 @@ public class MakePhyloXml
 		branchGraphRoot = branchGraph.getBranchVertex( subgraphRoot, branchGraph.vertexRef() );
 
 		labels = new ObjPropertyMap<>( branchGraph.vertices().getRefPool() );
-		for ( final BranchEdge be : branchGraph.edges() )
+		for ( final BranchVertex bv : branchGraph.vertices() )
 		{
-			final Link edge = branchGraph.getLinkedEdge( be, eref );
-			final Spot source = edge.getSource( vref1 );
-			final Spot target = edge.getTarget( vref2 );
-			if( source.equals( subgraphRoot ) )
+			if( bv.equals( branchGraphRoot ) )
 			{
-				labels.set( be.getSource(), source.getLabel() );
-				labels.set( be.getTarget(), source.getLabel() );
+				final Spot spot = branchGraph.getFirstLinkedVertex( bv, vref );
+				labels.set( bv, spot.getLabel() );
 			}
 			else
 			{
-				labels.set( be.getTarget(), target.getLabel() );
+				final Spot spot = branchGraph.getLastLinkedVertex( bv, vref );
+				labels.set( bv, spot.getLabel() );
 			}
 		}
 
-		lengths = new IntPropertyMap< BranchEdge >( branchGraph.edges().getRefPool(), -1 );
-		for ( final BranchEdge be : branchGraph.edges() )
+		lengths = new IntPropertyMap<>( branchGraph.vertices().getRefPool(), -1 );
+		for ( final BranchVertex bv : branchGraph.vertices() )
 		{
-			Link edge = branchGraph.getLinkedEdge( be, eref );
-			int length = 1;
-			Spot target = edge.getTarget( vref1 );
-			while ( target.outgoingEdges().size() == 1 )
-			{
-				++length;
-				edge = target.outgoingEdges().get( 0, eref );
-				target = edge.getTarget( vref1 );
+			Iterator<Spot> vertexBranchIterator = branchGraph.vertexBranchIterator( bv );
+			int length = bv.incomingEdges().isEmpty() ? -1 : 0;
+			while ( vertexBranchIterator.hasNext() ) {
+				vertexBranchIterator.next();
+				length++;
 			}
-			lengths.set( be, length );
+			lengths.set( bv, length );
+			branchGraph.releaseIterator( vertexBranchIterator );
 		}
 
 //		final TreeOutputter< BranchVertex, BranchEdge > btsto = new TreeOutputter<>( branchGraph, bv -> {
@@ -218,33 +216,20 @@ public class MakePhyloXml
 		final Element phylogeny = new Element( "phylogeny" );
 		phylogeny.setAttribute( "rooted", "true" );
 		phylogeny.addContent( XmlHelpers.textElement( "name", labels.get( branchGraphRoot ) ) );
-		if ( branchGraphRoot.outgoingEdges().size() > 1 )
-		{
-			final Element clade = new Element( "clade" );
-			clade.addContent( XmlHelpers.textElement( "name", labels.get( branchGraphRoot ) ) );
-			clade.addContent( XmlHelpers.intElement( "branch_length", 0 ) );
-			for ( final BranchEdge outgoing : branchGraphRoot.outgoingEdges() )
-				clade.addContent( toXml( outgoing ) );
-			phylogeny.addContent( clade );
-		}
-		else
-		{
-			phylogeny.addContent( toXml( branchGraphRoot.outgoingEdges().get( 0 ) ) );
-		}
+		phylogeny.addContent( toXml( branchGraphRoot ) );
 		root.addContent( phylogeny );
 
 		return new Document( root );
 	}
 
-	private Element toXml( final BranchEdge be )
+	private Element toXml( final BranchVertex branchVertex )
 	{
 		final Element clade = new Element( "clade" );
 
-		final BranchVertex target = be.getTarget();
-		clade.addContent( XmlHelpers.textElement( "name", labels.get( target ) ) );
-		clade.addContent( XmlHelpers.intElement( "branch_length", lengths.get( be ) ) );
-		for ( final BranchEdge outgoing : target.outgoingEdges() )
-			clade.addContent( toXml( outgoing ) );
+		clade.addContent( XmlHelpers.textElement( "name", labels.get( branchVertex ) ) );
+		clade.addContent( XmlHelpers.intElement( "branch_length", lengths.get( branchVertex ) ) );
+		for ( final BranchEdge outgoing : branchVertex.outgoingEdges() )
+			clade.addContent( toXml( outgoing.getTarget() ) );
 
 		return clade;
 	}
@@ -264,9 +249,9 @@ public class MakePhyloXml
 		}
 
 		@Override
-		public BranchVertex init( final BranchVertex bv, final Spot v )
+		public BranchVertex init( BranchVertex branchVertex, Spot branchStart, Spot branchEnd )
 		{
-			return bv.init( v.getInternalPoolIndex(), v.getTimepoint() );
+			return branchVertex.init( branchEnd.getInternalPoolIndex(), branchEnd.getTimepoint() );
 		}
 
 		@Override
