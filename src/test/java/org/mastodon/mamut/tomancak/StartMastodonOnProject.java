@@ -39,12 +39,14 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
 import mpicbg.spim.data.SpimDataException;
 
-
+/**
+ * Starts Mastodon on a given project file.
+ */
 public class StartMastodonOnProject {
 
 	public static void main(String[] args) {
 		try {
-			String projectPath = "/home/arzt/Datasets/DeepLineage/Johannes/2022-01-27_Ml_NL45xNL26_fused_part5_2022-07-06_Matthias.mastodon";
+			String projectPath = fileOpenDialog();
 
 			//not sure what this is good for but see it everywhere...
 			//(seems to give no effect on Linux)
