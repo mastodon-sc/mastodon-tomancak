@@ -1,7 +1,10 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
+import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefSet;
+import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.collection.ref.RefSetImp;
+import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.pool.PoolCollectionWrapper;
@@ -46,6 +49,27 @@ public class LineageTreeUtils
 		}
 		finally {
 			graph.releaseRef( branchEnd );		
+		}
+	}
+
+	public static RefList<Spot> getBranchStarts( ModelGraph graph ) {
+		Spot ref = graph.vertexRef();
+		try
+		{
+			RefArrayList< Spot > l = new RefArrayList<>( graph.vertices().getRefPool() );
+			for ( Spot spot : graph.vertices() )
+			{
+				if ( spot.incomingEdges().size() != 1 )
+					l.add( spot );
+				if ( spot.outgoingEdges().size() > 1 )
+					for ( Link link : spot.outgoingEdges() )
+						l.add( link.getTarget( ref ) );
+			}
+			return l;
+		}
+		finally
+		{
+			graph.releaseRef( ref );
 		}
 	}
 }

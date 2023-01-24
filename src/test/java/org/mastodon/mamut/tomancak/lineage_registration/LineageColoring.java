@@ -39,7 +39,7 @@ public class LineageColoring
 
 	private static void tagLineages( Map<String, Integer> colorMap, RefCollection< Spot > roots, Model model )
 	{
-		TagSetStructure.TagSet tagSet = createTagSet( model, colorMap );
+		TagSetStructure.TagSet tagSet = createTagSet( model, "lineages", colorMap );
 		Map< String, TagSetStructure.Tag > tags = tagSet.getTags().stream()
 				.collect( Collectors.toMap( TagSetStructure.Tag::label, tag -> tag ) );
 		for( Spot root : roots ) {
@@ -84,11 +84,11 @@ public class LineageColoring
 		search.start( root );
 	}
 
-	private static TagSetStructure.TagSet createTagSet( Model model, Map<String, Integer> tagsAndColors )
+	public static TagSetStructure.TagSet createTagSet( Model model, String title, Map<String, Integer> tagsAndColors )
 	{
 		TagSetModel<Spot, Link> tagSetModel = model.getTagSetModel();
 		TagSetStructure tss = copy( tagSetModel.getTagSetStructure() );
-		TagSetStructure.TagSet tagSet = tss.createTagSet("lineages");
+		TagSetStructure.TagSet tagSet = tss.createTagSet(title);
 		tagsAndColors.forEach( tagSet::createTag );
 		tagSetModel.setTagSetStructure( tss );
 		return tagSet;
