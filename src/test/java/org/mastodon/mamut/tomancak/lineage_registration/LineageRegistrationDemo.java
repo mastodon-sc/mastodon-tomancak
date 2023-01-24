@@ -7,6 +7,8 @@ import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalRealInterval;
 import net.imglib2.RealInterval;
 import net.imglib2.realtransform.AffineTransform3D;
+import net.imglib2.util.LinAlgHelpers;
+
 import org.mastodon.blender.BlenderController;
 import org.mastodon.collection.RefCollection;
 import org.mastodon.collection.RefRefMap;
@@ -48,7 +50,41 @@ public class LineageRegistrationDemo
 		LineageColoring.tagLineages( embryoA.getModel(), embryoB.getModel() );
 		LineageRegistrationAlgorithm.run( embryoA.getModel(), embryoB.getModel() );
 		addNotMappedTag();
-		colorAccordingToPosition();
+		colorPositionCorrectness();
+	}
+
+	private void colorPositionCorrectness()
+	{
+		ModelGraph graphA = embryoA.getModel().getGraph();
+		ModelGraph graphB = embryoB.getModel().getGraph();
+		RefRefMap< Spot, Spot > roots = RootsPairing.pairRoots( graphA, graphB );
+		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( roots );
+		RefRefMap< Spot, Spot > mapping = new LineageRegistrationAlgorithm(
+				graphA, graphB,
+				roots, transformAB ).getMapping();
+		BlenderController blender = new BlenderController( context, embryoA );
+		double sizeA = sizeEstimate( graphA );
+		double[] positionB = new double[3];
+		double[] positionA = new double[3];
+		Spot ref = graphB.vertexRef();
+		blender.sendColors( spotA -> {
+			Spot spotB = mapping.get( spotA, ref );
+			if( spotB == null )
+				return 0xff550000;
+			spotA.localize( positionA );
+			spotB.localize( positionB );
+			transformAB.applyInverse( positionB, positionB );
+			double distance = LinAlgHelpers.distance( positionA, positionB );
+			int gray = 255 - (int) (Math.min( 1.0, distance / sizeA * 10 ) * 255);
+			int color = 0xff000000 + gray + (gray << 8) + (gray << 16);
+			return color;
+		} );
+	}
+
+	private double sizeEstimate( ModelGraph graphB )
+	{
+		RealInterval boundingBox = boundingBox( graphB.vertices());
+		return LinAlgHelpers.distance( boundingBox.minAsDoubleArray(), boundingBox.maxAsDoubleArray() );
 	}
 
 	private void addNotMappedTag()
@@ -95,14 +131,19 @@ public class LineageRegistrationDemo
 		ModelGraph graphB = embryoB.getModel().getGraph();
 		RealInterval boundingBox = boundingBox(graphB.vertices());
 		double[] coords = new double[3];
+		Spot ref = graphB.vertexRef();
 		blender.sendColors( spotA -> {
-			Spot ref = graphB.vertexRef();
 			Spot spotB = mapping.get( spotA, ref );
 			if( spotB == null )
 				return 0xff000000;
 			spotB.localize( coords );
-			return 0xff000000 | channel( boundingBox, coords, 0 ) | channel( boundingBox, coords, 1 ) << 8 | channel( boundingBox, coords, 2 ) << 16;
+			return color( boundingBox, coords );
 		} );
+	}
+
+	private int color( RealInterval boundingBox, double[] coords )
+	{
+		return 0xff000000 | channel( boundingBox, coords, 0 ) | channel( boundingBox, coords, 1 ) << 8 | channel( boundingBox, coords, 2 ) << 16;
 	}
 
 	private int channel( RealInterval boundingBox, double[] coords, int i )
