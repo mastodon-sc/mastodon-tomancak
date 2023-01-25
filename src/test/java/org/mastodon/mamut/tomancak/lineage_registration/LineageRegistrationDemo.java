@@ -75,10 +75,19 @@ public class LineageRegistrationDemo
 			spotB.localize( positionB );
 			transformAB.applyInverse( positionB, positionB );
 			double distance = LinAlgHelpers.distance( positionA, positionB );
-			int gray = 255 - (int) (Math.min( 1.0, distance / sizeA * 10 ) * 255);
-			int color = 0xff000000 + gray + (gray << 8) + (gray << 16);
-			return color;
+			return gray( 1 - distance / sizeA * 5 );
 		} );
+	}
+
+	private int gray( double b )
+	{
+		if ( b > 1 )
+			b = 1;
+		if ( b < 0 )
+			b = 0;
+		int gray = (int) (b * 255);
+		int color = 0xff000000 + gray + (gray << 8) + (gray << 16);
+		return color;
 	}
 
 	private double sizeEstimate( ModelGraph graphB )

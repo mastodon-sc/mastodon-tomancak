@@ -2,7 +2,6 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 
 import net.imglib2.realtransform.AffineTransform3D;
 
-import org.mastodon.adapter.RefBimap;
 import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.ref.RefArrayList;
@@ -101,8 +100,12 @@ public class LineageRegistrationAlgorithm
 			for ( Spot spotA : map.keySet() )
 			{
 				Spot spotB = map.get( spotA, ref );
-				if( doFlip( spotA, spotB ) )
-					list.add( spotB );
+				Spot dividingA = LineageTreeUtils.getBranchEnd( graphA, spotA );
+				Spot dividingB = LineageTreeUtils.getBranchEnd( graphB, spotB );
+				if( doFlip( dividingA, dividingB ) )
+					list.add( dividingB );
+				graphA.releaseRef( dividingA );
+				graphB.releaseRef( dividingB );
 			}
 			return list;
 		}
@@ -112,28 +115,24 @@ public class LineageRegistrationAlgorithm
 		}
 	}
 
-	private boolean doFlip( Spot spotA, Spot spotB )
+	private boolean doFlip( Spot dividingA, Spot dividingB )
 	{
-		Spot dividedA = LineageTreeUtils.getBranchEnd( graphA, spotA );
-		Spot dividedB = LineageTreeUtils.getBranchEnd( graphB, spotB );
 		Spot refA = graphA.vertexRef();
 		Spot refB = graphB.vertexRef();
 		Spot refB2 = graphB.vertexRef();
 		try
 		{
-			boolean bothDivide = dividedA.outgoingEdges().size() == 2 &&
-					dividedB.outgoingEdges().size() == 2;
+			boolean bothDivide = dividingA.outgoingEdges().size() == 2 &&
+					dividingB.outgoingEdges().size() == 2;
 			if ( !bothDivide )
 				return false;
-			Spot firstChildA = dividedA.outgoingEdges().get( 0 ).getTarget( refA );
-			Spot secondChildB = dividedB.outgoingEdges().get( 1 ).getTarget( refB );
+			Spot firstChildA = dividingA.outgoingEdges().get( 0 ).getTarget( refA );
+			Spot secondChildB = dividingB.outgoingEdges().get( 1 ).getTarget( refB );
 			return map.get( firstChildA, refB2 ).equals( secondChildB );
 		}
 		finally
 		{
-			graphA.releaseRef( dividedA );
 			graphA.releaseRef( refA );
-			graphB.releaseRef( dividedB );
 			graphB.releaseRef( refB );
 			graphB.releaseRef( refB2 );
 		}
