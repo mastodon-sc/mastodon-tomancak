@@ -89,7 +89,8 @@ public class LineageRegistrationDialog extends JDialog
 
 	public static void main( String... args )
 	{
-		File file = LineageRegistrationDialog.showDialog();
-		System.out.println( file );
+		// NOTE: Small demo function that only shows the LineageRegistrationDialog. For easy debugging.
+		File otherProjectPath = LineageRegistrationDialog.showDialog();
+		System.out.println( otherProjectPath );
 	}
 }

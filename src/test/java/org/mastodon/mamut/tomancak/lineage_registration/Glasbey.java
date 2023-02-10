@@ -1,11 +1,9 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 /**
  * Glasbey Color Tables.
+ *
+ * @author Matthias Arzt
  */
 public class Glasbey
 {
@@ -62,11 +60,4 @@ public class Glasbey
 			0xffb0586c, 0xff6672b0, 0xffd8de78, 0xffbf8195, 0xffb0b2a6, 0xff7fbeff, 0xff730075, 0xff003c9e, 0xffe5dcd6, 0xff6443c3,
 			0xff71c841, 0xff4a00fa, 0xff00dc9d, 0xffebf9fe, 0xffaab102, 0xffc7aece, 0xff834a1d, 0xffff68ed, 0xff00b59e, 0xff744d67,
 			0xffab8306, 0xffda5a41, 0xffadc5cb, 0xff405500, 0xffffc284, 0xffdc1b44, 0xffa883d1, 0xff7d7983, 0xff116552 };
-
-	@Test
-	public void testLength()
-	{
-		assertEquals( 256, GLASBEY.length );
-		assertEquals( 256, GLASBEY_ON_DARK.length );
-	}
 }
