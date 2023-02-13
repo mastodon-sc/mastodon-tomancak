@@ -26,7 +26,7 @@ public class RootsPairing
 	 * @return a map, that maps root nodes in graph A to equally named
 	 * root nodes of graph B.
 	 */
-	static RefRefMap< Spot, Spot > pairRoots( ModelGraph graphA, ModelGraph graphB )
+	static RefRefMap< Spot, Spot > pairDividingRoots( ModelGraph graphA, ModelGraph graphB )
 	{
 		ObjectRefMap< String, Spot > rootsA = dividingRootsMap( graphA );
 		ObjectRefMap< String, Spot > rootsB = dividingRootsMap( graphB );

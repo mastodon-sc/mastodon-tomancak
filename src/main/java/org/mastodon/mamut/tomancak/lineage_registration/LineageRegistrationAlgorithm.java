@@ -34,7 +34,7 @@ public class LineageRegistrationAlgorithm
 	{
 		ModelGraph graphA = embryoA.getGraph();
 		ModelGraph graphB = embryoB.getGraph();
-		RefRefMap< Spot, Spot > roots = RootsPairing.pairRoots( graphA, graphB );
+		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots( graphA, graphB );
 		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( roots );
 		LineageRegistrationAlgorithm algorithm = new LineageRegistrationAlgorithm(
 				graphA, graphB,
