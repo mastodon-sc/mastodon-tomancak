@@ -22,23 +22,27 @@ public class LineageRegistrationDialog extends JDialog
 
 	public LineageRegistrationDialog()
 	{
-		super( ( JFrame ) null, "Sort TrackScheme to Match Another Lineage", true );
+		// NB: Setting the ModalityType.DOCUMENT_MODEL has the following intended effect:
+		//     1. setVisible(true) block, until the window ok / cancel / close is clicked.
+		//     2. Other Fiji windows are not blocked.
+		super( ( JFrame ) null, "Sort TrackScheme to Match Another Lineage", ModalityType.DOCUMENT_MODAL );
 		setLayout( new MigLayout( "insets dialog, fill" ) );
 
 		final String introText = "<html><body>"
-				+ "The \"Tree Matching\" plugin allows to sorts the TrackScheme in this project<br>"
-				+ "such that the order matches the other project.<br>"
+				+ "The \"Tree Matching\" plugin orders the descendants in the TrackScheme of this project<br>"
+				+ "such that their order matches the order in the other project.<br><br>"
 				+ "These requirements should be met:"
 				+ "<ul>"
-				+ "<li>Both project should show a stereotypically developing embryo.</li>"
-				+ "<li>The first frame should show the two embryo at a similar stage.</li>"
+				+ "<li>Both projects should show a stereotypically developing embryos.</li>"
+				+ "<li>The first frames should show the two embryos at a similar stage.</li>"
 				+ "<li>Root nodes must be named, and the names should match between the two projects.</li>"
 				+ "</ul>"
 				+ "</body></html>";
 		add( new JLabel( "Please select Mastodon project to match to:" ), "wrap" );
 		pathTextArea = new JTextArea( 2, 50 );
+		pathTextArea.setLineWrap( true );
 		pathTextArea.setEditable( false );
-		add( pathTextArea, "grow, wrap" );
+		add( pathTextArea, "grow, wmin 0, wrap" );
 		add( newButton( "select", this::onSelectClicked ), "wrap" );
 		add( new JLabel( introText ), "gaptop unrelated, wrap" );
 		add( newButton( "Sort TrackScheme", this::onOkClicked ), "gaptop unrelated, split 2, pushx, align right" );
@@ -47,8 +51,12 @@ public class LineageRegistrationDialog extends JDialog
 
 	private void onSelectClicked()
 	{
-		mastodonProject = FileChooser.chooseFile( this, null, new FileNameExtensionFilter( "Mastodon project", "mastodon" ),
-				"Open Mastodon Project, To Match To", FileChooser.DialogType.LOAD );
+		FileNameExtensionFilter filter = new FileNameExtensionFilter( "Mastodon project", "mastodon" );
+		String title = "Open Mastodon project to match to";
+		mastodonProject = FileChooser.chooseFile( this, null, filter, title,
+				FileChooser.DialogType.LOAD, FileChooser.SelectionMode.FILES_AND_DIRECTORIES );
+		if ( mastodonProject == null )
+			return;
 		pathTextArea.setText( mastodonProject.getPath() );
 	}
 
