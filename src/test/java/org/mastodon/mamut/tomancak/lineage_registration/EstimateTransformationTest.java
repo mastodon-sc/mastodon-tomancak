@@ -1,53 +1,61 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import net.imglib2.RealPoint;
 import net.imglib2.realtransform.AffineTransform3D;
+
 import org.junit.Test;
+import org.mastodon.collection.RefRefMap;
+import org.mastodon.collection.ref.RefRefHashMap;
+import org.mastodon.mamut.model.ModelGraph;
+import org.mastodon.mamut.model.Spot;
 
 public class EstimateTransformationTest
 {
 	@Test
 	public void testEstimateScaleRotationTransform()
 	{
-		AffineTransform3D expected = new AffineTransform3D();
-		expected.rotate( 0, Math.PI / 7 );
-		expected.rotate( 1, Math.PI / 7 );
-		expected.rotate( 2, Math.PI / 7 );
-		expected.scale( 2 );
-		expected.translate( 7, 6, 8 );
-		List< RealPoint > a = Arrays.asList( point( 1, 0, 0 ), point( 0, 1, 0 ), point( 0, 0, 1 ), point( 0, 0, 0 ) );
-		List< RealPoint > b = transformPoints( expected, a );
-		AffineTransform3D m = EstimateTransformation.estimateScaleRotationAndTranslation( a, b );
-		EstimateTransformationTest.assertTransformEquals( expected, m, 0.001 );
-	}
-
-	private static RealPoint point( double... values )
-	{
-		return new RealPoint( values );
-	}
-
-	private static void assertTransformEquals( AffineTransform3D expected, AffineTransform3D actual, double tolerance )
-	{
-		for ( int row = 0; row < 3; row++ )
-			for ( int col = 0; col < 4; col++ )
-				assertEquals( expected.get( row, col ), actual.get( row, col ), tolerance );
-	}
-
-	private List< RealPoint > transformPoints( AffineTransform3D transform, List< RealPoint > points )
-	{
-		List< RealPoint > b = new ArrayList<>();
-		for ( RealPoint p : points )
+		AffineTransform3D expected = exampleTransformation();
+		ModelGraph graphA = simpleGraph();
+		// initialize a transformed graphB and a map of spot pairs
+		ModelGraph graphB = new ModelGraph();
+		RefRefMap< Spot, Spot > pairs = new RefRefHashMap<>( graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
+		for ( Spot spotA : graphA.vertices() )
 		{
-			RealPoint r = new RealPoint( 3 );
-			transform.apply( p, r );
-			b.add( r );
+			Spot spotB = graphB.addVertex().init( 0, new double[] { 0, 0, 0 }, 1 );
+			expected.apply( spotA, spotB );
+			pairs.put( spotA, spotB );
 		}
-		return b;
+		// estimate transform
+		AffineTransform3D result = EstimateTransformation.estimateScaleRotationAndTranslation( pairs );
+		// test
+		assertArrayEquals( asArray( expected ), asArray( result ), 0.001 );
+	}
+
+	private ModelGraph simpleGraph()
+	{
+		ModelGraph graphA = new ModelGraph();
+		graphA.addVertex().init( 0, new double[] { 1, 0, 0 }, 1 );
+		graphA.addVertex().init( 0, new double[] { 0, 1, 0 }, 1 );
+		graphA.addVertex().init( 0, new double[] { 0, 0, 1 }, 1 );
+		return graphA;
+	}
+
+	private AffineTransform3D exampleTransformation()
+	{
+		AffineTransform3D transform = new AffineTransform3D();
+		transform.rotate( 0, Math.PI / 7 );
+		transform.rotate( 1, Math.PI / 7 );
+		transform.rotate( 2, Math.PI / 7 );
+		transform.scale( 2 );
+		transform.translate( 7, 6, 8 );
+		return transform;
+	}
+
+	private double[] asArray( AffineTransform3D transform )
+	{
+		double[] data = new double[ 12 ];
+		transform.toArray( data );
+		return data;
 	}
 }

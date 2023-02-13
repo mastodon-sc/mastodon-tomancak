@@ -42,9 +42,8 @@
 			<artifactId>ui-behaviour</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.preibisch</groupId>
-			<artifactId>multiview-reconstruction</artifactId>
-			<version>0.11.5</version>
+			<groupId>mpicbg</groupId>
+			<artifactId>mpicbg</artifactId>
 		</dependency>
 
 		<!-- Test dependencies -->
