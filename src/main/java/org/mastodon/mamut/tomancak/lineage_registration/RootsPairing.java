@@ -17,9 +17,15 @@ import org.mastodon.mamut.model.Spot;
 public class RootsPairing
 {
 	/**
+	 * <p>
 	 * Pair the root nodes in two ModelGraphs based on their label.
 	 * A root node in graphA is paired with a root node in graphB
 	 * if it has the same label.
+	 * </p>
+	 * <p>
+	 * Important warning: The pairing only contains those root nodes
+	 * that actually divide.
+	 * </p>
 	 * 
 	 * @param graphA graph A
 	 * @param graphB graph B   
@@ -38,7 +44,7 @@ public class RootsPairing
 	}
 
 	/**
-	 * @return a map form "root label" to "root node" for the given graph.
+	 * @return a map that maps "root labels" to "root spots" for the given graph.
 	 * The map only contains those roots that actually divide.
 	 */
 	private static ObjectRefMap< String, Spot > dividingRootsMap( ModelGraph graphA )

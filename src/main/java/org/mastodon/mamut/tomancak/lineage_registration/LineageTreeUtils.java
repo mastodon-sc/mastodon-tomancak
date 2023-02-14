@@ -9,7 +9,7 @@ import org.mastodon.pool.PoolCollectionWrapper;
 public class LineageTreeUtils
 {
 	/**
-	 * @return the set of root nodes of the give graph.
+	 * @return the set of root nodes of the given graph.
 	 */
 	public static RefSet< Spot > getRoots( ModelGraph graph )
 	{

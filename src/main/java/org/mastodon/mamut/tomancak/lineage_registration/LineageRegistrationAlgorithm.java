@@ -13,9 +13,11 @@ import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
 
 /**
- * An algorithm that by compares the "spindle directions" in two lineages.
+ * An algorithm that compares the "cell division directions" in two lineages.
  * By doing so it figures out which spots need to be flipped in order
  * to match the TrackSchemes of both lineages.
+ *
+ * @see SortTreeUtils#directionOfCellDevision(ModelGraph, Spot)
  */
 public class LineageRegistrationAlgorithm
 {

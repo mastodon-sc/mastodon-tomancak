@@ -9,7 +9,7 @@ import org.mastodon.mamut.project.MamutProject;
 import org.mastodon.mamut.project.MamutProjectIO;
 
 /**
- * Shows the {@link LineageRegistrationAlgorithm} and
+ * Shows the {@link LineageRegistrationDialog} and
  * executes the {@link LineageRegistrationAlgorithm} when
  * ok is clicked.
  */

@@ -14,13 +14,32 @@ import net.imglib2.realtransform.AffineTransform3D;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.mamut.model.Spot;
 
-public class EstimateTransformation
+/**
+ * This class holds a function for estimating a 3d rigid transformation
+ * between two sets of points.
+ */
+class EstimateTransformation
 {
 
+	private EstimateTransformation()
+	{
+		// prevent instantiation
+	}
+
 	/**
-	 * Return a affine transform, that is composed of scaling, rotation and translation operation.
-	 * The transformation is optimized to minimize the distances of the transformed "key" spots
-	 * to the "value" spots.
+	 * <p>
+	 * @return a 3d rigid transform (that is composed of scaling, rotation and translation).
+	 * The returned transformation is the optimal transformation, that when applied on the "key" spots
+	 * of the given "pairs" map minimizes the distance to the "value" spots.
+	 * </p>
+	 * <p>
+	 * See "Closed-form solution of absolute orientation using unit quaternions",
+	 * Horn, B. K. P., Journal of the Optical Society of America A, Vol. 4, page 629, April 1987
+	 * </p>
+	 * @param pairs A map that serves as a list of pairs of spots. Each pair consists of a "key" spot
+	 *              and a "value" spot. The algorithm only uses the coordinates of the spots, all other
+	 *              properties are ignored.
+	 * @see SimilarityModel3D
 	 */
 	public static AffineTransform3D estimateScaleRotationAndTranslation( RefRefMap< Spot, Spot > pairs )
 	{
