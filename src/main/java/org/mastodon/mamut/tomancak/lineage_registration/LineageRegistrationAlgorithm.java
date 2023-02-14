@@ -50,20 +50,30 @@ public class LineageRegistrationAlgorithm
 		this.graphA = graphA;
 		this.graphB = graphB;
 		this.map = new RefRefHashMap<>( graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
-		for ( Spot rootA : roots.keySet() )
+		Spot refB = graphB.vertexRef();
+		try
 		{
-			Spot rootB = roots.get( rootA );
-			matchTree( rootA, rootB );
+			for ( Spot rootA : roots.keySet() )
+			{
+				Spot rootB = roots.get( rootA, refB );
+				matchTree( rootA, rootB );
+			}
+		}
+		finally
+		{
+			graphB.releaseRef( refB );
 		}
 	}
 
 	private void matchTree( Spot rootA, Spot rootB )
 	{
 		map.put( rootA, rootB );
-		Spot dividingA = LineageTreeUtils.getBranchEnd( graphA, rootA );
-		Spot dividingB = LineageTreeUtils.getBranchEnd( graphB, rootB );
+		Spot refA = graphA.vertexRef();
+		Spot refB = graphB.vertexRef();
 		try
 		{
+			Spot dividingA = LineageTreeUtils.getBranchEnd( rootA, refA );
+			Spot dividingB = LineageTreeUtils.getBranchEnd( rootB, refB );
 			boolean bothDivide = dividingA.outgoingEdges().size() == 2 &&
 					dividingB.outgoingEdges().size() == 2;
 			if ( !bothDivide )
@@ -77,8 +87,8 @@ public class LineageRegistrationAlgorithm
 		}
 		finally
 		{
-			graphA.releaseRef( dividingA );
-			graphB.releaseRef( dividingB );
+			graphA.releaseRef( refA );
+			graphB.releaseRef( refB );
 		}
 	}
 
@@ -99,29 +109,31 @@ public class LineageRegistrationAlgorithm
 
 	public RefList< Spot > getToBeFlipped()
 	{
-		Spot ref = graphB.vertexRef();
+		Spot refA = graphA.vertexRef();
+		Spot refB = graphB.vertexRef();
+		Spot refB0 = graphB.vertexRef();
 		try
 		{
 			RefArrayList< Spot > list = new RefArrayList<>( graphB.vertices().getRefPool() );
 			for ( Spot spotA : map.keySet() )
 			{
-				Spot spotB = map.get( spotA, ref );
-				Spot dividingA = LineageTreeUtils.getBranchEnd( graphA, spotA );
-				Spot dividingB = LineageTreeUtils.getBranchEnd( graphB, spotB );
-				if ( doFlip( dividingA, dividingB ) )
+				Spot spotB = map.get( spotA, refB0 );
+				Spot dividingA = LineageTreeUtils.getBranchEnd( spotA, refA );
+				Spot dividingB = LineageTreeUtils.getBranchEnd( spotB, refB );
+				if ( doesRequireFlip( dividingA, dividingB ) )
 					list.add( dividingB );
-				graphA.releaseRef( dividingA );
-				graphB.releaseRef( dividingB );
 			}
 			return list;
 		}
 		finally
 		{
-			graphB.releaseRef( ref );
+			graphA.releaseRef( refA );
+			graphB.releaseRef( refB );
+			graphB.releaseRef( refB0 );
 		}
 	}
 
-	private boolean doFlip( Spot dividingA, Spot dividingB )
+	private boolean doesRequireFlip( Spot dividingA, Spot dividingB )
 	{
 		Spot refA = graphA.vertexRef();
 		Spot refB = graphB.vertexRef();
