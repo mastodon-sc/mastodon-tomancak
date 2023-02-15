@@ -83,7 +83,9 @@ public class LineageRegistrationControlService extends AbstractService implement
 		@Override
 		public void onColorLineagesClicked()
 		{
-			// TODO
+			Model modelA = dialog.getProjectA().getAppModel().getModel();
+			Model modelB = dialog.getProjectB().getAppModel().getModel();
+			LineageColoring.tagLineages( modelA, modelB );
 		}
 
 		@Override
