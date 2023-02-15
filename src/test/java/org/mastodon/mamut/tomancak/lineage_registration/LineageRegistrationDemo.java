@@ -20,7 +20,7 @@ public class LineageRegistrationDemo
 
 	public static void main( String... args )
 	{
-		new LineageRegistrationDemo().run();
+		new LineageRegistrationDemo();
 	}
 
 	private LineageRegistrationDemo()

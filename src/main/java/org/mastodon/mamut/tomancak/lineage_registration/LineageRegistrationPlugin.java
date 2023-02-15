@@ -3,22 +3,18 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 import static org.mastodon.app.ui.ViewMenuBuilder.item;
 import static org.mastodon.app.ui.ViewMenuBuilder.menu;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.mastodon.app.ui.ViewMenuBuilder;
 import org.mastodon.mamut.MamutAppModel;
-import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
-import org.mastodon.mamut.project.MamutProject;
-import org.mastodon.mamut.project.MamutProjectIO;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.ui.keymap.CommandDescriptions;
 import org.mastodon.ui.keymap.KeyConfigContexts;
+import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
@@ -32,6 +28,10 @@ import org.scijava.ui.behaviour.util.RunnableAction;
 @Plugin( type = MamutPlugin.class )
 public class LineageRegistrationPlugin implements MamutPlugin
 {
+
+	@Parameter
+	LineageRegistrationControlService lineageRegistrationControlService;
+
 	private static final String MATCH_TREE = "[tomancak] match tree to other project";
 
 	private static final String[] MATCH_TREE_KEYS = { "not mapped" };
@@ -67,6 +67,7 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	@Override
 	public void setAppPluginModel( MamutPluginAppModel model )
 	{
+		lineageRegistrationControlService.registerMastodonInstance( model.getWindowManager() );
 		this.pluginAppModel = model;
 		updateEnabledActions();
 	}
@@ -98,33 +99,6 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	private void matchTree()
 	{
 		if ( pluginAppModel != null )
-			showDialog( pluginAppModel.getAppModel() );
-	}
-
-	public static void showDialog( MamutAppModel appModel )
-	{
-		File otherProject = LineageRegistrationDialog.showDialog();
-		if ( otherProject == null )
-			return;
-		Model model = openModel( otherProject );
-		LineageRegistrationAlgorithm.run( model, appModel.getModel() );
-	}
-
-	private static Model openModel( File file )
-	{
-		try
-		{
-			MamutProject project = new MamutProjectIO().load( file.getAbsolutePath() );
-			final Model model = new Model( project.getSpaceUnits(), project.getTimeUnits() );
-			try ( final MamutProject.ProjectReader reader = project.openForReading() )
-			{
-				model.loadRaw( reader );
-			}
-			return model;
-		}
-		catch ( IOException e )
-		{
-			throw new RuntimeException( e );
-		}
+			lineageRegistrationControlService.showDialog();
 	}
 }

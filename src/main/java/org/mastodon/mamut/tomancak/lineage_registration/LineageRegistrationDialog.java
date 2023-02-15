@@ -1,31 +1,36 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
 import java.io.File;
+import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTextArea;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.WindowConstants;
 
 import net.miginfocom.swing.MigLayout;
-import org.mastodon.ui.util.FileChooser;
+
+import org.apache.commons.io.FilenameUtils;
+import org.mastodon.mamut.WindowManager;
+import org.mastodon.mamut.project.MamutProject;
 
 public class LineageRegistrationDialog extends JDialog
 {
-	private final JTextArea pathTextArea;
+	private final Listener listener;
 
-	private File mastodonProject = null;
+	private final JComboBox< MastodonInstance > comboBoxA = new JComboBox<>();
 
-	private boolean ok = false;
+	private final JComboBox< MastodonInstance > comboBoxB = new JComboBox<>();
 
-	public LineageRegistrationDialog()
+	public LineageRegistrationDialog( Listener listener )
 	{
-		// NB: Setting the ModalityType.DOCUMENT_MODEL has the following intended effect:
-		//     1. setVisible(true) block, until the window ok / cancel / close is clicked.
-		//     2. Other Fiji windows are not blocked.
-		super( ( JFrame ) null, "Sort TrackScheme to Match Another Lineage", ModalityType.DOCUMENT_MODAL );
+		super( ( JFrame ) null, "Sort TrackScheme to Match Another Lineage", false );
+		this.setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
+		this.setLocationByPlatform( true );
+		this.listener = listener;
 		setLayout( new MigLayout( "insets dialog, fill" ) );
 
 		final String introText = "<html><body>"
@@ -38,37 +43,25 @@ public class LineageRegistrationDialog extends JDialog
 				+ "<li>Root nodes must be named, and the names should match between the two projects.</li>"
 				+ "</ul>"
 				+ "</body></html>";
-		add( new JLabel( "Please select Mastodon project to match to:" ), "wrap" );
-		pathTextArea = new JTextArea( 2, 50 );
-		pathTextArea.setLineWrap( true );
-		pathTextArea.setEditable( false );
-		add( pathTextArea, "grow, wmin 0, wrap" );
-		add( newButton( "select", this::onSelectClicked ), "wrap" );
-		add( new JLabel( introText ), "gaptop unrelated, wrap" );
-		add( newButton( "Sort TrackScheme", this::onOkClicked ), "gaptop unrelated, split 2, pushx, align right" );
-		add( newButton( "Cancel", this::onCancelClicked ) );
-	}
+		add( new JLabel( introText ), "span, wrap" );
+		add( new JLabel( "Select Mastodon projects to match:" ), "span, wrap" );
+		add( new JLabel( "project A:" ) );
+		add( comboBoxA, "grow, wrap" );
+		add( new JLabel( "project B:" ) );
+		add( comboBoxB, "grow, wrap" );
+		add( newButton( "update", listener::onUpdateClicked ), "skip, split 2" );
+		add( newButton( "improve window titles", this::onImproveTitlesClicked ), "wrap" );
 
-	private void onSelectClicked()
-	{
-		FileNameExtensionFilter filter = new FileNameExtensionFilter( "Mastodon project", "mastodon" );
-		String title = "Open Mastodon project to match to";
-		mastodonProject = FileChooser.chooseFile( this, null, filter, title,
-				FileChooser.DialogType.LOAD, FileChooser.SelectionMode.FILES_AND_DIRECTORIES );
-		if ( mastodonProject == null )
-			return;
-		pathTextArea.setText( mastodonProject.getPath() );
-	}
-
-	private void onOkClicked()
-	{
-		ok = true;
-		super.setVisible( false );
-	}
-
-	private void onCancelClicked()
-	{
-		super.setVisible( false );
+		add( new JLabel( "Sort TrackScheme:" ), "gaptop unrelated" );
+		add( newButton( "project A", listener::onSortTrackSchemeAClicked ), "split 2" );
+		add( newButton( "project B", listener::onSortTrackSchemeBClicked ), "wrap" );
+		add( new JLabel( "Copy tag set:" ) );
+		add( newButton( "from A to B", listener::onCopyTagSetAtoB ), "split 2" );
+		add( newButton( "from B to A", listener::onCopyTagSetBtoA ), "wrap" );
+		add( new JLabel( "Others:" ) );
+		add( newButton( "color paired lineages", listener::onColorLineagesClicked ), "wrap" );
+		add( new JCheckBox( "synchronize" ) );
+		add( newButton( "Close", this::onCloseClicked ), "gaptop unrelated, span, align right" );
 	}
 
 	private JButton newButton( String select, Runnable action )
@@ -78,19 +71,157 @@ public class LineageRegistrationDialog extends JDialog
 		return button;
 	}
 
-	public static File showDialog()
+	private void onImproveTitlesClicked()
 	{
-		LineageRegistrationDialog dialog = new LineageRegistrationDialog();
-		dialog.setLocationByPlatform( true );
-		dialog.pack();
-		dialog.setVisible( true );
-		return dialog.ok ? dialog.mastodonProject : null;
+		listener.onImproveTitlesClicked();
+	}
+
+	private void onCloseClicked()
+	{
+		dispose();
+	}
+
+	public void setMastodonInstances( List< WindowManager > instances )
+	{
+		WindowManager a = getProjectA();
+		WindowManager b = getProjectB();
+		comboBoxA.removeAllItems();
+		comboBoxB.removeAllItems();
+		for ( WindowManager windowManager : instances )
+		{
+			MastodonInstance mastodonInstance = new MastodonInstance( windowManager );
+			comboBoxA.addItem( mastodonInstance );
+			comboBoxB.addItem( mastodonInstance );
+		}
+		setSelected( comboBoxA, a, 0 );
+		setSelected( comboBoxB, b, 1 );
+	}
+
+	private void setSelected( JComboBox< MastodonInstance > comboBox, WindowManager windowManager, int defaultIndex )
+	{
+		for ( int i = 0; i < comboBox.getItemCount(); i++ )
+			if ( comboBox.getItemAt( i ).windowManager == windowManager )
+			{
+				comboBox.setSelectedIndex( i );
+				return;
+			}
+		if ( defaultIndex < comboBox.getItemCount() )
+			comboBox.setSelectedIndex( defaultIndex );
+	}
+
+	public WindowManager getProjectA()
+	{
+		return getSelected( comboBoxA );
+	}
+
+	public WindowManager getProjectB()
+	{
+		return getSelected( comboBoxB );
+	}
+
+	private WindowManager getSelected( JComboBox< MastodonInstance > comboBoxA )
+	{
+		Object selectedItem = comboBoxA.getSelectedItem();
+		if ( selectedItem == null )
+			return null;
+		return ( ( MastodonInstance ) selectedItem ).windowManager;
+	}
+
+	private static class MastodonInstance
+	{
+		private final WindowManager windowManager;
+
+		private MastodonInstance( WindowManager windowManager )
+		{
+			this.windowManager = windowManager;
+		}
+
+		@Override
+		public String toString()
+		{
+			return getProjectName( windowManager );
+		}
+	}
+
+	public static String getProjectName( WindowManager windowManager )
+	{
+		MamutProject project = windowManager.getProjectManager().getProject();
+		if ( project == null )
+			return windowManager.toString();
+		File projectRoot = project.getProjectRoot();
+		return FilenameUtils.getBaseName( projectRoot.getName() );
+	}
+
+	public interface Listener
+	{
+
+		void onUpdateClicked();
+
+		void onImproveTitlesClicked();
+
+		void onSortTrackSchemeAClicked();
+
+		void onSortTrackSchemeBClicked();
+
+		void onColorLineagesClicked();
+
+		void onCopyTagSetAtoB();
+
+		void onCopyTagSetBtoA();
+	}
+
+	private static class DummyListener implements Listener
+	{
+
+		@Override
+		public void onUpdateClicked()
+		{
+
+		}
+
+		@Override
+		public void onImproveTitlesClicked()
+		{
+
+		}
+
+		@Override
+		public void onSortTrackSchemeAClicked()
+		{
+
+		}
+
+		@Override
+		public void onSortTrackSchemeBClicked()
+		{
+
+		}
+
+		@Override
+		public void onColorLineagesClicked()
+		{
+
+		}
+
+		@Override
+		public void onCopyTagSetAtoB()
+		{
+
+		}
+
+		@Override
+		public void onCopyTagSetBtoA()
+		{
+
+		}
 	}
 
 	public static void main( String... args )
 	{
 		// NOTE: Small demo function that only shows the LineageRegistrationDialog. For easy debugging.
-		File otherProjectPath = LineageRegistrationDialog.showDialog();
-		System.out.println( otherProjectPath );
+		LineageRegistrationDialog dialog = new LineageRegistrationDialog( new DummyListener() );
+		dialog.pack();
+		dialog.setVisible( true );
 	}
+
 }
