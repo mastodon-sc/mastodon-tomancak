@@ -58,6 +58,10 @@ public class LineageRegistrationDialog extends JDialog
 		add( new JLabel( "Copy tag set:" ) );
 		add( newButton( "from A to B", listener::onCopyTagSetAtoB ), "split 2" );
 		add( newButton( "from B to A", listener::onCopyTagSetBtoA ), "wrap" );
+		add( new JLabel( "Tag unmatched & flipped cells:" ) );
+		add( newButton( "in both projects", listener::onTagBothClicked ), "split 3" );
+		add( newButton( "project A", listener::onTagProjectAClicked ) );
+		add( newButton( "project B", listener::onTagProjectBClicked ), "wrap" );
 		add( new JLabel( "Others:" ) );
 		add( newButton( "color paired lineages", listener::onColorLineagesClicked ), "wrap" );
 		add( new JCheckBox( "synchronize" ) );
@@ -168,6 +172,12 @@ public class LineageRegistrationDialog extends JDialog
 		void onCopyTagSetAtoB();
 
 		void onCopyTagSetBtoA();
+
+		void onTagBothClicked();
+
+		void onTagProjectAClicked();
+
+		void onTagProjectBClicked();
 	}
 
 	private static class DummyListener implements Listener
@@ -211,6 +221,24 @@ public class LineageRegistrationDialog extends JDialog
 
 		@Override
 		public void onCopyTagSetBtoA()
+		{
+
+		}
+
+		@Override
+		public void onTagBothClicked()
+		{
+
+		}
+
+		@Override
+		public void onTagProjectAClicked()
+		{
+
+		}
+
+		@Override
+		public void onTagProjectBClicked()
 		{
 
 		}

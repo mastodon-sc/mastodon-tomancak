@@ -99,5 +99,23 @@ public class LineageRegistrationControlService extends AbstractService implement
 		{
 			// TODO
 		}
+
+		@Override
+		public void onTagBothClicked()
+		{
+
+		}
+
+		@Override
+		public void onTagProjectAClicked()
+		{
+
+		}
+
+		@Override
+		public void onTagProjectBClicked()
+		{
+
+		}
 	}
 }
