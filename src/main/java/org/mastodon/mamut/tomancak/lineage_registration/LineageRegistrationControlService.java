@@ -37,7 +37,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 	{
 		Model referenceModel = reference.getAppModel().getModel();
 		Model modifiedModel = modified.getAppModel().getModel();
-		LineageRegistrationAlgorithm.run( referenceModel, modifiedModel );
+		LineageRegistrationUtils.sortTrackSchemeToMatchReferenceFirst( referenceModel, modifiedModel );
 	}
 
 	private class Listener implements LineageRegistrationDialog.Listener

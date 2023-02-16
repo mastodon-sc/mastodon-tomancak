@@ -6,10 +6,8 @@ import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.collection.ref.RefRefHashMap;
-import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
 
 /**
@@ -31,19 +29,6 @@ public class LineageRegistrationAlgorithm
 	 * Map branch starting spots in graphA to branch starting spots in graphB.
 	 */
 	private final RefRefMap< Spot, Spot > map;
-
-	public static void run( Model embryoA, Model embryoB )
-	{
-		ModelGraph graphA = embryoA.getGraph();
-		ModelGraph graphB = embryoB.getGraph();
-		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots( graphA, graphB );
-		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( roots );
-		LineageRegistrationAlgorithm algorithm = new LineageRegistrationAlgorithm(
-				graphA, graphB,
-				roots, transformAB );
-		RefList< Spot > flip = algorithm.getToBeFlipped();
-		FlipDescendants.flipDescendants( embryoB, flip );
-	}
 
 	public LineageRegistrationAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,
 			AffineTransform3D transformAB )

@@ -52,7 +52,7 @@ public class LineageRegistrationAlgorithmTest
 		assertEquals( tB1, firstChild( tB ) );
 		assertEquals( tC1, firstChild( tC ) );
 
-		LineageRegistrationAlgorithm.run( embryoA, embryoB );
+		LineageRegistrationUtils.sortTrackSchemeToMatchReferenceFirst( embryoA, embryoB );
 
 		// Only the child nodes of tB are expected to be flipped.
 		assertEquals( tA1, firstChild( tA ) );

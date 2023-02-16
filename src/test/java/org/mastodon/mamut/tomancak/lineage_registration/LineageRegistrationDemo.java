@@ -33,7 +33,7 @@ public class LineageRegistrationDemo
 	public void run()
 	{
 		LineageColoring.tagLineages( embryoA, embryoB );
-		LineageRegistrationAlgorithm.run( embryoA, embryoB );
+		LineageRegistrationUtils.sortTrackSchemeToMatchReferenceFirst( embryoA, embryoB );
 	}
 
 	private static MamutAppModel openAppModel( Context context, String projectPath )
