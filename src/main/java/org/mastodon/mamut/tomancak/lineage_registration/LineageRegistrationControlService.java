@@ -3,12 +3,15 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import net.imagej.ImageJService;
 
 import org.mastodon.app.ui.ViewFrame;
 import org.mastodon.mamut.MamutViewBdv;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.model.Model;
+import org.mastodon.model.tag.TagSetStructure;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
 
@@ -88,13 +91,38 @@ public class LineageRegistrationControlService extends AbstractService implement
 		@Override
 		public void onCopyTagSetAtoB()
 		{
-			// TODO
+			copyTagSetFromTo( dialog.getProjectA(), dialog.getProjectB() );
 		}
 
 		@Override
 		public void onCopyTagSetBtoA()
 		{
-			// TODO
+			copyTagSetFromTo( dialog.getProjectB(), dialog.getProjectA() );
+		}
+
+		private void copyTagSetFromTo( WindowManager fromProject, WindowManager toProject )
+		{
+			Model fromModel = fromProject.getAppModel().getModel();
+			Model toModel = toProject.getAppModel().getModel();
+
+			List< TagSetStructure.TagSet > tagSets = fromModel.getTagSetModel().getTagSetStructure().getTagSets();
+			if ( tagSets.isEmpty() )
+			{
+				JOptionPane.showMessageDialog( dialog,
+						"No tag sets in project \"" + LineageRegistrationDialog.getProjectName( fromProject ) + "\"." );
+				return;
+			}
+
+			TagSetStructure.TagSet tagSet = ComboBoxDialog.showComboBoxDialog( dialog,
+					"Copy tag set to registered lineage",
+					"Select tag set to copy:",
+					tagSets,
+					TagSetStructure.TagSet::getName );
+
+			if ( tagSet == null )
+				return;
+
+			LineageRegistrationUtils.copyTagSetToSecond( fromModel, toModel, tagSet );
 		}
 
 		@Override

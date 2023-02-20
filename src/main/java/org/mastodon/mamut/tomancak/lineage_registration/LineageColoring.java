@@ -1,12 +1,10 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.mastodon.collection.RefCollection;
@@ -87,12 +85,22 @@ public class LineageColoring
 		search.start( root );
 	}
 
-	public static TagSetStructure.TagSet addTagSetToModel( Model model, String title, Map< String, Integer > tagsAndColors )
+	public static TagSetStructure.TagSet addTagSetToModel( Model model, String name, Map< String, Integer > tagsAndColors )
 	{
 		TagSetModel< Spot, Link > tagSetModel = model.getTagSetModel();
 		TagSetStructure tss = copy( tagSetModel.getTagSetStructure() );
-		TagSetStructure.TagSet tagSet = tss.createTagSet( title );
+		TagSetStructure.TagSet tagSet = tss.createTagSet( name );
 		tagsAndColors.forEach( tagSet::createTag );
+		tagSetModel.setTagSetStructure( tss );
+		return tagSet;
+	}
+
+	static TagSetStructure.TagSet copyTagSetToModel( TagSetStructure.TagSet originalTagSet, Model model )
+	{
+		TagSetModel< Spot, Link > tagSetModel = model.getTagSetModel();
+		TagSetStructure tss = copy( tagSetModel.getTagSetStructure() );
+		TagSetStructure.TagSet tagSet = tss.createTagSet( originalTagSet.getName() );
+		originalTagSet.getTags().forEach( tag -> tagSet.createTag( tag.label(), tag.color() ) );
 		tagSetModel.setTagSetStructure( tss );
 		return tagSet;
 	}
@@ -124,4 +132,5 @@ public class LineageColoring
 				.findFirst()
 				.orElseThrow( NoSuchElementException::new );
 	}
+
 }
