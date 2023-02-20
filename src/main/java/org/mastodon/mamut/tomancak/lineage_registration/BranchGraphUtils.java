@@ -46,7 +46,7 @@ public class BranchGraphUtils
 		// prevent instantiation
 	}
 
-	static Spot getBranchStart( Spot spot, Spot ref )
+	public static Spot getBranchStart( Spot spot, Spot ref )
 	{
 		Spot s = spot;
 		while ( s.incomingEdges().size() == 1 )
@@ -59,7 +59,7 @@ public class BranchGraphUtils
 		return s;
 	}
 
-	private static Spot getBranchEnd( Spot spot, Spot ref )
+	public static Spot getBranchEnd( Spot spot, Spot ref )
 	{
 		Spot s = spot;
 		while ( s.outgoingEdges().size() == 1 )
