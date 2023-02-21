@@ -8,9 +8,11 @@ import javax.swing.JOptionPane;
 import net.imagej.ImageJService;
 
 import org.mastodon.app.ui.ViewFrame;
+import org.mastodon.mamut.MamutAppModel;
 import org.mastodon.mamut.MamutViewBdv;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.tomancak.lineage_registration.coupling.ModelCoupling;
 import org.mastodon.model.tag.TagSetStructure;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
@@ -38,6 +40,8 @@ public class LineageRegistrationControlService extends AbstractService implement
 
 	private class Listener implements LineageRegistrationDialog.Listener
 	{
+
+		private ModelCoupling coupling = null;
 
 		@Override
 		public void onUpdateClicked()
@@ -148,6 +152,22 @@ public class LineageRegistrationControlService extends AbstractService implement
 			Model modelA = dialog.getProjectA().getAppModel().getModel();
 			Model modelB = dialog.getProjectB().getAppModel().getModel();
 			LineageRegistrationUtils.tagCells( modelA, modelB, modifyA, modifyB );
+		}
+
+		@Override
+		public void onSyncGroupClicked( int i )
+		{
+			if ( coupling != null )
+				coupling.close();
+			coupling = null;
+			if ( i < 0 )
+				return;
+			MamutAppModel appModelA = dialog.getProjectA().getAppModel();
+			MamutAppModel appModelB = dialog.getProjectB().getAppModel();
+			RegisteredGraphs r = LineageRegistrationAlgorithm.run(
+					appModelA.getModel().getGraph(),
+					appModelB.getModel().getGraph() );
+			coupling = new ModelCoupling( appModelA, appModelB, r, i );
 		}
 	}
 }

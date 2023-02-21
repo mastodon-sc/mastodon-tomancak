@@ -1,14 +1,15 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JToggleButton;
 import javax.swing.WindowConstants;
 
 import net.miginfocom.swing.MigLayout;
@@ -24,6 +25,8 @@ public class LineageRegistrationDialog extends JDialog
 	private final JComboBox< MastodonInstance > comboBoxA = new JComboBox<>();
 
 	private final JComboBox< MastodonInstance > comboBoxB = new JComboBox<>();
+
+	private final List< JToggleButton > syncGroupButtons;
 
 	public LineageRegistrationDialog( Listener listener )
 	{
@@ -64,8 +67,34 @@ public class LineageRegistrationDialog extends JDialog
 		add( newButton( "project B", listener::onTagProjectBClicked ), "wrap" );
 		add( new JLabel( "Others:" ) );
 		add( newButton( "color paired lineages", listener::onColorLineagesClicked ), "wrap" );
-		add( new JCheckBox( "synchronize" ) );
+		add( new JLabel( "Couple projects:" ) );
+		this.syncGroupButtons = initSyncGroupButtons();
+		add( syncGroupButtons.get( 0 ), "split 3" );
+		add( syncGroupButtons.get( 1 ) );
+		add( syncGroupButtons.get( 2 ), "wrap" );
 		add( newButton( "Close", this::onCloseClicked ), "gaptop unrelated, span, align right" );
+	}
+
+	private List< JToggleButton > initSyncGroupButtons()
+	{
+		ArrayList< JToggleButton > buttons = new ArrayList<>();
+		for ( int i = 0; i < 3; i++ )
+		{
+			JToggleButton button = new JToggleButton( "Lock " + ( i + 1 ) );
+			int j = i;
+			button.addActionListener( ignore -> onSyncGroupButtonClicked( j ) );
+			buttons.add( button );
+		}
+		return buttons;
+	}
+
+	private void onSyncGroupButtonClicked( int i )
+	{
+		for ( int j = 0; j < syncGroupButtons.size(); j++ )
+			if ( i != j )
+				syncGroupButtons.get( j ).setSelected( false );
+		boolean isSelected = syncGroupButtons.get( i ).isSelected();
+		listener.onSyncGroupClicked( isSelected ? i : -1 );
 	}
 
 	private JButton newButton( String select, Runnable action )
@@ -178,6 +207,8 @@ public class LineageRegistrationDialog extends JDialog
 		void onTagProjectAClicked();
 
 		void onTagProjectBClicked();
+
+		void onSyncGroupClicked( int i );
 	}
 
 	private static class DummyListener implements Listener
@@ -239,6 +270,12 @@ public class LineageRegistrationDialog extends JDialog
 
 		@Override
 		public void onTagProjectBClicked()
+		{
+
+		}
+
+		@Override
+		public void onSyncGroupClicked( int i )
 		{
 
 		}
