@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class LineageColoring
 
 	private static void tagLineages( Map< String, Integer > colorMap, RefCollection< Spot > roots, Model model )
 	{
-		TagSetStructure.TagSet tagSet = addTagSetToModel( model, colorMap );
+		TagSetStructure.TagSet tagSet = addTagSetToModel( model, "lineages", colorMap );
 		Map< String, TagSetStructure.Tag > tags = tagSet.getTags().stream()
 				.collect( Collectors.toMap( TagSetStructure.Tag::label, tag -> tag ) );
 		for ( Spot root : roots )
@@ -86,11 +87,11 @@ public class LineageColoring
 		search.start( root );
 	}
 
-	private static TagSetStructure.TagSet addTagSetToModel( Model model, Map< String, Integer > tagsAndColors )
+	public static TagSetStructure.TagSet addTagSetToModel( Model model, String title, Map< String, Integer > tagsAndColors )
 	{
 		TagSetModel< Spot, Link > tagSetModel = model.getTagSetModel();
 		TagSetStructure tss = copy( tagSetModel.getTagSetStructure() );
-		TagSetStructure.TagSet tagSet = tss.createTagSet( "lineages" );
+		TagSetStructure.TagSet tagSet = tss.createTagSet( title );
 		tagsAndColors.forEach( tagSet::createTag );
 		tagSetModel.setTagSetStructure( tss );
 		return tagSet;
@@ -114,5 +115,13 @@ public class LineageColoring
 		for ( String label : labels )
 			colors.put( label, Glasbey.GLASBEY[ count++ ] );
 		return colors;
+	}
+
+	public static TagSetStructure.Tag findTag( TagSetStructure.TagSet tagSet, String label )
+	{
+		return tagSet.getTags().stream()
+				.filter( t -> t.label().equals( label ) )
+				.findFirst()
+				.orElseThrow( NoSuchElementException::new );
 	}
 }

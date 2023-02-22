@@ -33,13 +33,6 @@ public class LineageRegistrationControlService extends AbstractService implement
 		dialog.setVisible( true );
 	}
 
-	private void sortTrackSchemeReferenceAndModified( WindowManager reference, WindowManager modified )
-	{
-		Model referenceModel = reference.getAppModel().getModel();
-		Model modifiedModel = modified.getAppModel().getModel();
-		LineageRegistrationUtils.sortTrackSchemeToMatchReferenceFirst( referenceModel, modifiedModel );
-	}
-
 	private class Listener implements LineageRegistrationDialog.Listener
 	{
 
@@ -71,13 +64,17 @@ public class LineageRegistrationControlService extends AbstractService implement
 		@Override
 		public void onSortTrackSchemeAClicked()
 		{
-			sortTrackSchemeReferenceAndModified( dialog.getProjectB(), dialog.getProjectA() );
+			Model modelA = dialog.getProjectA().getAppModel().getModel();
+			Model modelB = dialog.getProjectB().getAppModel().getModel();
+			LineageRegistrationUtils.sortSecondTrackSchemeToMatch( modelB, modelA );
 		}
 
 		@Override
 		public void onSortTrackSchemeBClicked()
 		{
-			sortTrackSchemeReferenceAndModified( dialog.getProjectA(), dialog.getProjectB() );
+			Model modelA = dialog.getProjectA().getAppModel().getModel();
+			Model modelB = dialog.getProjectB().getAppModel().getModel();
+			LineageRegistrationUtils.sortSecondTrackSchemeToMatch( modelA, modelB );
 		}
 
 		@Override
@@ -103,19 +100,26 @@ public class LineageRegistrationControlService extends AbstractService implement
 		@Override
 		public void onTagBothClicked()
 		{
-
+			putTags( true, true );
 		}
 
 		@Override
 		public void onTagProjectAClicked()
 		{
-
+			putTags( true, false );
 		}
 
 		@Override
 		public void onTagProjectBClicked()
 		{
+			putTags( false, true );
+		}
 
+		private void putTags( boolean modifyA, boolean modifyB )
+		{
+			Model modelA = dialog.getProjectA().getAppModel().getModel();
+			Model modelB = dialog.getProjectB().getAppModel().getModel();
+			LineageRegistrationUtils.tagCells( modelA, modelB, modifyA, modifyB );
 		}
 	}
 }

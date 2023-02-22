@@ -2,76 +2,195 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import net.imglib2.realtransform.AffineTransform3D;
+
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
+import org.mastodon.collection.RefRefMap;
+import org.mastodon.graph.algorithm.TreeOutputter;
+import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.model.tag.TagSetModel;
+import org.mastodon.model.tag.TagSetStructure;
 
 public class LineageRegistrationAlgorithmTest
 {
 
-	/**
-	 * Test if registering two very similar lineage graphs with only one
-	 * division flipped works.
-	 */
 	@Test
 	public void testRun()
+	{
+		EmbryoA embryoA = new EmbryoA();
+		EmbryoB embryoB = new EmbryoB();
+		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryoA.graph, embryoB.graph );
+		List< String > strings = asString( result.mapAB );
+		assertEquals( Arrays.asList(
+				"A -> A",
+				"A1 -> A1",
+				"A2 -> A2",
+				"B -> B",
+				"B1 -> B2",
+				"B2 -> B1",
+				"C -> C",
+				"C1 -> C1",
+				"C2 -> C2" ), strings );
+	}
+
+	@NotNull
+	private static List< String > asString( RefRefMap< Spot, Spot > map )
+	{
+		List< String > strings = new ArrayList<>();
+		RefMapUtils.forEach( map, ( a, b ) -> strings.add( a.getLabel() + " -> " + b.getLabel() ) );
+		Collections.sort( strings );
+		return strings;
+	}
+
+	@Test
+	public void testSortSecondTrackSchemeToMatch()
 	{
 		// NB: The graphs need to have at least 3 dividing lineages.
 		// Only the root nodes of the dividing lineages are used
 		// to calculate the affine transform between the two "embryos".
 
-		Model embryoA = new Model();
-		ModelGraph graphA = embryoA.getGraph();
-		Spot sA = addSpot( graphA, null, "A", 2, 2, 0 );
-		Spot sA1 = addSpot( graphA, sA, "A1", 2, 1, 0 );
-		Spot sA2 = addSpot( graphA, sA, "A2", 2, 3, 0 );
-		Spot sB = addSpot( graphA, null, "B", 4, 2, 0 );
-		Spot sB1 = addSpot( graphA, sB, "B1", 4, 1, 0 );
-		Spot sB2 = addSpot( graphA, sB, "B2", 4, 3, 0 );
-		Spot sC = addSpot( graphA, null, "C", 4, 4, 0 );
-		Spot sC1 = addSpot( graphA, sC, "C", 4, 4, 0 );
-		Spot sC2 = addSpot( graphA, sC, "C", 4, 5, 0 );
+		EmbryoA embryoA = new EmbryoA();
+		EmbryoB embryoB = new EmbryoB();
 
-		// "graphB" is very similar to "graphA",but has the following differences:
-		// - 1. y and z coordinates are flipped, this simulates an 90 degree rotation around the X axis.
-		// - 2. coordinates of nodes "B1" and "B2" are exchanged compared to graphA.
-		Model embryoB = new Model();
-		ModelGraph graphB = embryoB.getGraph();
-		Spot tA = addSpot( graphB, null, "A", 2, 0, 2 );
-		Spot tA1 = addSpot( graphB, tA, "A1", 2, 0, 1 );
-		Spot tA2 = addSpot( graphB, tA, "A2", 2, 0, 3 );
-		Spot tB = addSpot( graphB, null, "B", 4, 0, 2 );
-		Spot tB1 = addSpot( graphB, tB, "B1", 4, 0, 3 );
-		Spot tB2 = addSpot( graphB, tB, "B2", 4, 0, 1 );
-		Spot tC = addSpot( graphB, null, "C", 4, 0, 4 );
-		Spot tC1 = addSpot( graphB, tC, "C", 4, 0, 4 );
-		Spot tC2 = addSpot( graphB, tC, "C", 4, 0, 5 );
+		assertEquals( embryoB.a1, firstChild( embryoB.graph, embryoB.a ) );
+		assertEquals( embryoB.b1, firstChild( embryoB.graph, embryoB.b ) );
+		assertEquals( embryoB.c1, firstChild( embryoB.graph, embryoB.c ) );
 
-		assertEquals( tA1, firstChild( tA ) );
-		assertEquals( tB1, firstChild( tB ) );
-		assertEquals( tC1, firstChild( tC ) );
+		LineageRegistrationUtils.sortSecondTrackSchemeToMatch( embryoA.model, embryoB.model );
 
-		LineageRegistrationUtils.sortTrackSchemeToMatchReferenceFirst( embryoA, embryoB );
-
-		// Only the child nodes of tB are expected to be flipped.
-		assertEquals( tA1, firstChild( tA ) );
-		assertEquals( tB2, firstChild( tB ) );
-		assertEquals( tC1, firstChild( tC ) );
+		assertEquals( embryoB.a1, firstChild( embryoB.graph, embryoB.a ) );
+		assertEquals( embryoB.c1, firstChild( embryoB.graph, embryoB.c ) );
+		assertEquals( embryoB.b2, firstChild( embryoB.graph, embryoB.b ) );
 	}
 
-	private Spot firstChild( Spot tA )
+	@Test
+	public void testTagCells()
 	{
-		return tA.outgoingEdges().get( 0 ).getTarget();
+		EmbryoA embryoA = new EmbryoA();
+		EmbryoB embryoB = new EmbryoB();
+		System.out.println( TreeOutputter.output( embryoA.graph, embryoA.b, Spot::getLabel ) );
+		LineageRegistrationUtils.tagCells( embryoA.model, embryoB.model, true, true );
+		assertEquals( set(), getTaggedSpots( embryoA.model, "registration", "not mapped" ) );
+		assertEquals( set( "B", "B~1", "B~2" ), getTaggedSpots( embryoA.model, "registration", "flipped" ) );
+		assertEquals( set(), getTaggedSpots( embryoB.model, "registration", "not mapped" ) );
+		assertEquals( set( "B", "B~1", "B~2" ), getTaggedSpots( embryoB.model, "registration", "flipped" ) );
 	}
 
-	private Spot addSpot( ModelGraph graph, Spot parent, String label, double x, double y, double z )
+	private static < T > Set< T > set( T... values )
+	{
+		return new HashSet<>( Arrays.asList( values ) );
+	}
+
+	private static Set< String > getTaggedSpots( Model model, String tagSetName, String tagLabel )
+	{
+		TagSetModel< Spot, Link > tagsModel = model.getTagSetModel();
+		TagSetStructure.TagSet tagSet = tagsModel.getTagSetStructure().getTagSets().stream().filter( t -> t.getName().equals( tagSetName ) )
+				.findAny().orElseThrow( NoSuchElementException::new );
+		TagSetStructure.Tag tag = LineageColoring.findTag( tagSet, tagLabel );
+		return tagsModel.getVertexTags().getTaggedWith( tag ).stream().map( Spot::getLabel ).collect( Collectors.toSet() );
+	}
+
+	private Spot firstChild( ModelGraph graph, Spot tA )
+	{
+		Spot ref = graph.vertexRef();
+		try
+		{
+			return LineageTreeUtils.getBranchEnd( tA, ref ).outgoingEdges().get( 0 ).getTarget();
+		}
+		finally
+		{
+			graph.releaseRef( ref );
+		}
+	}
+
+	private static Spot addSpot( ModelGraph graph, Spot parent, String label, double... position )
 	{
 		int t = parent == null ? 0 : parent.getTimepoint() + 1;
-		Spot spot = graph.addVertex().init( t, new double[] { x, y, z }, 1 );
+		Spot spot = graph.addVertex().init( t, position, 1 );
 		spot.setLabel( label );
 		if ( parent != null )
 			graph.addEdge( parent, spot );
 		return spot;
+	}
+
+	private static Spot addBranch( ModelGraph graph, Spot branchStart, int length )
+	{
+		String label = branchStart.getLabel();
+		double[] position = { branchStart.getDoublePosition( 0 ), branchStart.getDoublePosition( 1 ), branchStart.getDoublePosition( 2 ) };
+		Spot s = branchStart;
+		for ( int i = 1; i < length; i++ )
+			s = addSpot( graph, s, label + "~" + i, position );
+		return s;
+	}
+
+	private static class EmbryoA
+	{
+
+		final Model model = new Model();
+
+		final ModelGraph graph = model.getGraph();
+
+		final Spot a = addSpot( graph, null, "A", 2, 2, 0 );
+
+		final Spot aEnd = addBranch( graph, a, 2 );
+
+		final Spot a1 = addSpot( graph, aEnd, "A1", 2, 1, 0 );
+
+		final Spot a2 = addSpot( graph, aEnd, "A2", 2, 3, 0 );
+
+		final Spot b = addSpot( graph, null, "B", 4, 2, 0 );
+
+		final Spot bEnd = addBranch( graph, b, 3 );
+
+		final Spot b1 = addSpot( graph, bEnd, "B1", 4, 1, 0 );
+
+		final Spot b2 = addSpot( graph, bEnd, "B2", 4, 3, 0 );
+
+		final Spot c = addSpot( graph, null, "C", 4, 4, 0 );
+
+		final Spot c1 = addSpot( graph, c, "C1", 4, 4, 0 );
+
+		final Spot c2 = addSpot( graph, c, "C2", 4, 5, 0 );
+	}
+
+	private static class EmbryoB extends EmbryoA
+	{
+		EmbryoB()
+		{
+			transformSpotPositions();
+			flipB1andB2Positions();
+		}
+
+		private void transformSpotPositions()
+		{
+			// transform spot positions: rotate 90 degrees around x-axis
+			AffineTransform3D transform = new AffineTransform3D();
+			transform.rotate( 0, Math.PI / 2 );
+			for ( Spot spot : graph.vertices() )
+				transform.apply( spot, spot );
+		}
+
+		private void flipB1andB2Positions()
+		{
+			double[] v1 = new double[ 3 ];
+			double[] v2 = new double[ 3 ];
+			b1.localize( v1 );
+			b2.localize( v2 );
+			b1.setPosition( v2 );
+			b2.setPosition( v1 );
+		}
 	}
 }

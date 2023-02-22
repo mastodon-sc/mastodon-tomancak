@@ -2,9 +2,7 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 
 import net.imglib2.realtransform.AffineTransform3D;
 
-import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefRefMap;
-import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.collection.ref.RefRefHashMap;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
@@ -28,15 +26,30 @@ public class LineageRegistrationAlgorithm
 	/**
 	 * Map branch starting spots in graphA to branch starting spots in graphB.
 	 */
-	private final RefRefMap< Spot, Spot > map;
+	private final RefRefMap< Spot, Spot > mapAB;
 
-	public LineageRegistrationAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,
+	public static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB,
+			RefRefMap< Spot, Spot > roots, AffineTransform3D transformAB )
+	{
+		RefRefMap< Spot, Spot > mapping = calculateMapping( graphA, graphB, roots, transformAB );
+		return new RegisteredGraphs( graphA, graphB, transformAB, mapping );
+	}
+
+	private static RefRefMap< Spot, Spot > calculateMapping( ModelGraph graphA, ModelGraph graphB,
+			RefRefMap< Spot, Spot > roots, AffineTransform3D transformAB )
+	{
+		return new LineageRegistrationAlgorithm(
+				graphA, graphB,
+				roots, transformAB ).getMapping();
+	}
+
+	private LineageRegistrationAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,
 			AffineTransform3D transformAB )
 	{
 		this.transformAB = noOffsetTransform( transformAB );
 		this.graphA = graphA;
 		this.graphB = graphB;
-		this.map = new RefRefHashMap<>( graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
+		this.mapAB = new RefRefHashMap<>( graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
 		Spot refB = graphB.vertexRef();
 		try
 		{
@@ -52,9 +65,17 @@ public class LineageRegistrationAlgorithm
 		}
 	}
 
+	static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB )
+	{
+		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots( graphA, graphB );
+		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( roots );
+		RegisteredGraphs result = run( graphA, graphB, roots, transformAB );
+		return result;
+	}
+
 	private void matchTree( Spot rootA, Spot rootB )
 	{
-		map.put( rootA, rootB );
+		mapAB.put( rootA, rootB );
 		Spot refA = graphA.vertexRef();
 		Spot refB = graphB.vertexRef();
 		try
@@ -94,62 +115,13 @@ public class LineageRegistrationAlgorithm
 		}
 	}
 
-	public RefList< Spot > getToBeFlipped()
-	{
-		Spot refA = graphA.vertexRef();
-		Spot refB = graphB.vertexRef();
-		Spot refB0 = graphB.vertexRef();
-		try
-		{
-			RefArrayList< Spot > list = new RefArrayList<>( graphB.vertices().getRefPool() );
-			for ( Spot spotA : map.keySet() )
-			{
-				Spot spotB = map.get( spotA, refB0 );
-				Spot dividingA = LineageTreeUtils.getBranchEnd( spotA, refA );
-				Spot dividingB = LineageTreeUtils.getBranchEnd( spotB, refB );
-				if ( doesRequireFlip( dividingA, dividingB ) )
-					list.add( dividingB );
-			}
-			return list;
-		}
-		finally
-		{
-			graphA.releaseRef( refA );
-			graphB.releaseRef( refB );
-			graphB.releaseRef( refB0 );
-		}
-	}
-
-	private boolean doesRequireFlip( Spot dividingA, Spot dividingB )
-	{
-		Spot refA = graphA.vertexRef();
-		Spot refB = graphB.vertexRef();
-		Spot refB2 = graphB.vertexRef();
-		try
-		{
-			boolean bothDivide = dividingA.outgoingEdges().size() == 2 &&
-					dividingB.outgoingEdges().size() == 2;
-			if ( !bothDivide )
-				return false;
-			Spot firstChildA = dividingA.outgoingEdges().get( 0 ).getTarget( refA );
-			Spot secondChildB = dividingB.outgoingEdges().get( 1 ).getTarget( refB );
-			return map.get( firstChildA, refB2 ).equals( secondChildB );
-		}
-		finally
-		{
-			graphA.releaseRef( refA );
-			graphB.releaseRef( refB );
-			graphB.releaseRef( refB2 );
-		}
-	}
-
 	/**
 	 * @return a {@link RefRefMap} that maps (branch starting) spots in embryoA
 	 * to the matched (branch starting) spots in embryoB.
 	 */
 	public RefRefMap< Spot, Spot > getMapping()
 	{
-		return map;
+		return mapAB;
 	}
 
 	private static AffineTransform3D noOffsetTransform( AffineTransform3D transformAB )

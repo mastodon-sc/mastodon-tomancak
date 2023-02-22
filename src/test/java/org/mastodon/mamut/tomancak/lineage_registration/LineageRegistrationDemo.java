@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import mpicbg.spim.data.SpimDataException;
 import org.mastodon.mamut.MainWindow;
-import org.mastodon.mamut.MamutAppModel;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.project.MamutProject;
@@ -14,29 +13,18 @@ import org.scijava.Context;
 public class LineageRegistrationDemo
 {
 
-	public Model embryoA;
-
-	public Model embryoB;
-
 	public static void main( String... args )
 	{
-		new LineageRegistrationDemo();
-	}
-
-	private LineageRegistrationDemo()
-	{
 		Context context = new Context();
-		embryoA = openAppModel( context, "/home/arzt/Datasets/Mette/E1.mastodon" ).getModel();
-		embryoB = openAppModel( context, "/home/arzt/Datasets/Mette/E2.mastodon" ).getModel();
+		WindowManager projectA = openAppModel( context, "/home/arzt/Datasets/Mette/E1.mastodon" );
+		WindowManager projectB = openAppModel( context, "/home/arzt/Datasets/Mette/E2.mastodon" );
+		projectA.createTrackScheme();
+		projectB.createTrackScheme();
+		context.service( LineageRegistrationControlService.class ).showDialog();
 	}
 
-	public void run()
-	{
-		LineageColoring.tagLineages( embryoA, embryoB );
-		LineageRegistrationUtils.sortTrackSchemeToMatchReferenceFirst( embryoA, embryoB );
-	}
 
-	private static MamutAppModel openAppModel( Context context, String projectPath )
+	private static WindowManager openAppModel( Context context, String projectPath )
 	{
 		try
 		{
@@ -44,7 +32,7 @@ public class LineageRegistrationDemo
 			WindowManager wm = new WindowManager( context );
 			wm.getProjectManager().open( project );
 			new MainWindow( wm ).setVisible( true );
-			return wm.getAppModel();
+			return wm;
 		}
 		catch ( SpimDataException | IOException e )
 		{
