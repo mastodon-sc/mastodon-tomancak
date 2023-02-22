@@ -5,7 +5,6 @@ import java.io.IOException;
 import mpicbg.spim.data.SpimDataException;
 import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.WindowManager;
-import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.project.MamutProject;
 import org.mastodon.mamut.project.MamutProjectIO;
 import org.scijava.Context;

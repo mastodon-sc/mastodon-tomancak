@@ -117,7 +117,6 @@ public class LineageRegistrationUtils
 
 	public static void tagCells( Model modelA, Model modelB, boolean modifyA, boolean modifyB )
 	{
-		// TODO write unit test
 		RegisteredGraphs result = LineageRegistrationAlgorithm.run( modelA.getGraph(), modelB.getGraph() );
 		if ( modifyA )
 			tagSpotsA( modelA, result );
