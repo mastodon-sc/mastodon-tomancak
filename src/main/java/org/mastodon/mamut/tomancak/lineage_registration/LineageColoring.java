@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.mastodon.collection.RefCollection;
@@ -16,7 +15,6 @@ import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.model.tag.ObjTagMap;
-import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 
 public class LineageColoring
@@ -40,9 +38,8 @@ public class LineageColoring
 
 	private static void tagLineages( Map< String, Integer > colorMap, RefCollection< Spot > roots, Model model )
 	{
-		TagSetStructure.TagSet tagSet = addTagSetToModel( model, "lineages", colorMap );
-		Map< String, TagSetStructure.Tag > tags = tagSet.getTags().stream()
-				.collect( Collectors.toMap( TagSetStructure.Tag::label, tag -> tag ) );
+		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( model, "lineages", colorMap.entrySet() );
+		Map< String, TagSetStructure.Tag > tags = TagSetUtils.tagSetAsMap( tagSet );
 		for ( Spot root : roots )
 			tagLineage( model, root, tagSet, tags.get( root.getLabel() ) );
 	}
@@ -85,33 +82,6 @@ public class LineageColoring
 		search.start( root );
 	}
 
-	public static TagSetStructure.TagSet addTagSetToModel( Model model, String name, Map< String, Integer > tagsAndColors )
-	{
-		TagSetModel< Spot, Link > tagSetModel = model.getTagSetModel();
-		TagSetStructure tss = copy( tagSetModel.getTagSetStructure() );
-		TagSetStructure.TagSet tagSet = tss.createTagSet( name );
-		tagsAndColors.forEach( tagSet::createTag );
-		tagSetModel.setTagSetStructure( tss );
-		return tagSet;
-	}
-
-	static TagSetStructure.TagSet copyTagSetToModel( TagSetStructure.TagSet originalTagSet, Model model )
-	{
-		TagSetModel< Spot, Link > tagSetModel = model.getTagSetModel();
-		TagSetStructure tss = copy( tagSetModel.getTagSetStructure() );
-		TagSetStructure.TagSet tagSet = tss.createTagSet( originalTagSet.getName() );
-		originalTagSet.getTags().forEach( tag -> tagSet.createTag( tag.label(), tag.color() ) );
-		tagSetModel.setTagSetStructure( tss );
-		return tagSet;
-	}
-
-	private static TagSetStructure copy( TagSetStructure original )
-	{
-		TagSetStructure copy = new TagSetStructure();
-		copy.set( original );
-		return copy;
-	}
-
 	/**
 	 * For a given set of labels, create a map from label to color.
 	 * Colors are taken from the Glasbey lookup table.
@@ -123,14 +93,6 @@ public class LineageColoring
 		for ( String label : labels )
 			colors.put( label, Glasbey.GLASBEY[ count++ ] );
 		return colors;
-	}
-
-	public static TagSetStructure.Tag findTag( TagSetStructure.TagSet tagSet, String label )
-	{
-		return tagSet.getTags().stream()
-				.filter( t -> t.label().equals( label ) )
-				.findFirst()
-				.orElseThrow( NoSuchElementException::new );
 	}
 
 }

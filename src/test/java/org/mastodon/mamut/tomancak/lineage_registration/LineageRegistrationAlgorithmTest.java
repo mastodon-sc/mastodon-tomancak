@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -15,10 +14,10 @@ import java.util.stream.Collectors;
 
 import net.imglib2.realtransform.AffineTransform3D;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.mastodon.collection.RefRefMap;
-import org.mastodon.graph.algorithm.TreeOutputter;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
@@ -83,7 +82,6 @@ public class LineageRegistrationAlgorithmTest
 	{
 		EmbryoA embryoA = new EmbryoA();
 		EmbryoB embryoB = new EmbryoB();
-		System.out.println( TreeOutputter.output( embryoA.graph, embryoA.b, Spot::getLabel ) );
 		LineageRegistrationUtils.tagCells( embryoA.model, embryoB.model, true, true );
 		assertEquals( set(), getTaggedSpots( embryoA.model, "registration", "not mapped" ) );
 		assertEquals( set( "B", "B~1", "B~2" ), getTaggedSpots( embryoA.model, "registration", "flipped" ) );
@@ -96,30 +94,21 @@ public class LineageRegistrationAlgorithmTest
 	{
 		EmbryoA embryoA = new EmbryoA();
 		EmbryoB embryoB = new EmbryoB();
-		System.out.println( TreeOutputter.output( embryoA.graph, embryoA.a, Spot::getLabel ) );
-		HashMap< String, Integer > tagsAndColors = new HashMap<>();
-		tagsAndColors.put( "foo", 0xffff0000 );
-		tagsAndColors.put( "bar", 0xff00ff00 );
-		TagSetStructure.TagSet tagSet = LineageColoring.addTagSetToModel( embryoA.model, "test", tagsAndColors );
-		LineageRegistrationUtils.tagBranches( embryoA.model, tagSet, "foo", set( embryoA.a, embryoA.a1, embryoA.a2 ) );
-		LineageRegistrationUtils.tagBranches( embryoA.model, tagSet, "bar", set( embryoA.b1 ) );
-		tagEdge( embryoA.model, tagSet, "bar", embryoA.bEnd, embryoA.b1 );
+		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( embryoA.model, "test", Arrays.asList(
+				Pair.of( "foo", 0xffff0000 ),
+				Pair.of( "bar", 0xff00ff00 )
+		) );
+		TagSetStructure.Tag foo = tagSet.getTags().get( 0 );
+		TagSetStructure.Tag bar = tagSet.getTags().get( 1 );
+		TagSetUtils.tagBranch( embryoA.model, tagSet, foo, embryoA.a );
+		TagSetUtils.tagBranch( embryoA.model, tagSet, foo, embryoA.a1 );
+		TagSetUtils.tagBranch( embryoA.model, tagSet, foo, embryoA.a2 );
+		TagSetUtils.tagBranch( embryoA.model, tagSet, bar, embryoA.b1 );
+		embryoA.model.getTagSetModel().getEdgeTags().set( embryoA.model.getGraph().getEdge( embryoA.bEnd, embryoA.b1 ), bar );
 		LineageRegistrationUtils.copyTagSetToSecond( embryoA.model, embryoB.model, tagSet );
 		assertEquals( set( "A", "A~1", "A1", "A2" ), getTaggedSpots( embryoB.model, "test", "foo" ) );
 		assertEquals( set( "B2" ), getTaggedSpots( embryoB.model, "test", "bar" ) );
 		assertEquals( set( "B~2 -> B2" ), getTaggedEdges( embryoB.model, "test", "bar" ) );
-	}
-
-	private void tagEdge( Model model, TagSetStructure.TagSet tagSet, String tagLabel, Spot source, Spot target )
-	{
-		TagSetStructure.Tag tag = LineageColoring.findTag( tagSet, tagLabel );
-		model.getTagSetModel().getEdgeTags().set( model.getGraph().getEdge( source, target ), tag );
-	}
-
-	private static TagSetStructure.TagSet findTagSet( TagSetModel< Spot, Link > tagsModel, String name )
-	{
-		return tagsModel.getTagSetStructure().getTagSets().stream().filter( t -> t.getName().equals( name ) ).findAny()
-				.orElseThrow( NoSuchElementException::new );
 	}
 
 	private static < T > Set< T > set( T... values )
@@ -131,7 +120,7 @@ public class LineageRegistrationAlgorithmTest
 	{
 		TagSetModel< Spot, Link > tagsModel = model.getTagSetModel();
 		TagSetStructure.TagSet tagSet = findTagSet( tagsModel, tagSetName );
-		TagSetStructure.Tag tag = LineageColoring.findTag( tagSet, tagLabel );
+		TagSetStructure.Tag tag = findTag( tagSet, tagLabel );
 		return tagsModel.getVertexTags().getTaggedWith( tag ).stream().map( Spot::getLabel ).collect( Collectors.toSet() );
 	}
 
@@ -139,12 +128,28 @@ public class LineageRegistrationAlgorithmTest
 	{
 		TagSetModel< Spot, Link > tagsModel = model.getTagSetModel();
 		TagSetStructure.TagSet tagSet = findTagSet( tagsModel, tagSetName );
-		TagSetStructure.Tag tag = LineageColoring.findTag( tagSet, tagLabel );
+		TagSetStructure.Tag tag = findTag( tagSet, tagLabel );
 		Collection< Link > edges = tagsModel.getEdgeTags().getTaggedWith( tag );
 		HashSet< String > strings = new HashSet<>();
 		for ( Link edge : edges )
 			strings.add( edge.getSource().getLabel() + " -> " + edge.getTarget().getLabel() );
 		return strings;
+	}
+
+	private static TagSetStructure.TagSet findTagSet( TagSetModel< Spot, Link > tagsModel, String name )
+	{
+		for ( TagSetStructure.TagSet tagSet : tagsModel.getTagSetStructure().getTagSets() )
+			if ( name.equals( tagSet.getName() ) )
+				return tagSet;
+		throw new NoSuchElementException();
+	}
+
+	public static TagSetStructure.Tag findTag( TagSetStructure.TagSet tagSet, String label )
+	{
+		for ( TagSetStructure.Tag tag : tagSet.getTags() )
+			if ( label.equals( tag.label() ) )
+				return tag;
+		throw new NoSuchElementException();
 	}
 
 	private Spot firstChild( ModelGraph graph, Spot tA )

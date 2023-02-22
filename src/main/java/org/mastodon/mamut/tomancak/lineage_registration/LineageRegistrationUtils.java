@@ -1,12 +1,15 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefSet;
 import org.mastodon.collection.ref.RefArrayList;
@@ -30,7 +33,10 @@ public class LineageRegistrationUtils
 	public static TagSetStructure.TagSet copyTagSetToSecond( Model modelA, Model modelB, TagSetStructure.TagSet tagSetModelA )
 	{
 		RegisteredGraphs result = LineageRegistrationAlgorithm.run( modelA.getGraph(), modelB.getGraph() );
-		TagSetStructure.TagSet tagSetModelB = LineageColoring.copyTagSetToModel( tagSetModelA, modelB );
+		List< Pair< String, Integer > > tags = tagSetModelA.getTags().stream()
+				.map( t -> Pair.of( t.label(), t.color() ) )
+				.collect( Collectors.toList() );
+		TagSetStructure.TagSet tagSetModelB = TagSetUtils.addNewTagSetToModel( modelB, tagSetModelA.getName(), tags );
 		Function< TagSetStructure.Tag, TagSetStructure.Tag > tagsAB = getTagMap( tagSetModelA, tagSetModelB );
 		copyBranchSpotTags( modelA, modelB, tagSetModelA, result, tagSetModelB, tagsAB );
 		copyBranchLinkTags( modelA, modelB, tagSetModelA, result, tagSetModelB, tagsAB );
@@ -84,9 +90,9 @@ public class LineageRegistrationUtils
 		for ( Spot spotA : result.mapAB.keySet() )
 		{
 			Spot spotB = result.mapAB.get( spotA );
-			TagSetStructure.Tag tagA = LineageRegistrationUtils.getBranchTag( modelA, tagSetModelA, spotA );
+			TagSetStructure.Tag tagA = TagSetUtils.getBranchTag( modelA, tagSetModelA, spotA );
 			TagSetStructure.Tag tagB = tagsAB.apply( tagA );
-			LineageRegistrationUtils.tagBranch( modelB, spotB, tagSetModelB, tagB );
+			TagSetUtils.tagBranch( modelB, tagSetModelB, tagB, spotB );
 		}
 	}
 
@@ -121,93 +127,18 @@ public class LineageRegistrationUtils
 
 	private static void tagSpotsA( Model modelA, RegisteredGraphs result )
 	{
-		Map< String, Integer > tags = new HashMap<>();
-		String notMapped = "not mapped";
-		tags.put( notMapped, 0xffff2222 );
-		String flipped = "flipped";
-		tags.put( flipped, 0xff22ff22 );
-		TagSetStructure.TagSet tagSet = LineageColoring.addTagSetToModel( modelA, "registration", tags );
-		tagBranches( modelA, tagSet, notMapped, getUnmatchSpotsA( result ) );
-		tagBranches( modelA, tagSet, flipped, getSpotsToFlipA( result ) );
+		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( modelA, "registration", Arrays.asList(
+				Pair.of( "not mapped", 0xffff2222 ),
+				Pair.of( "flipped", 0xff22ff22 )
+		) );
+		tagBranches( modelA, tagSet, tagSet.getTags().get( 0 ), getUnmatchSpotsA( result ) );
+		tagBranches( modelA, tagSet, tagSet.getTags().get( 1 ), getSpotsToFlipA( result ) );
 	}
 
-	public static void tagBranches( Model model, TagSetStructure.TagSet tagSet, String name, Collection< Spot > branchStrats )
+	private static void tagBranches( Model model, TagSetStructure.TagSet tagSet, TagSetStructure.Tag tag, Collection< Spot > spots )
 	{
-		TagSetStructure.Tag tag = LineageColoring.findTag( tagSet, name );
-		for ( Spot spot : branchStrats )
-			tagBranch( model, spot, tagSet, tag );
-	}
-
-	public static void tagBranch( Model model, Spot spot, TagSetStructure.TagSet tagSet, TagSetStructure.Tag tag )
-	{
-		// TODO move to other class
-		ModelGraph graphA = model.getGraph();
-		Spot s = graphA.vertexRef();
-		try
-		{
-			ObjTagMap< Spot, TagSetStructure.Tag > vertexTags = model.getTagSetModel().getVertexTags().tags( tagSet );
-			ObjTagMap< Link, TagSetStructure.Tag > edgeTags = model.getTagSetModel().getEdgeTags().tags( tagSet );
-			vertexTags.set( spot, tag );
-			//forward
-			s.refTo( spot );
-			while ( s.outgoingEdges().size() == 1 )
-			{
-				Link link = s.outgoingEdges().get( 0 );
-				s = link.getTarget( s );
-				if ( s.incomingEdges().size() != 1 )
-					break;
-				edgeTags.set( link, tag );
-				vertexTags.set( s, tag );
-			}
-			// backward
-			s.refTo( spot );
-			while ( s.incomingEdges().size() == 1 )
-			{
-				Link link = s.incomingEdges().get( 0 );
-				s = link.getSource( s );
-				if ( s.outgoingEdges().size() != 1 )
-					break;
-				edgeTags.set( link, tag );
-				vertexTags.set( s, tag );
-			}
-		}
-		finally
-		{
-			graphA.releaseRef( s );
-		}
-	}
-
-	public static TagSetStructure.Tag getBranchTag( Model model, TagSetStructure.TagSet tagSet, Spot spot )
-	{
-		// TODO move to other class
-		ModelGraph graphA = model.getGraph();
-		Spot s = graphA.vertexRef();
-		try
-		{
-			ObjTagMap< Spot, TagSetStructure.Tag > vertexTags = model.getTagSetModel().getVertexTags().tags( tagSet );
-			ObjTagMap< Link, TagSetStructure.Tag > edgeTags = model.getTagSetModel().getEdgeTags().tags( tagSet );
-			TagSetStructure.Tag tag = vertexTags.get( spot );
-			if ( tag == null )
-				return null;
-			//forward
-			s.refTo( spot );
-			while ( s.outgoingEdges().size() == 1 )
-			{
-				Link link = s.outgoingEdges().get( 0 );
-				s = link.getTarget( s );
-				if ( s.incomingEdges().size() != 1 )
-					break;
-				if ( !tag.equals( edgeTags.get( link ) ) )
-					return null;
-				if ( !tag.equals( vertexTags.get( s ) ) )
-					return null;
-			}
-			return tag;
-		}
-		finally
-		{
-			graphA.releaseRef( s );
-		}
+		for ( Spot spot : spots )
+			TagSetUtils.tagBranch( model, tagSet, tag, spot );
 	}
 
 	private static RefList< Spot > getSpotsToFlipB( RegisteredGraphs result )
