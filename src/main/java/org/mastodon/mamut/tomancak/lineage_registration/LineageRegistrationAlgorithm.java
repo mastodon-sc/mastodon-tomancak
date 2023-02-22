@@ -65,7 +65,7 @@ public class LineageRegistrationAlgorithm
 		}
 	}
 
-	static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB )
+	public static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB )
 	{
 		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots( graphA, graphB );
 		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( roots );
