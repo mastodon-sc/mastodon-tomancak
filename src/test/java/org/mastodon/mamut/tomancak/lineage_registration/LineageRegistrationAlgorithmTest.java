@@ -157,7 +157,7 @@ public class LineageRegistrationAlgorithmTest
 		Spot ref = graph.vertexRef();
 		try
 		{
-			return LineageTreeUtils.getBranchEnd( tA, ref ).outgoingEdges().get( 0 ).getTarget();
+			return BranchGraphUtils.getBranchEnd( tA, ref ).outgoingEdges().get( 0 ).getTarget();
 		}
 		finally
 		{

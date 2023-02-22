@@ -80,8 +80,8 @@ public class LineageRegistrationAlgorithm
 		Spot refB = graphB.vertexRef();
 		try
 		{
-			Spot dividingA = LineageTreeUtils.getBranchEnd( rootA, refA );
-			Spot dividingB = LineageTreeUtils.getBranchEnd( rootB, refB );
+			Spot dividingA = BranchGraphUtils.getBranchEnd( rootA, refA );
+			Spot dividingB = BranchGraphUtils.getBranchEnd( rootB, refB );
 			boolean bothDivide = dividingA.outgoingEdges().size() == 2 &&
 					dividingB.outgoingEdges().size() == 2;
 			if ( !bothDivide )

@@ -22,19 +22,6 @@ public class LineageTreeUtils
 	}
 
 	/**
-	 * The given spot belongs to a branch. This method returns the last
-	 * spot of this branch.
-	 */
-	public static Spot getBranchEnd( final Spot spot, final Spot ref )
-	{
-		Spot s = ref;
-		s.refTo( spot );
-		while ( s.outgoingEdges().size() == 1 )
-			s = s.outgoingEdges().get( 0 ).getTarget( s );
-		return s;
-	}
-
-	/**
 	 * @return true if the given spot is part of a branch that divides.
 	 */
 	public static boolean doesBranchDivide( ModelGraph graph, final Spot spot )
@@ -42,7 +29,7 @@ public class LineageTreeUtils
 		Spot ref = graph.vertexRef();
 		try
 		{
-			Spot branchEnd = getBranchEnd( spot, ref );
+			Spot branchEnd = BranchGraphUtils.getBranchEnd( spot, ref );
 			return branchEnd.outgoingEdges().size() > 1;
 		}
 		finally

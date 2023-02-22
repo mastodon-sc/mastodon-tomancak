@@ -60,8 +60,8 @@ public class LineageRegistrationUtils
 			for ( Spot spotA : result.mapAB.keySet() )
 			{
 				Spot spotB = result.mapAB.get( spotA, refB );
-				Spot branchEndA = LineageTreeUtils.getBranchEnd( spotA, refA );
-				Spot branchEndB = LineageTreeUtils.getBranchEnd( spotB, refB );
+				Spot branchEndA = BranchGraphUtils.getBranchEnd( spotA, refA );
+				Spot branchEndB = BranchGraphUtils.getBranchEnd( spotB, refB );
 				for ( Link linkA : branchEndA.outgoingEdges() )
 				{
 					Spot targetA = linkA.getTarget( refA2 );
@@ -157,8 +157,8 @@ public class LineageRegistrationUtils
 			for ( Spot spotA : r.mapAB.keySet() )
 			{
 				Spot spotB = r.mapAB.get( spotA, refB0 );
-				Spot dividingA = LineageTreeUtils.getBranchEnd( spotA, refA );
-				Spot dividingB = LineageTreeUtils.getBranchEnd( spotB, refB );
+				Spot dividingA = BranchGraphUtils.getBranchEnd( spotA, refA );
+				Spot dividingB = BranchGraphUtils.getBranchEnd( spotB, refB );
 				if ( doesRequireFlip( r, dividingA, dividingB ) )
 					list.add( dividingA );
 			}
