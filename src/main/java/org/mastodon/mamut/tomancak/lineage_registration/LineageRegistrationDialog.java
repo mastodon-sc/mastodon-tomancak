@@ -44,8 +44,7 @@ public class LineageRegistrationDialog extends JDialog
 		add( comboBoxA, "grow, wrap" );
 		add( new JLabel( "project B:" ) );
 		add( comboBoxB, "grow, wrap" );
-		add( newButton( "update", listener::onUpdateClicked ), "skip, split 2" );
-		add( newButton( "improve window titles", this::onImproveTitlesClicked ), "wrap" );
+		add( newButton( "update", listener::onUpdateClicked ), "skip, wrap" );
 
 		add( new JLabel( "Sort TrackScheme:" ), "gaptop unrelated" );
 		add( newButton( "project A", listener::onSortTrackSchemeAClicked ), "split 2" );
@@ -122,11 +121,6 @@ public class LineageRegistrationDialog extends JDialog
 				syncGroupButtons.get( j ).setSelected( false );
 		boolean isSelected = syncGroupButtons.get( i ).isSelected();
 		listener.onSyncGroupClicked( isSelected ? i : -1 );
-	}
-
-	private void onImproveTitlesClicked()
-	{
-		listener.onImproveTitlesClicked();
 	}
 
 	private void onCloseClicked()
@@ -210,8 +204,6 @@ public class LineageRegistrationDialog extends JDialog
 
 		void onUpdateClicked();
 
-		void onImproveTitlesClicked();
-
 		void onSortTrackSchemeAClicked();
 
 		void onSortTrackSchemeBClicked();
@@ -236,12 +228,6 @@ public class LineageRegistrationDialog extends JDialog
 
 		@Override
 		public void onUpdateClicked()
-		{
-
-		}
-
-		@Override
-		public void onImproveTitlesClicked()
 		{
 
 		}

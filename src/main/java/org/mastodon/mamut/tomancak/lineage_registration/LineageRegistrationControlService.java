@@ -9,9 +9,7 @@ import javax.swing.JOptionPane;
 
 import net.imagej.ImageJService;
 
-import org.mastodon.app.ui.ViewFrame;
 import org.mastodon.mamut.MamutAppModel;
-import org.mastodon.mamut.MamutViewBdv;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
@@ -65,25 +63,6 @@ public class LineageRegistrationControlService extends AbstractService implement
 		public void onUpdateClicked()
 		{
 			dialog.setMastodonInstances( windowManagers );
-		}
-
-		@Override
-		public void onImproveTitlesClicked()
-		{
-			for ( WindowManager windowManager : windowManagers )
-				improveTitles( windowManager );
-		}
-
-		private void improveTitles( WindowManager windowManager )
-		{
-			// NB: kind of a hack and not as good as it should be.
-			String projectName = LineageRegistrationDialog.getProjectName( windowManager );
-			for ( MamutViewBdv window : windowManager.getBdvWindows() )
-			{
-				ViewFrame frame = window.getFrame();
-				String title = frame.getTitle();
-				frame.setTitle( title.split( " - ", 2 )[ 0 ] + " - " + projectName );
-			}
 		}
 
 		@Override
