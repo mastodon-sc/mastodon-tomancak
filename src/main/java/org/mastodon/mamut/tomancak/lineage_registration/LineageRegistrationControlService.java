@@ -2,6 +2,8 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.JOptionPane;
 
@@ -12,6 +14,7 @@ import org.mastodon.mamut.MamutAppModel;
 import org.mastodon.mamut.MamutViewBdv;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.tomancak.lineage_registration.coupling.ModelCoupling;
 import org.mastodon.model.tag.TagSetStructure;
 import org.scijava.plugin.Plugin;
@@ -36,6 +39,21 @@ public class LineageRegistrationControlService extends AbstractService implement
 		dialog.setMastodonInstances( windowManagers );
 		dialog.pack();
 		dialog.setVisible( true );
+	}
+
+	/** Executes the specified task in a new thread, while locking both models. */
+	private static void executeTask( boolean writeLock, Model modelA, Model modelB, Runnable task )
+	{
+		new Thread( () -> {
+			ReentrantReadWriteLock readWriteLockA = modelA.getGraph().getLock();
+			ReentrantReadWriteLock readWriteLockB = modelB.getGraph().getLock();
+			Lock lockA = writeLock ? readWriteLockA.writeLock() : readWriteLockA.readLock();
+			Lock lockB = writeLock ? readWriteLockB.writeLock() : readWriteLockB.readLock();
+			try ( ClosableLock ignored = LockUtils.lockBoth( lockA, lockB ) )
+			{
+				task.run();
+			}
+		} ).start();
 	}
 
 	private class Listener implements LineageRegistrationDialog.Listener
@@ -71,25 +89,33 @@ public class LineageRegistrationControlService extends AbstractService implement
 		@Override
 		public void onSortTrackSchemeAClicked()
 		{
-			Model modelA = dialog.getProjectA().getAppModel().getModel();
-			Model modelB = dialog.getProjectB().getAppModel().getModel();
-			LineageRegistrationUtils.sortSecondTrackSchemeToMatch( modelB, modelA );
+			sortSecondTrackScheme( getModelB(), getModelA() );
 		}
 
 		@Override
 		public void onSortTrackSchemeBClicked()
 		{
-			Model modelA = dialog.getProjectA().getAppModel().getModel();
-			Model modelB = dialog.getProjectB().getAppModel().getModel();
-			LineageRegistrationUtils.sortSecondTrackSchemeToMatch( modelA, modelB );
+			sortSecondTrackScheme( getModelA(), getModelB() );
+		}
+
+		private void sortSecondTrackScheme( Model modelA, Model modelB )
+		{
+			executeTask( true, modelA, modelB, () -> {
+				LineageRegistrationUtils.sortSecondTrackSchemeToMatch( modelA, modelB );
+				modelB.setUndoPoint();
+			} );
 		}
 
 		@Override
 		public void onColorLineagesClicked()
 		{
-			Model modelA = dialog.getProjectA().getAppModel().getModel();
-			Model modelB = dialog.getProjectB().getAppModel().getModel();
-			LineageColoring.tagLineages( modelA, modelB );
+			Model modelA = getModelA();
+			Model modelB = getModelB();
+			executeTask( false, modelA, modelB, () -> {
+				LineageColoring.tagLineages( modelA, modelB );
+				modelA.setUndoPoint();
+				modelB.setUndoPoint();
+			} );
 		}
 
 		@Override
@@ -126,7 +152,10 @@ public class LineageRegistrationControlService extends AbstractService implement
 			if ( tagSet == null )
 				return;
 
-			LineageRegistrationUtils.copyTagSetToSecond( fromModel, toModel, tagSet );
+			executeTask( false, fromModel, toModel, () -> {
+				LineageRegistrationUtils.copyTagSetToSecond( fromModel, toModel, tagSet );
+				toModel.setUndoPoint();
+			} );
 		}
 
 		@Override
@@ -149,9 +178,15 @@ public class LineageRegistrationControlService extends AbstractService implement
 
 		private void putTags( boolean modifyA, boolean modifyB )
 		{
-			Model modelA = dialog.getProjectA().getAppModel().getModel();
-			Model modelB = dialog.getProjectB().getAppModel().getModel();
-			LineageRegistrationUtils.tagCells( modelA, modelB, modifyA, modifyB );
+			Model modelA = getModelA();
+			Model modelB = getModelB();
+			executeTask( false, modelA, modelB, () -> {
+				LineageRegistrationUtils.tagCells( modelA, modelB, modifyA, modifyB );
+				if ( modifyA )
+					modelA.setUndoPoint();
+				if ( modifyB )
+					modelB.setUndoPoint();
+			} );
 		}
 
 		@Override
@@ -164,10 +199,28 @@ public class LineageRegistrationControlService extends AbstractService implement
 				return;
 			MamutAppModel appModelA = dialog.getProjectA().getAppModel();
 			MamutAppModel appModelB = dialog.getProjectB().getAppModel();
-			RegisteredGraphs r = LineageRegistrationAlgorithm.run(
-					appModelA.getModel().getGraph(),
-					appModelB.getModel().getGraph() );
+			ModelGraph graphA = appModelA.getModel().getGraph();
+			ModelGraph graphB = appModelB.getModel().getGraph();
+			RegisteredGraphs r;
+			try ( ClosableLock ignored = LockUtils.lockBoth(
+					graphA.getLock().readLock(),
+					graphB.getLock().readLock() ) )
+			{
+				r = LineageRegistrationAlgorithm.run(
+						graphA,
+						graphB );
+			}
 			coupling = new ModelCoupling( appModelA, appModelB, r, i );
+		}
+
+		private Model getModelB()
+		{
+			return dialog.getProjectB().getAppModel().getModel();
+		}
+
+		private Model getModelA()
+		{
+			return dialog.getProjectA().getAppModel().getModel();
 		}
 	}
 }
