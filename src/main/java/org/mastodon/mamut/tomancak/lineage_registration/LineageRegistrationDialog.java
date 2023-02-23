@@ -9,12 +9,14 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.WindowConstants;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.io.FilenameUtils;
+import org.jetbrains.annotations.NotNull;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.project.MamutProject;
 
@@ -30,23 +32,13 @@ public class LineageRegistrationDialog extends JDialog
 
 	public LineageRegistrationDialog( Listener listener )
 	{
-		super( ( JFrame ) null, "Sort TrackScheme to Match Another Lineage", false );
+		super( ( JFrame ) null, "Lineage Registration Across Two Mastodon Projects", false );
 		this.setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
 		this.setLocationByPlatform( true );
 		this.listener = listener;
 		setLayout( new MigLayout( "insets dialog, fill" ) );
 
-		final String introText = "<html><body>"
-				+ "The \"Tree Matching\" plugin orders the descendants in the TrackScheme of this project<br>"
-				+ "such that their order matches the order in the other project.<br><br>"
-				+ "These requirements should be met:"
-				+ "<ul>"
-				+ "<li>Both projects should show a stereotypically developing embryos.</li>"
-				+ "<li>The first frames should show the two embryos at a similar stage.</li>"
-				+ "<li>Root nodes must be named, and the names should match between the two projects.</li>"
-				+ "</ul>"
-				+ "</body></html>";
-		add( new JLabel( introText ), "span, wrap" );
+		add( introductionTextPane(), "span, grow, wrap, width 0:0:" );
 		add( new JLabel( "Select Mastodon projects to match:" ), "span, wrap" );
 		add( new JLabel( "project A:" ) );
 		add( comboBoxA, "grow, wrap" );
@@ -75,6 +67,41 @@ public class LineageRegistrationDialog extends JDialog
 		add( newButton( "Close", this::onCloseClicked ), "gaptop unrelated, span, align right" );
 	}
 
+	private JButton newButton( String select, Runnable action )
+	{
+		JButton button = new JButton( select );
+		button.addActionListener( ignored -> action.run() );
+		return button;
+	}
+
+	private static JTextPane introductionTextPane()
+	{
+		final String introText = "<html><body>"
+				+ "The \"lineage registration\" plugin allows to compare the lineages of two "
+				+ "similarly developing embryos in two mastodon projects. By analyzing the "
+				+ "spindle directions it recursively finds the corresponding cells in both "
+				+ "embryos.<br><br>"
+				+ "<details>"
+				+ "The plugin allows to perform various operations baseed on the correspondence "
+				+ "information.<br><br>"
+				+ "The following condition need to be met for the algorithm to work:"
+				+ "<ul>"
+				+ "<li>Both projects should show stereotypically developing embryos.</li>"
+				+ "<li>The first frames should show the both embryos at a similar stage.</li>"
+				+ "<li>Root nodes must be labeled, and the labels should match between the two projects.</li>"
+				+ "<li>There need to be at least three lineages with cell divisions,"
+				+ "that can be paired based on their name.</li>"
+				+ "</ul>"
+				+ "(The plugin ignores lineages that have no cell division.)<br><br>"
+				+ "</details>"
+				+ "</body></html>";
+		JTextPane comp = new JTextPane();
+		comp.setContentType( "text/html" );
+		comp.setText( introText );
+		comp.setEditable( false );
+		return comp;
+	}
+
 	private List< JToggleButton > initSyncGroupButtons()
 	{
 		ArrayList< JToggleButton > buttons = new ArrayList<>();
@@ -95,13 +122,6 @@ public class LineageRegistrationDialog extends JDialog
 				syncGroupButtons.get( j ).setSelected( false );
 		boolean isSelected = syncGroupButtons.get( i ).isSelected();
 		listener.onSyncGroupClicked( isSelected ? i : -1 );
-	}
-
-	private JButton newButton( String select, Runnable action )
-	{
-		JButton button = new JButton( select );
-		button.addActionListener( ignored -> action.run() );
-		return button;
 	}
 
 	private void onImproveTitlesClicked()
