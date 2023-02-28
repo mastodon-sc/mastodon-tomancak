@@ -7,6 +7,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -68,6 +69,8 @@ public class LineageRegistrationDialog extends JDialog
 
 	private final List< JToggleButton > syncGroupButtons;
 
+	private final List< JComponent > buttons = new ArrayList<>();
+
 	public LineageRegistrationDialog( Listener listener )
 	{
 		super( ( JFrame ) null, "Lineage Registration Across Two Mastodon Projects", false );
@@ -79,42 +82,56 @@ public class LineageRegistrationDialog extends JDialog
 		add( introductionTextPane(), "span, grow, wrap, width 0:0:" );
 		add( new JLabel( "Select Mastodon projects to match:" ), "span, wrap" );
 		add( new JLabel( "project A:" ) );
+		comboBoxA.addActionListener( ignore -> updateEnableButtons() );
 		add( comboBoxA, "grow, wrap" );
 		add( new JLabel( "project B:" ) );
+		comboBoxB.addActionListener( ignore -> updateEnableButtons() );
 		add( comboBoxB, "grow, wrap" );
-		add( newButton( "update", listener::onUpdateClicked ), "skip, wrap" );
+		add( newSimpleButton( "update list of projects", listener::onUpdateClicked ), "skip, wrap" );
 
 		add( new JLabel( "Sort TrackScheme:" ), "gaptop unrelated" );
-		add( newButton( "project A", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeAClicked ), "split 2" );
-		add( newButton( "project B", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeBClicked ), "wrap" );
+		add( newOperationButton( "project A", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeAClicked ), "split 2" );
+		add( newOperationButton( "project B", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeBClicked ), "wrap" );
 		add( new JLabel( "Copy tag set:" ) );
-		add( newButton( "from A to B ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetAtoB ), "split 2" );
-		add( newButton( "from B to A ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetBtoA ), "wrap" );
+		add( newOperationButton( "from A to B ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetAtoB ), "split 2" );
+		add( newOperationButton( "from B to A ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetBtoA ), "wrap" );
 		add( new JLabel( "Tag unmatched & flipped cells:" ) );
-		add( newButton( "in both projects", TAG_CELLS_TOOLTIP, listener::onTagBothClicked ), "split 3" );
-		add( newButton( "project A", TAG_CELLS_TOOLTIP, listener::onTagProjectAClicked ) );
-		add( newButton( "project B", TAG_CELLS_TOOLTIP, listener::onTagProjectBClicked ), "wrap" );
+		add( newOperationButton( "in both projects", TAG_CELLS_TOOLTIP, listener::onTagBothClicked ), "split 3" );
+		add( newOperationButton( "project A", TAG_CELLS_TOOLTIP, listener::onTagProjectAClicked ) );
+		add( newOperationButton( "project B", TAG_CELLS_TOOLTIP, listener::onTagProjectBClicked ), "wrap" );
 		add( new JLabel( "Others:" ) );
-		add( newButton( "color paired lineages", TAG_LINEAGES_TOOLTIP, listener::onColorLineagesClicked ), "wrap" );
+		add( newOperationButton( "color paired lineages", TAG_LINEAGES_TOOLTIP, listener::onColorLineagesClicked ), "wrap" );
 		add( new JLabel( "Couple projects:" ) );
 		this.syncGroupButtons = initSyncGroupButtons();
 		add( syncGroupButtons.get( 0 ), "split 3" );
 		add( syncGroupButtons.get( 1 ) );
 		add( syncGroupButtons.get( 2 ), "wrap" );
-		add( newButton( "Close", this::onCloseClicked ), "gaptop unrelated, span, align right" );
+		add( newSimpleButton( "Close", this::onCloseClicked ), "gaptop unrelated, span, align right" );
+		updateEnableButtons();
 	}
 
-	private JButton newButton( String title, Runnable action )
+	private void updateEnableButtons()
+	{
+		WindowManager projectA = getProjectA();
+		WindowManager projectB = getProjectB();
+		final boolean enabled = projectA != null && projectB != null && projectA != projectB;
+		for ( JComponent b : buttons )
+			b.setEnabled( enabled );
+	}
+
+	private JButton newSimpleButton( String title, Runnable action )
 	{
 		JButton button = new JButton( title );
 		button.addActionListener( ignored -> action.run() );
 		return button;
 	}
 
-	private JButton newButton( String title, String hint, Runnable action )
+	private JButton newOperationButton( String title, String hint, Runnable action )
 	{
-		JButton button = newButton( title, action );
+		JButton button = new JButton( title );
+		button.addActionListener( ignored -> action.run() );
 		button.setToolTipText( hint );
+		buttons.add( button );
 		return button;
 	}
 
@@ -149,7 +166,11 @@ public class LineageRegistrationDialog extends JDialog
 	{
 		ArrayList< JToggleButton > buttons = new ArrayList<>();
 		for ( int i = 0; i < 3; i++ )
-			buttons.add( initToggleButton( i ) );
+		{
+			JToggleButton e = initToggleButton( i );
+			buttons.add( e );
+			this.buttons.add( e );
+		}
 		return buttons;
 	}
 
@@ -191,6 +212,7 @@ public class LineageRegistrationDialog extends JDialog
 		}
 		setSelected( comboBoxA, a, 0 );
 		setSelected( comboBoxB, b, 1 );
+		updateEnableButtons();
 	}
 
 	private void setSelected( JComboBox< MastodonInstance > comboBox, WindowManager windowManager, int defaultIndex )
