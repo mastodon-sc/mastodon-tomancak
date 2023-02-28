@@ -21,15 +21,32 @@ import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
 import org.mastodon.model.tag.ObjTagMap;
 import org.mastodon.model.tag.TagSetStructure;
 
+/**
+ * Utility class that implements most of the functionality
+ * provided by the {@link LineageRegistrationPlugin}.
+ */
 public class LineageRegistrationUtils
 {
 
+	/**
+	 * Sorts the descendants in the second {@link ModelGraph} to match the order
+	 * of the descendants in the first {@link ModelGraph}.
+	 * The sorting is based on the result of the
+	 * {@link LineageRegistrationAlgorithm}.
+	 */
 	public static void sortSecondTrackSchemeToMatch( Model modelA, Model modelB )
 	{
 		RegisteredGraphs result = LineageRegistrationAlgorithm.run( modelA.getGraph(), modelB.getGraph() );
-		FlipDescendants.flipDescendants( modelB, getSpotsToFlipB( result ) );
+		RefList< Spot > spotsToFlipB = getSpotsToFlipB( result );
+		FlipDescendants.flipDescendants( modelB, spotsToFlipB );
 	}
 
+	/**
+	 * Copy a tag set from modelA to modelB.
+	 * The {@link LineageRegistrationAlgorithm} is used to find the matching
+	 * between the branches in modelA and modelB. The tags are copied from
+	 * the branches  in modelA to the corresponding branches in modelB.
+	 */
 	public static TagSetStructure.TagSet copyTagSetToSecond( Model modelA, Model modelB,
 			TagSetStructure.TagSet tagSetModelA, String newTagSetName )
 	{
@@ -116,6 +133,10 @@ public class LineageRegistrationUtils
 		return map::get;
 	}
 
+	/**
+	 * Creates a new tag set in both models. It runs the {@link LineageRegistrationAlgorithm}
+	 * and tags unmatched and flipped cells / branches.
+	 */
 	public static void tagCells( Model modelA, Model modelB, boolean modifyA, boolean modifyB )
 	{
 		RegisteredGraphs result = LineageRegistrationAlgorithm.run( modelA.getGraph(), modelB.getGraph() );
@@ -146,6 +167,10 @@ public class LineageRegistrationUtils
 		return getSpotsToFlipA( result.swapAB() );
 	}
 
+	/**
+	 * Returns the spots in graph A that need to be flipped in order for the
+	 * descendants of graph A to match the order of the descendants in graph B.
+	 */
 	public static RefList< Spot > getSpotsToFlipA( RegisteredGraphs r )
 	{
 		Spot refA = r.graphA.vertexRef();
@@ -172,6 +197,11 @@ public class LineageRegistrationUtils
 		}
 	}
 
+	/**
+	 * Returns true if the descendants of dividingA are in the opposite order
+	 * to the descendants of dividingB. Which descendant corresponds to which
+	 * is determined by the mapping {@link RegisteredGraphs#mapAB}.
+	 */
 	private static boolean doesRequireFlip( RegisteredGraphs r, Spot dividingA, Spot dividingB )
 	{
 		Spot refA = r.graphA.vertexRef();
@@ -195,6 +225,10 @@ public class LineageRegistrationUtils
 		}
 	}
 
+	/**
+	 * Returns a list of branch starts in graph A that are not mapped to any
+	 * branch in graph B.
+	 */
 	public static RefSet< Spot > getUnmatchSpotsA( RegisteredGraphs r )
 	{
 		RefSet< Spot > branchStarts = BranchGraphUtils.getAllBranchStarts( r.graphA );

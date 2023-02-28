@@ -22,6 +22,10 @@ import org.mastodon.app.ui.GroupLocksPanel;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.project.MamutProject;
 
+/**
+ * Dialog for the {@link LineageRegistrationPlugin}. It allows to select two
+ * {@link MamutProject}s and to perform various actions on them.
+ */
 public class LineageRegistrationDialog extends JDialog
 {
 	private static final String SORT_TRACKSCHEME_TOOLTIP = "<html><body>"

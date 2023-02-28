@@ -18,6 +18,17 @@ import org.mastodon.model.tag.TagSetStructure;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
 
+/**
+ * This class is the controller for the {@link LineageRegistrationDialog}.
+ * It shows the dialog and performs the actions requested by the user.
+ * <p>
+ * There should be only one instance of this class in the Fiji application.
+ * This is ensured by making it an {@link ImageJService}. Being a service,
+ * allows the {@link LineageRegistrationPlugin} to access it, and to call
+ * {@link #registerMastodonInstance(WindowManager)}.
+ *
+ * @author Matthias Arzt
+ */
 @Plugin( type = ImageJService.class )
 public class LineageRegistrationControlService extends AbstractService implements ImageJService
 {

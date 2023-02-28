@@ -21,9 +21,10 @@ import org.scijava.ui.behaviour.util.Actions;
 import org.scijava.ui.behaviour.util.RunnableAction;
 
 /**
- * Shows the {@link LineageRegistrationDialog} and
- * executes the {@link LineageRegistrationAlgorithm} when
- * ok is clicked.
+ * A plugin that registers the cell lineages of two stereotypically developing.
+ * <p>
+ * The plugin interacts with the {@link LineageRegistrationControlService} to
+ * register the {@link MamutPluginAppModel} and tho show the {@link LineageRegistrationDialog}.
  */
 @Plugin( type = MamutPlugin.class )
 public class LineageRegistrationPlugin implements MamutPlugin
