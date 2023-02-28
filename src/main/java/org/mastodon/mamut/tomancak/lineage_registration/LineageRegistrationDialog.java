@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -16,6 +17,7 @@ import javax.swing.WindowConstants;
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.io.FilenameUtils;
+import org.mastodon.app.ui.GroupLocksPanel;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.project.MamutProject;
 
@@ -55,6 +57,8 @@ public class LineageRegistrationDialog extends JDialog
 			+ "Synchronization works best between the \"TrackScheme Branch\" and \"BranchScheme Hierarchy\" windows,<br>"
 			+ "(Note: synchronization of edges is not implemented yet.)"
 			+ "</body></html>";
+
+	private static final ImageIcon LOCK_ICON = new ImageIcon( GroupLocksPanel.class.getResource( "lock.png" ) );
 
 	private final Listener listener;
 
@@ -145,14 +149,18 @@ public class LineageRegistrationDialog extends JDialog
 	{
 		ArrayList< JToggleButton > buttons = new ArrayList<>();
 		for ( int i = 0; i < 3; i++ )
-		{
-			JToggleButton button = new JToggleButton( "Lock " + ( i + 1 ) );
-			int j = i;
-			button.addActionListener( ignore -> onSyncGroupButtonClicked( j ) );
-			button.setToolTipText( COUPLE_PROJECTS_TOOLTIP );
-			buttons.add( button );
-		}
+			buttons.add( initToggleButton( i ) );
 		return buttons;
+	}
+
+	private JToggleButton initToggleButton( int i )
+	{
+		JToggleButton button = new JToggleButton();
+		button.setIcon( LOCK_ICON );
+		button.setText( Integer.toString( i + 1 ) );
+		button.addActionListener( ignore -> onSyncGroupButtonClicked( i ) );
+		button.setToolTipText( COUPLE_PROJECTS_TOOLTIP );
+		return button;
 	}
 
 	private void onSyncGroupButtonClicked( int i )
