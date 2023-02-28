@@ -37,7 +37,7 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	private static final String[] MATCH_TREE_KEYS = { "not mapped" };
 
 	private static final Map< String, String > menuTexts =
-			Collections.singletonMap( MATCH_TREE, "Sort Lineage Tree (To Match Other Project)" );
+			Collections.singletonMap( MATCH_TREE, "Lineage Registration" );
 
 	private MamutPluginAppModel pluginAppModel = null;
 
@@ -52,7 +52,8 @@ public class LineageRegistrationPlugin implements MamutPlugin
 		@Override
 		public void getCommandDescriptions( CommandDescriptions descriptions )
 		{
-			descriptions.add( MATCH_TREE, MATCH_TREE_KEYS, "Sort the TrackScheme such that the order matches another project." );
+			descriptions.add( MATCH_TREE, MATCH_TREE_KEYS,
+					"Register the cell lineages of two stereotypically developing embryos, by analyzing cell division directions." );
 		}
 	}
 
@@ -81,7 +82,7 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	@Override
 	public List< ViewMenuBuilder.MenuItem > getMenuItems()
 	{
-		return Collections.singletonList( menu( "Plugins", menu( "Trees Management", item( MATCH_TREE ) ) ) );
+		return Collections.singletonList( menu( "Plugins", item( MATCH_TREE ) ) );
 	}
 
 	@Override
