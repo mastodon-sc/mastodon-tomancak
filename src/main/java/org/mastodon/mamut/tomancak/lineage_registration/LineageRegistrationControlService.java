@@ -132,7 +132,8 @@ public class LineageRegistrationControlService extends AbstractService implement
 				return;
 
 			executeTask( false, fromModel, toModel, () -> {
-				LineageRegistrationUtils.copyTagSetToSecond( fromModel, toModel, tagSet );
+				String newTagSetName = tagSet.getName() + " (" + LineageRegistrationDialog.getProjectName( fromProject ) + ")";
+				LineageRegistrationUtils.copyTagSetToSecond( fromModel, toModel, tagSet, newTagSetName );
 				toModel.setUndoPoint();
 			} );
 		}

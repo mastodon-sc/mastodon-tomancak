@@ -30,7 +30,8 @@ public class LineageRegistrationUtils
 		FlipDescendants.flipDescendants( modelB, getSpotsToFlipB( result ) );
 	}
 
-	public static TagSetStructure.TagSet copyTagSetToSecond( Model modelA, Model modelB, TagSetStructure.TagSet tagSetModelA )
+	public static TagSetStructure.TagSet copyTagSetToSecond( Model modelA, Model modelB,
+			TagSetStructure.TagSet tagSetModelA, String newTagSetName )
 	{
 		RegisteredGraphs result = LineageRegistrationAlgorithm.run( modelA.getGraph(), modelB.getGraph() );
 		List< Pair< String, Integer > > tags = tagSetModelA.getTags().stream()
@@ -126,7 +127,7 @@ public class LineageRegistrationUtils
 
 	private static void tagSpotsA( Model modelA, RegisteredGraphs result )
 	{
-		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( modelA, "registration", Arrays.asList(
+		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( modelA, "lineage registration", Arrays.asList(
 				Pair.of( "not mapped", 0xffff2222 ),
 				Pair.of( "flipped", 0xff22ff22 )
 		) );

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -48,10 +49,10 @@ public class LineageRegistrationUtilsTest
 		EmbryoA embryoA = new EmbryoA();
 		EmbryoB embryoB = new EmbryoB();
 		LineageRegistrationUtils.tagCells( embryoA.model, embryoB.model, true, true );
-		assertEquals( set(), getTaggedSpots( embryoA.model, "registration", "not mapped" ) );
-		assertEquals( set( "B", "B~1", "B~2" ), getTaggedSpots( embryoA.model, "registration", "flipped" ) );
-		assertEquals( set(), getTaggedSpots( embryoB.model, "registration", "not mapped" ) );
-		assertEquals( set( "B", "B~1", "B~2" ), getTaggedSpots( embryoB.model, "registration", "flipped" ) );
+		assertEquals( Collections.emptySet(), getTaggedSpots( embryoA.model, "lineage registration", "not mapped" ) );
+		assertEquals( set( "B", "B~1", "B~2" ), getTaggedSpots( embryoA.model, "lineage registration", "flipped" ) );
+		assertEquals( Collections.emptySet(), getTaggedSpots( embryoB.model, "lineage registration", "not mapped" ) );
+		assertEquals( set( "B", "B~1", "B~2" ), getTaggedSpots( embryoB.model, "lineage registration", "flipped" ) );
 	}
 
 	@Test
@@ -70,7 +71,7 @@ public class LineageRegistrationUtilsTest
 		TagSetUtils.tagBranch( embryoA.model, tagSet, foo, embryoA.a2 );
 		TagSetUtils.tagBranch( embryoA.model, tagSet, bar, embryoA.b1 );
 		embryoA.model.getTagSetModel().getEdgeTags().set( embryoA.model.getGraph().getEdge( embryoA.bEnd, embryoA.b1 ), bar );
-		LineageRegistrationUtils.copyTagSetToSecond( embryoA.model, embryoB.model, tagSet );
+		LineageRegistrationUtils.copyTagSetToSecond( embryoA.model, embryoB.model, tagSet, "test" );
 		assertEquals( set( "A", "A~1", "A1", "A2" ), getTaggedSpots( embryoB.model, "test", "foo" ) );
 		assertEquals( set( "B2" ), getTaggedSpots( embryoB.model, "test", "bar" ) );
 		assertEquals( set( "B~2 -> B2" ), getTaggedEdges( embryoB.model, "test", "bar" ) );
