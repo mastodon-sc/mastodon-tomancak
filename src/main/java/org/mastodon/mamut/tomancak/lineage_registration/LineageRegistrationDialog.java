@@ -16,12 +16,46 @@ import javax.swing.WindowConstants;
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.io.FilenameUtils;
-import org.jetbrains.annotations.NotNull;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.project.MamutProject;
 
 public class LineageRegistrationDialog extends JDialog
 {
+	private static final String SORT_TRACKSCHEME_TOOLTIP = "<html><body>"
+			+ "Orders the descendants in the TrackScheme of this project<br>"
+			+ "such that their order matches the order in the other project."
+			+ "</body></html>";
+
+	private static final String TAG_CELLS_TOOLTIP = "<html><body>"
+			+ "Creates a new tag set \"lineage registration\" in the selected project.<br>"
+			+ "The tag set contains two tags \"flipped\" and \"unmatched\".<br>"
+			+ "Cells that could not be matched are tagged with \"unmatched\".<br>"
+			+ "Cells for which the order of the descendants is opposite in both projects are tagged with \"flipped\"."
+			+ "</body></html>";
+
+	private static final String COPY_TAGSET_TOOLTIP = "<html><body>"
+			+ "Use the found correspondences to copy a tag set from one project to the other.<br>"
+			+ "<br>"
+			+ "The correspondences are on a level of cells / branches.<br>"
+			+ "That is why the tags are only copied if the entire cell / branch is tagged.<br>"
+			+ "Tags on individual spot are therefor not copied."
+			+ "</body></html>";
+
+	private static final String TAG_LINEAGES_TOOLTIP = "<html><body>"
+			+ "Creates a new tag set \"lineages\" in both projects<br>"
+			+ "that assigns the same color to paired lineages.<br>"
+			+ "(Note: This functionality does not make use of the found correspondences.)"
+			+ "</body></html>";
+
+	private static final String COUPLE_PROJECTS_TOOLTIP = "<html><body>"
+			+ "Use the found correspondences to couple two projects.<br>"
+			+ "<br>"
+			+ "Spot highlighting and focus are synchronized between the two projects.<br>"
+			+ "Navigation to a clicked spot is synchronized for the selected \"sync group\".<br>"
+			+ "Synchronization works best between the \"TrackScheme Branch\" and \"BranchScheme Hierarchy\" windows,<br>"
+			+ "(Note: synchronization of edges is not implemented yet.)"
+			+ "</body></html>";
+
 	private final Listener listener;
 
 	private final JComboBox< MastodonInstance > comboBoxA = new JComboBox<>();
@@ -47,17 +81,17 @@ public class LineageRegistrationDialog extends JDialog
 		add( newButton( "update", listener::onUpdateClicked ), "skip, wrap" );
 
 		add( new JLabel( "Sort TrackScheme:" ), "gaptop unrelated" );
-		add( newButton( "project A", listener::onSortTrackSchemeAClicked ), "split 2" );
-		add( newButton( "project B", listener::onSortTrackSchemeBClicked ), "wrap" );
+		add( newButton( "project A", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeAClicked ), "split 2" );
+		add( newButton( "project B", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeBClicked ), "wrap" );
 		add( new JLabel( "Copy tag set:" ) );
-		add( newButton( "from A to B", listener::onCopyTagSetAtoB ), "split 2" );
-		add( newButton( "from B to A", listener::onCopyTagSetBtoA ), "wrap" );
+		add( newButton( "from A to B ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetAtoB ), "split 2" );
+		add( newButton( "from B to A ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetBtoA ), "wrap" );
 		add( new JLabel( "Tag unmatched & flipped cells:" ) );
-		add( newButton( "in both projects", listener::onTagBothClicked ), "split 3" );
-		add( newButton( "project A", listener::onTagProjectAClicked ) );
-		add( newButton( "project B", listener::onTagProjectBClicked ), "wrap" );
+		add( newButton( "in both projects", TAG_CELLS_TOOLTIP, listener::onTagBothClicked ), "split 3" );
+		add( newButton( "project A", TAG_CELLS_TOOLTIP, listener::onTagProjectAClicked ) );
+		add( newButton( "project B", TAG_CELLS_TOOLTIP, listener::onTagProjectBClicked ), "wrap" );
 		add( new JLabel( "Others:" ) );
-		add( newButton( "color paired lineages", listener::onColorLineagesClicked ), "wrap" );
+		add( newButton( "color paired lineages", TAG_LINEAGES_TOOLTIP, listener::onColorLineagesClicked ), "wrap" );
 		add( new JLabel( "Couple projects:" ) );
 		this.syncGroupButtons = initSyncGroupButtons();
 		add( syncGroupButtons.get( 0 ), "split 3" );
@@ -66,33 +100,39 @@ public class LineageRegistrationDialog extends JDialog
 		add( newButton( "Close", this::onCloseClicked ), "gaptop unrelated, span, align right" );
 	}
 
-	private JButton newButton( String select, Runnable action )
+	private JButton newButton( String title, Runnable action )
 	{
-		JButton button = new JButton( select );
+		JButton button = new JButton( title );
 		button.addActionListener( ignored -> action.run() );
+		return button;
+	}
+
+	private JButton newButton( String title, String hint, Runnable action )
+	{
+		JButton button = newButton( title, action );
+		button.setToolTipText( hint );
 		return button;
 	}
 
 	private static JTextPane introductionTextPane()
 	{
 		final String introText = "<html><body>"
-				+ "The \"lineage registration\" plugin allows to compare the lineages of two "
-				+ "similarly developing embryos in two mastodon projects. By analyzing the "
-				+ "spindle directions it recursively finds the corresponding cells in both "
-				+ "embryos.<br><br>"
-				+ "<details>"
-				+ "The plugin allows to perform various operations baseed on the correspondence "
-				+ "information.<br><br>"
-				+ "The following condition need to be met for the algorithm to work:"
+				+ "The \"lineage registration\" plugin allows comparing the lineages of two "
+				+ "similarly developing embryos in two Mastodon projects. By analyzing the "
+				+ "spindle directions it finds the corresponding cells in both embryos."
+				+ "<br><br>"
+				+ "The plugin allows performing various operations based on the correspondence "
+				+ "information."
+				+ "<br><br>"
+				+ "The following conditions need to be met for the algorithm to work:"
 				+ "<ul>"
 				+ "<li>Both projects should show stereotypically developing embryos.</li>"
-				+ "<li>The first frames should show the both embryos at a similar stage.</li>"
+				+ "<li>The first frames should show both the embryos at a similar developmental stage.</li>"
 				+ "<li>Root nodes must be labeled, and the labels should match between the two projects.</li>"
-				+ "<li>There need to be at least three lineages with cell divisions,"
-				+ "that can be paired based on their name.</li>"
+				+ "<li>There needs to be at least three lineages with cell divisions,"
+				+ "that can be paired based on their names.</li>"
 				+ "</ul>"
-				+ "(The plugin ignores lineages that have no cell division.)<br><br>"
-				+ "</details>"
+				+ "(Note: The plugin ignores lineages that have no cell divisions.)<br><br>"
 				+ "</body></html>";
 		JTextPane comp = new JTextPane();
 		comp.setContentType( "text/html" );
@@ -109,6 +149,7 @@ public class LineageRegistrationDialog extends JDialog
 			JToggleButton button = new JToggleButton( "Lock " + ( i + 1 ) );
 			int j = i;
 			button.addActionListener( ignore -> onSyncGroupButtonClicked( j ) );
+			button.setToolTipText( COUPLE_PROJECTS_TOOLTIP );
 			buttons.add( button );
 		}
 		return buttons;
