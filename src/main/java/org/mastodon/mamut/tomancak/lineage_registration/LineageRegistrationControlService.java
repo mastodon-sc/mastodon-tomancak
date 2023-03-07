@@ -44,7 +44,10 @@ public class LineageRegistrationControlService extends AbstractService implement
 	public void showDialog()
 	{
 		if ( dialog.isVisible() )
+		{
+			dialog.toFront();
 			return;
+		}
 		dialog.setMastodonInstances( windowManagers );
 		dialog.pack();
 		dialog.setVisible( true );
