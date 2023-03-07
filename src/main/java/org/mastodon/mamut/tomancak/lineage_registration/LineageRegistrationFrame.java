@@ -8,7 +8,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextPane;
@@ -26,7 +25,7 @@ import org.mastodon.mamut.project.MamutProject;
  * Dialog for the {@link LineageRegistrationPlugin}. It allows to select two
  * {@link MamutProject}s and to perform various actions on them.
  */
-public class LineageRegistrationDialog extends JDialog
+public class LineageRegistrationFrame extends JFrame
 {
 	private static final String SORT_TRACKSCHEME_TOOLTIP = "<html><body>"
 			+ "Orders the descendants in the TrackScheme of this project<br>"
@@ -75,9 +74,9 @@ public class LineageRegistrationDialog extends JDialog
 
 	private final List< JComponent > buttons = new ArrayList<>();
 
-	public LineageRegistrationDialog( Listener listener )
+	public LineageRegistrationFrame( Listener listener )
 	{
-		super( ( JFrame ) null, "Lineage Registration Across Two Mastodon Projects", false );
+		super( "Lineage Registration Across Two Mastodon Projects" );
 		this.setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
 		this.setLocationByPlatform( true );
 		this.listener = listener;
@@ -365,7 +364,7 @@ public class LineageRegistrationDialog extends JDialog
 	public static void main( String... args )
 	{
 		// NOTE: Small demo function that only shows the LineageRegistrationDialog. For easy debugging.
-		LineageRegistrationDialog dialog = new LineageRegistrationDialog( new DummyListener() );
+		LineageRegistrationFrame dialog = new LineageRegistrationFrame( new DummyListener() );
 		dialog.pack();
 		dialog.setVisible( true );
 	}

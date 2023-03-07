@@ -19,7 +19,7 @@ import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
 
 /**
- * This class is the controller for the {@link LineageRegistrationDialog}.
+ * This class is the controller for the {@link LineageRegistrationFrame}.
  * It shows the dialog and performs the actions requested by the user.
  * <p>
  * There should be only one instance of this class in the Fiji application.
@@ -32,7 +32,7 @@ import org.scijava.service.AbstractService;
 @Plugin( type = ImageJService.class )
 public class LineageRegistrationControlService extends AbstractService implements ImageJService
 {
-	private final LineageRegistrationDialog dialog = new LineageRegistrationDialog( new Listener() );
+	private final LineageRegistrationFrame dialog = new LineageRegistrationFrame( new Listener() );
 
 	private final List< WindowManager > windowManagers = new ArrayList<>();
 
@@ -68,7 +68,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 		} ).start();
 	}
 
-	private class Listener implements LineageRegistrationDialog.Listener
+	private class Listener implements LineageRegistrationFrame.Listener
 	{
 
 		private ModelCoupling coupling = null;
@@ -132,7 +132,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 			if ( tagSets.isEmpty() )
 			{
 				JOptionPane.showMessageDialog( dialog,
-						"No tag sets in project \"" + LineageRegistrationDialog.getProjectName( fromProject ) + "\"." );
+						"No tag sets in project \"" + LineageRegistrationFrame.getProjectName( fromProject ) + "\"." );
 				return;
 			}
 
@@ -146,7 +146,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 				return;
 
 			executeTask( false, fromModel, toModel, () -> {
-				String newTagSetName = tagSet.getName() + " (" + LineageRegistrationDialog.getProjectName( fromProject ) + ")";
+				String newTagSetName = tagSet.getName() + " (" + LineageRegistrationFrame.getProjectName( fromProject ) + ")";
 				LineageRegistrationUtils.copyTagSetToSecond( fromModel, toModel, tagSet, newTagSetName );
 				toModel.setUndoPoint();
 			} );
