@@ -49,8 +49,7 @@ public class LineageRegistrationFrame extends JFrame
 
 	private static final String TAG_LINEAGES_TOOLTIP = "<html><body>"
 			+ "Creates a new tag set \"lineages\" in both projects<br>"
-			+ "that assigns the same color to paired lineages.<br>"
-			+ "(Note: This functionality does not make use of the found correspondences.)"
+			+ "Lineages with the same root node label get a tag with the same color.<br>"
 			+ "</body></html>";
 
 	private static final String COUPLE_PROJECTS_TOOLTIP = "<html><body>"
