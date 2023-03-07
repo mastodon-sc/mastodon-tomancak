@@ -82,20 +82,23 @@ public class LineageRegistrationControlService extends AbstractService implement
 		@Override
 		public void onSortTrackSchemeAClicked()
 		{
-			sortSecondTrackScheme( getModelB(), getModelA() );
+			sortSecondTrackScheme( dialog.getProjectB().getAppModel(), dialog.getProjectA().getAppModel() );
 		}
 
 		@Override
 		public void onSortTrackSchemeBClicked()
 		{
-			sortSecondTrackScheme( getModelA(), getModelB() );
+			sortSecondTrackScheme( dialog.getProjectA().getAppModel(), dialog.getProjectB().getAppModel() );
 		}
 
-		private void sortSecondTrackScheme( Model modelA, Model modelB )
+		private void sortSecondTrackScheme( MamutAppModel appModel1, MamutAppModel appModel2 )
 		{
-			executeTask( true, modelA, modelB, () -> {
-				LineageRegistrationUtils.sortSecondTrackSchemeToMatch( modelA, modelB );
-				modelB.setUndoPoint();
+			Model model1 = appModel1.getModel();
+			Model model2 = appModel2.getModel();
+			executeTask( true, model1, model2, () -> {
+				LineageRegistrationUtils.sortSecondTrackSchemeToMatch( model1, model2 );
+				appModel2.getBranchGraphSync().sync();
+				model2.setUndoPoint();
 			} );
 		}
 
