@@ -50,9 +50,9 @@ public class LineageRegistrationUtilsTest
 		EmbryoB embryoB = new EmbryoB();
 		LineageRegistrationUtils.tagCells( embryoA.model, embryoB.model, true, true );
 		assertEquals( Collections.emptySet(), getTaggedSpots( embryoA.model, "lineage registration", "not mapped" ) );
-		assertEquals( set( "B", "B~1", "B~2" ), getTaggedSpots( embryoA.model, "lineage registration", "flipped" ) );
+		assertEquals( set( "B1", "B2" ), getTaggedSpots( embryoA.model, "lineage registration", "flipped" ) );
 		assertEquals( Collections.emptySet(), getTaggedSpots( embryoB.model, "lineage registration", "not mapped" ) );
-		assertEquals( set( "B", "B~1", "B~2" ), getTaggedSpots( embryoB.model, "lineage registration", "flipped" ) );
+		assertEquals( set( "B1", "B2" ), getTaggedSpots( embryoB.model, "lineage registration", "flipped" ) );
 	}
 
 	@Test

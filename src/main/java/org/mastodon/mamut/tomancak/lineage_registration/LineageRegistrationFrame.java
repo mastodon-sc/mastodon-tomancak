@@ -33,10 +33,14 @@ public class LineageRegistrationFrame extends JFrame
 			+ "</body></html>";
 
 	private static final String TAG_CELLS_TOOLTIP = "<html><body>"
-			+ "Creates a new tag set \"lineage registration\" in the selected project.<br>"
-			+ "The tag set contains two tags \"flipped\" and \"unmatched\".<br>"
-			+ "Cells that could not be matched are tagged with \"unmatched\".<br>"
-			+ "Cells for which the order of the descendants is opposite in both projects are tagged with \"flipped\"."
+			+ "<b>Creates a new tag set \"lineage registration\" in the selected project.</b><br>"
+			+ "<br>"
+			+ "The tag set contains two tags:"
+			+ "<ul>"
+			+ "<li><b>flipped:</b> A cell, that is first child cell in one project, and matched "
+			+ "to a second child cell in the other project."
+			+ "<li><b>unmatched:</b> A cells that could not be matched.</li>"
+			+ "</ul>"
 			+ "</body></html>";
 
 	private static final String COPY_TAGSET_TOOLTIP = "<html><body>"
@@ -91,19 +95,19 @@ public class LineageRegistrationFrame extends JFrame
 		add( comboBoxB, "grow, wrap" );
 		add( newSimpleButton( "update list of projects", listener::onUpdateClicked ), "skip, wrap" );
 
-		add( new JLabel( "Sort TrackScheme:" ), "gaptop unrelated" );
+		add( new JLabel( "Tag unmatched & flipped cells:" ), "gaptop unrelated" );
+		add( newOperationButton( "in both projects", TAG_CELLS_TOOLTIP, listener::onTagBothClicked ), "split 3" );
+		add( newOperationButton( "project A", TAG_CELLS_TOOLTIP, listener::onTagProjectAClicked ) );
+		add( newOperationButton( "project B", TAG_CELLS_TOOLTIP, listener::onTagProjectBClicked ), "wrap" );
+		add( new JLabel( "Sort TrackScheme:" ) );
 		add( newOperationButton( "project A", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeAClicked ), "split 2" );
 		add( newOperationButton( "project B", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeBClicked ), "wrap" );
 		add( new JLabel( "Copy tag set:" ) );
 		add( newOperationButton( "from A to B ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetAtoB ), "split 2" );
 		add( newOperationButton( "from B to A ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetBtoA ), "wrap" );
-		add( new JLabel( "Tag unmatched & flipped cells:" ) );
-		add( newOperationButton( "in both projects", TAG_CELLS_TOOLTIP, listener::onTagBothClicked ), "split 3" );
-		add( newOperationButton( "project A", TAG_CELLS_TOOLTIP, listener::onTagProjectAClicked ) );
-		add( newOperationButton( "project B", TAG_CELLS_TOOLTIP, listener::onTagProjectBClicked ), "wrap" );
-		add( new JLabel( "Others:" ) );
+		add( new JLabel( "Others:" ), "gaptop unrelated" );
 		add( newOperationButton( "color paired lineages", TAG_LINEAGES_TOOLTIP, listener::onColorLineagesClicked ), "wrap" );
-		add( new JLabel( "Couple projects:" ) );
+		add( new JLabel( "Couple projects:" ), "gaptop unrelated" );
 		this.syncGroupButtons = initSyncGroupButtons();
 		add( syncGroupButtons.get( 0 ), "split 3" );
 		add( syncGroupButtons.get( 1 ) );

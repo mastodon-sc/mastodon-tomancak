@@ -1,5 +1,6 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -149,17 +150,41 @@ public class LineageRegistrationUtils
 	private static void tagSpotsA( Model modelA, RegisteredGraphs result )
 	{
 		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( modelA, "lineage registration", Arrays.asList(
-				Pair.of( "not mapped", 0xffff2222 ),
-				Pair.of( "flipped", 0xff22ff22 )
+				Pair.of( "not mapped", 0xff00ccff ),
+				Pair.of( "flipped", 0xffeeaa00 )
 		) );
-		tagBranches( modelA, tagSet, tagSet.getTags().get( 0 ), getUnmatchSpotsA( result ) );
-		tagBranches( modelA, tagSet, tagSet.getTags().get( 1 ), getSpotsToFlipA( result ) );
+		tagUnmatchedSpots( modelA, result, tagSet, tagSet.getTags().get( 0 ) );
+		tagFlippedSpots( modelA, result, tagSet, tagSet.getTags().get( 1 ) );
 	}
 
-	private static void tagBranches( Model model, TagSetStructure.TagSet tagSet, TagSetStructure.Tag tag, Collection< Spot > spots )
+	private static void tagFlippedSpots( Model modelA, RegisteredGraphs result, TagSetStructure.TagSet tagSet, TagSetStructure.Tag tag )
 	{
-		for ( Spot spot : spots )
-			TagSetUtils.tagBranch( model, tagSet, tag, spot );
+		ObjTagMap< Link, TagSetStructure.Tag > edgeTags = modelA.getTagSetModel().getEdgeTags().tags( tagSet );
+		Spot ref = modelA.getGraph().vertexRef();
+		try
+		{
+			for ( Spot spot : getSpotsToFlipA( result ) )
+				for ( Link link : spot.outgoingEdges() )
+				{
+					edgeTags.set( link, tag );
+					TagSetUtils.tagBranch( modelA, tagSet, tag, link.getTarget( ref ) );
+				}
+		}
+		finally
+		{
+			modelA.getGraph().releaseRef( ref );
+		}
+	}
+
+	private static void tagUnmatchedSpots( Model modelA, RegisteredGraphs result, TagSetStructure.TagSet tagSet, TagSetStructure.Tag tag )
+	{
+		ObjTagMap< Link, TagSetStructure.Tag > edgeTags = modelA.getTagSetModel().getEdgeTags().tags( tagSet );
+		for ( Spot spot : getUnmatchSpotsA( result ) )
+		{
+			TagSetUtils.tagBranch( modelA, tagSet, tag, spot );
+			for ( Link link : spot.incomingEdges() )
+				edgeTags.set( link, tag );
+		}
 	}
 
 	private static RefList< Spot > getSpotsToFlipB( RegisteredGraphs result )
