@@ -6,7 +6,8 @@ import org.mastodon.collection.ObjectRefMap;
 
 public class RefMapUtils
 {
-	// TODO: This needs to become the default implementation of ObjectRefMap.forEach().
+	// TODO: Replace with {@link ObjectRefMap#forEach} once the PR is merged, released and on the update site.
+	// see https://github.com/mastodon-sc/mastodon-collection/pull/13.
 	public static < K, V > void forEach( ObjectRefMap< K, V > map, BiConsumer< K, V > action )
 	{
 		V ref = map.createValueRef();
