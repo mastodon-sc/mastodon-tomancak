@@ -77,6 +77,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String COMPACT_LINEAGE_VIEW = "[tomancak] show compact lineage";
 	private static final String SORT_TREE = "[tomancak] sort lineage tree";
 	private static final String SORT_TREE_EXTERN_INTERN = "[tomancak] sort lineage tree extern intern";
+
 	private static final String LABEL_SPOTS_SYSTEMATICALLY = "[tomancak] label spots systematically";
 	private static final String REMOVE_SOLISTS_SPOTS = "[tomancak] remove solists spots";
 	private static final String EXPORTS_LINEAGE_LENGTHS = "[tomancak] export lineage lengths";
@@ -93,6 +94,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] COMPACT_LINEAGE_VIEW_KEYS = { "not mapped" };
 	private static final String[] SORT_TREE_KEYS = { "ctrl S" };
 	private static final String[] SORT_TREE_EXTERN_INTERN_KEYS = { "not mapped" };
+
 	private static final String[] LABEL_SPOTS_SYSTEMATICALLY_KEYS = { "not mapped" };
 	private static final String[] REMOVE_SOLISTS_SPOTS_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_LINEAGE_LENGTHS_KEYS = { "not mapped" };
@@ -112,8 +114,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( CHANGE_BRANCH_LABELS, "Change Branch's Labels");
 		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show Compact Lineage" );
 		menuTexts.put( SORT_TREE, "Sort Lineage Tree" );
-		menuTexts.put( SORT_TREE_EXTERN_INTERN, "Sort Lineage Tree, Extern-Intern");
-		menuTexts.put( LABEL_SPOTS_SYSTEMATICALLY, "Systematically Label Spots, Extern-Intern" );
+		menuTexts.put( SORT_TREE_EXTERN_INTERN, "Sort Lineage Tree (Extern-Intern)" );
+		menuTexts.put( LABEL_SPOTS_SYSTEMATICALLY, "Systematically Label Spots (Extern-Intern)" );
 		menuTexts.put( REMOVE_SOLISTS_SPOTS, "Remove Spots Solists" );
 		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export Lineage Lengths" );
 		menuTexts.put( EXPORTS_SPOTS_COUNTS, "Export Spots Counts" );
@@ -228,7 +230,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 								item( FLIP_DESCENDANTS ),
 								item( SORT_TREE ),
 								item( SORT_TREE_EXTERN_INTERN ),
-								item( LABEL_SPOTS_SYSTEMATICALLY )),
+								item( LABEL_SPOTS_SYSTEMATICALLY ) ),
 				menu( "Exports",
 								item( EXPORTS_LINEAGE_LENGTHS ),
 								item( EXPORTS_SPOTS_COUNTS ),

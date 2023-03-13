@@ -44,7 +44,7 @@ import java.util.NoSuchElementException;
 public class SortTreeUtils
 {
 	/**
-	 * Returns an estimate of the cell devision direction. This method
+	 * Returns an estimate of the cell division direction. This method
 	 * calculates the average position of the two daughter cells, in the first
 	 * three time points. And returns the vector from the first daughter cell
 	 * to the second daughter cell.
