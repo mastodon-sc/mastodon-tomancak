@@ -82,35 +82,49 @@ public class LineageRegistrationControlService extends AbstractService implement
 		@Override
 		public void onSortTrackSchemeAClicked()
 		{
-			sortSecondTrackScheme( dialog.getProjectB().getAppModel(), dialog.getProjectA().getAppModel() );
+			sortSecondTrackScheme( dialog.getProjectB(), dialog.getProjectA() );
 		}
 
 		@Override
 		public void onSortTrackSchemeBClicked()
 		{
-			sortSecondTrackScheme( dialog.getProjectA().getAppModel(), dialog.getProjectB().getAppModel() );
+			sortSecondTrackScheme( dialog.getProjectA(), dialog.getProjectB() );
 		}
 
-		private void sortSecondTrackScheme( MamutAppModel appModel1, MamutAppModel appModel2 )
+		private void sortSecondTrackScheme( WindowManager project1, WindowManager project2 )
 		{
-			Model model1 = appModel1.getModel();
-			Model model2 = appModel2.getModel();
+			String projectTitle1 = LineageRegistrationFrame.getProjectName( project1 );
+			String projectTitle2 = LineageRegistrationFrame.getProjectName( project2 );
+			Model model1 = project1.getAppModel().getModel();
+			Model model2 = project2.getAppModel().getModel();
 			executeTask( true, model1, model2, () -> {
+				dialog.clearLog();
+				dialog.log( "Sort the order of the child cells in the TrackScheme of project \"%s\".", projectTitle2 );
+				dialog.log( "Use project \"%s\" as reference...", projectTitle1 );
 				LineageRegistrationUtils.sortSecondTrackSchemeToMatch( model1, model2 );
-				appModel2.getBranchGraphSync().sync();
+				project2.getAppModel().getBranchGraphSync().sync();
 				model2.setUndoPoint();
+				dialog.log( "done." );
 			} );
 		}
 
 		@Override
 		public void onColorLineagesClicked()
 		{
-			Model modelA = getModelA();
-			Model modelB = getModelB();
+			WindowManager projectA = dialog.getProjectA();
+			WindowManager projectB = dialog.getProjectB();
+			String titleA = LineageRegistrationFrame.getProjectName( projectA );
+			String titleB = LineageRegistrationFrame.getProjectName( projectB );
+			Model modelA = projectA.getAppModel().getModel();
+			Model modelB = projectB.getAppModel().getModel();
 			executeTask( false, modelA, modelB, () -> {
+				dialog.clearLog();
+				dialog.log( "Create tag set \"lineages\" in project \"%s\"...", titleA );
+				dialog.log( "Create tag set \"lineages\" in project \"%s\"...", titleB );
 				LineageColoring.tagLineages( modelA, modelB );
 				modelA.setUndoPoint();
 				modelB.setUndoPoint();
+				dialog.log( "done." );
 			} );
 		}
 
@@ -130,12 +144,14 @@ public class LineageRegistrationControlService extends AbstractService implement
 		{
 			Model fromModel = fromProject.getAppModel().getModel();
 			Model toModel = toProject.getAppModel().getModel();
+			String fromProjectTitle = LineageRegistrationFrame.getProjectName( fromProject );
+			String toProjectTitle = LineageRegistrationFrame.getProjectName( toProject );
 
 			List< TagSetStructure.TagSet > tagSets = fromModel.getTagSetModel().getTagSetStructure().getTagSets();
 			if ( tagSets.isEmpty() )
 			{
 				JOptionPane.showMessageDialog( dialog,
-						"No tag sets in project \"" + LineageRegistrationFrame.getProjectName( fromProject ) + "\"." );
+						"No tag sets in project \"" + fromProjectTitle + "\"." );
 				return;
 			}
 
@@ -149,9 +165,13 @@ public class LineageRegistrationControlService extends AbstractService implement
 				return;
 
 			executeTask( false, fromModel, toModel, () -> {
-				String newTagSetName = tagSet.getName() + " (" + LineageRegistrationFrame.getProjectName( fromProject ) + ")";
+				dialog.clearLog();
+				dialog.log( "Copy tag set \"%s\" from project \"%s\" to project \"%s\"...",
+						tagSet.getName(), fromProjectTitle, toProjectTitle );
+				String newTagSetName = tagSet.getName() + " (" + fromProjectTitle + ")";
 				LineageRegistrationUtils.copyTagSetToSecond( fromModel, toModel, tagSet, newTagSetName );
 				toModel.setUndoPoint();
+				dialog.log( "done." );
 			} );
 		}
 
@@ -175,22 +195,36 @@ public class LineageRegistrationControlService extends AbstractService implement
 
 		private void putTags( boolean modifyA, boolean modifyB )
 		{
-			Model modelA = getModelA();
-			Model modelB = getModelB();
+			WindowManager projectA = dialog.getProjectA();
+			WindowManager projectB = dialog.getProjectB();
+			String titleA = LineageRegistrationFrame.getProjectName( projectA );
+			String titleB = LineageRegistrationFrame.getProjectName( projectB );
+			Model modelA = projectA.getAppModel().getModel();
+			Model modelB = projectB.getAppModel().getModel();
 			executeTask( false, modelA, modelB, () -> {
+				dialog.clearLog();
+				if ( modifyA )
+					dialog.log( "Create tag set \"lineage registration\" in project \"%s\"...", titleA );
+				if ( modifyB )
+					dialog.log( "Create tag set \"lineage registration\" in project \"%s\"...", titleB );
 				LineageRegistrationUtils.tagCells( modelA, modelB, modifyA, modifyB );
 				if ( modifyA )
 					modelA.setUndoPoint();
 				if ( modifyB )
 					modelB.setUndoPoint();
+				dialog.log( "done." );
 			} );
 		}
 
 		@Override
 		public void onSyncGroupClicked( int i )
 		{
+			dialog.clearLog();
 			if ( coupling != null )
+			{
+				dialog.log( "... stop synchronization between projects." );
 				coupling.close();
+			}
 			coupling = null;
 			if ( i < 0 )
 				return;
@@ -207,17 +241,10 @@ public class LineageRegistrationControlService extends AbstractService implement
 						graphA,
 						graphB );
 			}
+			dialog.log( "Synchronize focused and highlighted spot between project A and project B." );
+			dialog.log( "Synchronize navigate to spot actions between project A and project B. (sync. group %d)", i + 1 );
 			coupling = new ModelCoupling( appModelA, appModelB, r, i );
 		}
 
-		private Model getModelB()
-		{
-			return dialog.getProjectB().getAppModel().getModel();
-		}
-
-		private Model getModelA()
-		{
-			return dialog.getProjectA().getAppModel().getModel();
-		}
 	}
 }

@@ -10,6 +10,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.WindowConstants;
@@ -77,6 +78,10 @@ public class LineageRegistrationFrame extends JFrame
 
 	private final List< JComponent > buttons = new ArrayList<>();
 
+	private final JTextArea logArea;
+
+	private final String PROCESSING_TEXT = "processing ...";
+
 	public LineageRegistrationFrame( Listener listener )
 	{
 		super( "Lineage Registration Across Two Mastodon Projects" );
@@ -112,8 +117,25 @@ public class LineageRegistrationFrame extends JFrame
 		add( syncGroupButtons.get( 0 ), "split 3" );
 		add( syncGroupButtons.get( 1 ) );
 		add( syncGroupButtons.get( 2 ), "wrap" );
+		logArea = new JTextArea( 3, 50 );
+		logArea.setEditable( false );
+		add( logArea, "gaptop unrelated, span, grow" );
 		add( newSimpleButton( "Close", this::onCloseClicked ), "gaptop unrelated, span, align right" );
 		updateEnableButtons();
+	}
+
+	public void clearLog()
+	{
+		logArea.setText( "" );
+	}
+
+	public void log( final String format, Object... args )
+	{
+		String text = logArea.getText();
+		if ( !text.isEmpty() )
+			text += "\n";
+		text += String.format( format, args );
+		logArea.setText( text );
 	}
 
 	private void updateEnableButtons()
