@@ -16,10 +16,13 @@ public class SelectedProject
 
 	private final WindowManager windowManager;
 
-	public SelectedProject( WindowManager windowManager, String name )
+	private final int firstTimepoint;
+
+	public SelectedProject( WindowManager windowManager, String name, int firstTimepoint )
 	{
 		this.windowManager = windowManager;
 		this.name = name;
+		this.firstTimepoint = firstTimepoint;
 	}
 
 	public String getName()
@@ -30,6 +33,11 @@ public class SelectedProject
 	public WindowManager getWindowManager()
 	{
 		return windowManager;
+	}
+
+	public int getFirstTimepoint()
+	{
+		return firstTimepoint;
 	}
 
 	public MamutAppModel getAppModel()

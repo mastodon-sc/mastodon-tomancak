@@ -1,6 +1,7 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
 import java.io.File;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,12 +9,15 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+import javax.swing.text.NumberFormatter;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -74,13 +78,15 @@ public class LineageRegistrationFrame extends JFrame
 
 	private final JComboBox< MastodonInstance > comboBoxB = new JComboBox<>();
 
+	private final JFormattedTextField firstTimepointA = createNumberTextField();
+
+	private final JFormattedTextField firstTimepointB = createNumberTextField();
+
 	private final List< JToggleButton > syncGroupButtons;
 
 	private final List< JComponent > buttons = new ArrayList<>();
 
 	private final JTextArea logArea;
-
-	private final String PROCESSING_TEXT = "processing ...";
 
 	public LineageRegistrationFrame( Listener listener )
 	{
@@ -99,6 +105,12 @@ public class LineageRegistrationFrame extends JFrame
 		comboBoxB.addActionListener( ignore -> updateEnableButtons() );
 		add( comboBoxB, "grow, wrap" );
 		add( newSimpleButton( "update list of projects", listener::onUpdateClicked ), "skip, wrap" );
+
+		add( new JLabel( "First timepoint to consider:" ), "gaptop unrelated" );
+		add( new JLabel( "project A: " ), "split 4" );
+		add( firstTimepointA );
+		add( new JLabel( "project B: " ), "gapbefore unrelated" );
+		add( firstTimepointB, "wrap" );
 
 		add( new JLabel( "Tag unmatched & flipped cells:" ), "gaptop unrelated" );
 		add( newOperationButton( "in both projects", TAG_CELLS_TOOLTIP, listener::onTagBothClicked ), "split 3" );
@@ -136,6 +148,19 @@ public class LineageRegistrationFrame extends JFrame
 			text += "\n";
 		text += String.format( format, args );
 		logArea.setText( text );
+	}
+
+	private static JFormattedTextField createNumberTextField()
+	{
+		NumberFormatter numberFormatter = new NumberFormatter( NumberFormat.getIntegerInstance() );
+		numberFormatter.setValueClass( Integer.class );
+		numberFormatter.setAllowsInvalid( false );
+		numberFormatter.setMinimum( 0 );
+		JFormattedTextField textField = new JFormattedTextField( numberFormatter );
+		textField.setColumns( 5 );
+		textField.setText( "0" );
+		textField.setHorizontalAlignment( SwingConstants.RIGHT );
+		return textField;
 	}
 
 	private void updateEnableButtons()
@@ -228,8 +253,8 @@ public class LineageRegistrationFrame extends JFrame
 
 	public void setMastodonInstances( List< WindowManager > instances )
 	{
-		WindowManager a = getProjectA().getWindowManager();
-		WindowManager b = getProjectB().getWindowManager();
+		SelectedProject a = getProjectA();
+		SelectedProject b = getProjectB();
 		comboBoxA.removeAllItems();
 		comboBoxB.removeAllItems();
 		for ( WindowManager windowManager : instances )
@@ -243,35 +268,40 @@ public class LineageRegistrationFrame extends JFrame
 		updateEnableButtons();
 	}
 
-	private void setSelected( JComboBox< MastodonInstance > comboBox, WindowManager windowManager, int defaultIndex )
+	private void setSelected( JComboBox< MastodonInstance > comboBox, SelectedProject selectedProject, int defaultIndex )
 	{
-		for ( int i = 0; i < comboBox.getItemCount(); i++ )
-			if ( comboBox.getItemAt( i ).windowManager == windowManager )
-			{
-				comboBox.setSelectedIndex( i );
-				return;
-			}
+		if ( selectedProject != null )
+		{
+			for ( int i = 0; i < comboBox.getItemCount(); i++ )
+				if ( comboBox.getItemAt( i ).windowManager == selectedProject.getWindowManager() )
+				{
+					comboBox.setSelectedIndex( i );
+					return;
+				}
+		}
 		if ( defaultIndex < comboBox.getItemCount() )
 			comboBox.setSelectedIndex( defaultIndex );
 	}
 
 	public SelectedProject getProjectA()
 	{
-		return getSelected( comboBoxA );
+		return getSelected( comboBoxA, firstTimepointA );
 	}
 
 	public SelectedProject getProjectB()
 	{
-		return getSelected( comboBoxB );
+		return getSelected( comboBoxB, firstTimepointB );
 	}
 
-	private SelectedProject getSelected( JComboBox< MastodonInstance > comboBoxA )
+	private SelectedProject getSelected( JComboBox< MastodonInstance > comboBoxA, JFormattedTextField firstTimepointTextField )
 	{
 		Object selectedItem = comboBoxA.getSelectedItem();
 		if ( selectedItem == null )
 			return null;
 		WindowManager windowManager = ( ( MastodonInstance ) selectedItem ).windowManager;
-		return new SelectedProject( windowManager, getProjectName( windowManager ) );
+		Object value = firstTimepointTextField.getValue();
+		int firstTimepoint = value == null ? 0 : ( int ) value;
+		return new SelectedProject( windowManager, getProjectName( windowManager ), firstTimepoint );
 	}
 
 	private static class MastodonInstance
