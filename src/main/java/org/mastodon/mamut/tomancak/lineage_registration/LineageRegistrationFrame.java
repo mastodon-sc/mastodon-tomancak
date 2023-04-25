@@ -140,9 +140,9 @@ public class LineageRegistrationFrame extends JFrame
 
 	private void updateEnableButtons()
 	{
-		WindowManager projectA = getProjectA();
-		WindowManager projectB = getProjectB();
-		final boolean enabled = projectA != null && projectB != null && projectA != projectB;
+		SelectedProject projectA = getProjectA();
+		SelectedProject projectB = getProjectB();
+		final boolean enabled = projectA != null && projectB != null && projectA.getWindowManager() != projectB.getWindowManager();
 		for ( JComponent b : buttons )
 			b.setEnabled( enabled );
 	}
@@ -228,8 +228,8 @@ public class LineageRegistrationFrame extends JFrame
 
 	public void setMastodonInstances( List< WindowManager > instances )
 	{
-		WindowManager a = getProjectA();
-		WindowManager b = getProjectB();
+		WindowManager a = getProjectA().getWindowManager();
+		WindowManager b = getProjectB().getWindowManager();
 		comboBoxA.removeAllItems();
 		comboBoxB.removeAllItems();
 		for ( WindowManager windowManager : instances )
@@ -255,22 +255,23 @@ public class LineageRegistrationFrame extends JFrame
 			comboBox.setSelectedIndex( defaultIndex );
 	}
 
-	public WindowManager getProjectA()
+	public SelectedProject getProjectA()
 	{
 		return getSelected( comboBoxA );
 	}
 
-	public WindowManager getProjectB()
+	public SelectedProject getProjectB()
 	{
 		return getSelected( comboBoxB );
 	}
 
-	private WindowManager getSelected( JComboBox< MastodonInstance > comboBoxA )
+	private SelectedProject getSelected( JComboBox< MastodonInstance > comboBoxA )
 	{
 		Object selectedItem = comboBoxA.getSelectedItem();
 		if ( selectedItem == null )
 			return null;
-		return ( ( MastodonInstance ) selectedItem ).windowManager;
+		WindowManager windowManager = ( ( MastodonInstance ) selectedItem ).windowManager;
+		return new SelectedProject( windowManager, getProjectName( windowManager ) );
 	}
 
 	private static class MastodonInstance
