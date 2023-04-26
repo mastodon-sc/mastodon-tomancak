@@ -28,10 +28,18 @@ public class LineageRegistrationAlgorithm
 	 */
 	private final RefRefMap< Spot, Spot > mapAB;
 
+	/**
+	 * Runs the lineage registration algorithm for to given graphs. The spots before
+	 * the given timepoints are ignored.
+	 *
+	 * @return a {@link RegisteredGraphs} object that contains the two graphs and the
+	 * 	   mapping between the first spots of the branches in the two graphs.
+	 */
 	public static RegisteredGraphs run( ModelGraph graphA, int firstTimepointA, ModelGraph graphB, int firstTimepointB )
 	{
 		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots( graphA, firstTimepointA, graphB, firstTimepointB );
-		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( roots );
+		RefRefMap< Spot, Spot > rootsDividingSpots = getBranchEnds( roots, graphA, graphB );
+		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( rootsDividingSpots );
 		return run( graphA, graphB, roots, transformAB );
 	}
 
@@ -117,11 +125,43 @@ public class LineageRegistrationAlgorithm
 		return mapAB;
 	}
 
+	// -- Helper methods --
+
 	private static AffineTransform3D noOffsetTransform( AffineTransform3D transformAB )
 	{
 		AffineTransform3D noOffsetTransform = new AffineTransform3D();
 		noOffsetTransform.set( transformAB );
 		noOffsetTransform.setTranslation( 0, 0, 0 );
 		return noOffsetTransform;
+	}
+
+	/**
+	 * This function takes a collection of pairs of spots. The first spot in each pair
+	 * belongs to graphA, the second to graphB. It also returns a collection of pairs
+	 * of spots. Where the first spot in each pair is the branch end of the first spot
+	 * in the input collection, and the second spot in each pair is the branch end of
+	 * the second spot in the input collection.
+	 * <p>
+	 * A {@link RefRefMap} is used to store the pairs of spots.
+	 */
+	private static RefRefMap< Spot, Spot > getBranchEnds( RefRefMap< Spot, Spot > pairs, ModelGraph graphA, ModelGraph graphB )
+	{
+		Spot refA = graphA.vertexRef();
+		Spot refB = graphB.vertexRef();
+		try
+		{
+			RefRefMap< Spot, Spot > branchEnds = new RefRefHashMap<>( graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
+			RefMapUtils.forEach( pairs, ( spotA, spotB ) -> {
+				Spot endA = BranchGraphUtils.getBranchEnd( spotA, refA );
+				Spot endB = BranchGraphUtils.getBranchEnd( spotB, refB );
+				branchEnds.put( endA, endB );
+			} );
+			return branchEnds;
+		}
+		finally
+		{
+			graphA.releaseRef( refA );
+			graphB.releaseRef( refB );
+		}
 	}
 }

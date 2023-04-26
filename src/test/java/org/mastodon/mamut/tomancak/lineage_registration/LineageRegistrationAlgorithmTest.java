@@ -10,7 +10,6 @@ import java.util.List;
 
 import net.imglib2.realtransform.AffineTransform3D;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.mamut.model.Spot;
@@ -38,7 +37,6 @@ public class LineageRegistrationAlgorithmTest
 		assertEquals( expected, asStrings( result.mapAB ) );
 	}
 
-	@Ignore( "The estimation of the affine transform s" )
 	@Test
 	public void testDifferentlyStagedEmbryos()
 	{
