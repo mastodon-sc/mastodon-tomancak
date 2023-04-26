@@ -28,19 +28,20 @@ public class LineageRegistrationAlgorithm
 	 */
 	private final RefRefMap< Spot, Spot > mapAB;
 
+	public static RegisteredGraphs run( ModelGraph graphA, int firstTimepointA, ModelGraph graphB, int firstTimepointB )
+	{
+		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots( graphA, firstTimepointA, graphB, firstTimepointB );
+		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( roots );
+		return run( graphA, graphB, roots, transformAB );
+	}
+
 	public static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB,
 			RefRefMap< Spot, Spot > roots, AffineTransform3D transformAB )
 	{
-		RefRefMap< Spot, Spot > mapping = calculateMapping( graphA, graphB, roots, transformAB );
-		return new RegisteredGraphs( graphA, graphB, transformAB, mapping );
-	}
-
-	private static RefRefMap< Spot, Spot > calculateMapping( ModelGraph graphA, ModelGraph graphB,
-			RefRefMap< Spot, Spot > roots, AffineTransform3D transformAB )
-	{
-		return new LineageRegistrationAlgorithm(
+		RefRefMap< Spot, Spot > mapping = new LineageRegistrationAlgorithm(
 				graphA, graphB,
 				roots, transformAB ).getMapping();
+		return new RegisteredGraphs( graphA, graphB, transformAB, mapping );
 	}
 
 	private LineageRegistrationAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,
@@ -63,14 +64,6 @@ public class LineageRegistrationAlgorithm
 		{
 			graphB.releaseRef( refB );
 		}
-	}
-
-	public static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB )
-	{
-		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots( graphA, graphB );
-		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( roots );
-		RegisteredGraphs result = run( graphA, graphB, roots, transformAB );
-		return result;
 	}
 
 	private void matchTree( Spot rootA, Spot rootB )

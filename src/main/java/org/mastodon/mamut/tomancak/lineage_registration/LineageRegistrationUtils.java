@@ -35,9 +35,8 @@ public class LineageRegistrationUtils
 	 * The sorting is based on the result of the
 	 * {@link LineageRegistrationAlgorithm}.
 	 */
-	public static void sortSecondTrackSchemeToMatch( Model modelA, Model modelB )
+	public static void sortSecondTrackSchemeToMatch( Model modelA, Model modelB, RegisteredGraphs result )
 	{
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( modelA.getGraph(), modelB.getGraph() );
 		RefList< Spot > spotsToFlipB = getSpotsToFlipB( result );
 		FlipDescendants.flipDescendants( modelB, spotsToFlipB );
 	}
@@ -48,10 +47,9 @@ public class LineageRegistrationUtils
 	 * between the branches in modelA and modelB. The tags are copied from
 	 * the branches  in modelA to the corresponding branches in modelB.
 	 */
-	public static TagSetStructure.TagSet copyTagSetToSecond( Model modelA, Model modelB,
+	public static TagSetStructure.TagSet copyTagSetToSecond( Model modelA, Model modelB, RegisteredGraphs result,
 			TagSetStructure.TagSet tagSetModelA, String newTagSetName )
 	{
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( modelA.getGraph(), modelB.getGraph() );
 		List< Pair< String, Integer > > tags = tagSetModelA.getTags().stream()
 				.map( t -> Pair.of( t.label(), t.color() ) )
 				.collect( Collectors.toList() );
@@ -138,9 +136,8 @@ public class LineageRegistrationUtils
 	 * Creates a new tag set in both models. It runs the {@link LineageRegistrationAlgorithm}
 	 * and tags unmatched and flipped cells / branches.
 	 */
-	public static void tagCells( Model modelA, Model modelB, boolean modifyA, boolean modifyB )
+	public static void tagCells( Model modelA, Model modelB, RegisteredGraphs result, boolean modifyA, boolean modifyB )
 	{
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( modelA.getGraph(), modelB.getGraph() );
 		if ( modifyA )
 			tagSpotsA( modelA, result );
 		if ( modifyB )

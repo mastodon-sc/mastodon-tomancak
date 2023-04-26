@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Before;
 import org.junit.Test;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
@@ -21,23 +22,32 @@ import org.mastodon.model.tag.TagSetStructure;
 
 public class LineageRegistrationUtilsTest
 {
+	private EmbryoA embryoA;
+
+	private EmbryoB embryoB;
+
+	private RegisteredGraphs registration;
+
+	@Before
+	public void before()
+	{
+		embryoA = new EmbryoA();
+		embryoB = new EmbryoB();
+		// NB: The graphs need to have at least 3 dividing lineages.
+		// Only the root nodes of the dividing lineages are used
+		// to calculate the affine transform between the two "embryos".
+		registration = LineageRegistrationAlgorithm.run(
+				embryoA.model.getGraph(), 0,
+				embryoB.model.getGraph(), 0 );
+	}
 
 	@Test
 	public void testSortSecondTrackSchemeToMatch()
 	{
-		// NB: The graphs need to have at least 3 dividing lineages.
-		// Only the root nodes of the dividing lineages are used
-		// to calculate the affine transform between the two "embryos".
-
-		EmbryoA embryoA = new EmbryoA();
-		EmbryoB embryoB = new EmbryoB();
-
 		assertEquals( embryoB.a1, firstChild( embryoB.graph, embryoB.a ) );
 		assertEquals( embryoB.b1, firstChild( embryoB.graph, embryoB.b ) );
 		assertEquals( embryoB.c1, firstChild( embryoB.graph, embryoB.c ) );
-
-		LineageRegistrationUtils.sortSecondTrackSchemeToMatch( embryoA.model, embryoB.model );
-
+		LineageRegistrationUtils.sortSecondTrackSchemeToMatch( embryoA.model, embryoB.model, registration );
 		assertEquals( embryoB.a1, firstChild( embryoB.graph, embryoB.a ) );
 		assertEquals( embryoB.c1, firstChild( embryoB.graph, embryoB.c ) );
 		assertEquals( embryoB.b2, firstChild( embryoB.graph, embryoB.b ) );
@@ -46,9 +56,7 @@ public class LineageRegistrationUtilsTest
 	@Test
 	public void testTagCells()
 	{
-		EmbryoA embryoA = new EmbryoA();
-		EmbryoB embryoB = new EmbryoB();
-		LineageRegistrationUtils.tagCells( embryoA.model, embryoB.model, true, true );
+		LineageRegistrationUtils.tagCells( embryoA.model, embryoB.model, registration, true, true );
 		assertEquals( Collections.emptySet(), getTaggedSpots( embryoA.model, "lineage registration", "not mapped" ) );
 		assertEquals( set( "B1", "B2" ), getTaggedSpots( embryoA.model, "lineage registration", "flipped" ) );
 		assertEquals( Collections.emptySet(), getTaggedSpots( embryoB.model, "lineage registration", "not mapped" ) );
@@ -58,8 +66,7 @@ public class LineageRegistrationUtilsTest
 	@Test
 	public void testCopyTagSet()
 	{
-		EmbryoA embryoA = new EmbryoA();
-		EmbryoB embryoB = new EmbryoB();
+		// setup: tag set for embryoA
 		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( embryoA.model, "test", Arrays.asList(
 				Pair.of( "foo", 0xffff0000 ),
 				Pair.of( "bar", 0xff00ff00 )
@@ -71,7 +78,9 @@ public class LineageRegistrationUtilsTest
 		TagSetUtils.tagBranch( embryoA.model, tagSet, foo, embryoA.a2 );
 		TagSetUtils.tagBranch( embryoA.model, tagSet, bar, embryoA.b1 );
 		embryoA.model.getTagSetModel().getEdgeTags().set( embryoA.model.getGraph().getEdge( embryoA.bEnd, embryoA.b1 ), bar );
-		LineageRegistrationUtils.copyTagSetToSecond( embryoA.model, embryoB.model, tagSet, "test" );
+		// process
+		LineageRegistrationUtils.copyTagSetToSecond( embryoA.model, embryoB.model, registration, tagSet, "test" );
+		// test: tag set for embryoB
 		assertEquals( set( "A", "A~1", "A1", "A2" ), getTaggedSpots( embryoB.model, "test", "foo" ) );
 		assertEquals( set( "B2" ), getTaggedSpots( embryoB.model, "test", "bar" ) );
 		assertEquals( set( "B~2 -> B2" ), getTaggedEdges( embryoB.model, "test", "bar" ) );

@@ -27,9 +27,11 @@ public class LineageColoring
 	 * The tags of matching roots node gets the same colors assigned.
 	 * Finally, the tag is applied to all the descendants of a root node.
 	 */
-	public static void tagLineages( Model embryoA, Model embryoB )
+	public static void tagLineages( Model embryoA, int firstTimepointA, Model embryoB, int firstTimepointB )
 	{
-		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots( embryoA.getGraph(), embryoB.getGraph() );
+		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots(
+				embryoA.getGraph(), firstTimepointA,
+				embryoB.getGraph(), firstTimepointB );
 		List< String > labels = roots.keySet().stream().map( Spot::getLabel ).sorted().collect( Collectors.toList() );
 		Map< String, Integer > colorMap = createColorMap( labels );
 		tagLineages( colorMap, roots.keySet(), embryoA );

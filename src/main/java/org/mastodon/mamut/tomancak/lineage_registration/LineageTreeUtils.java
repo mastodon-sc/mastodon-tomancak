@@ -1,10 +1,10 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
+import java.util.function.Predicate;
+
 import org.mastodon.collection.RefSet;
-import org.mastodon.collection.ref.RefSetImp;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.pool.PoolCollectionWrapper;
 
 public class LineageTreeUtils
 {
@@ -13,28 +13,23 @@ public class LineageTreeUtils
 	 */
 	public static RefSet< Spot > getRoots( ModelGraph graph )
 	{
-		PoolCollectionWrapper< Spot > vertices = graph.vertices();
-		RefSetImp< Spot > roots = new RefSetImp<>( vertices.getRefPool() );
-		for ( Spot spot : vertices )
-			if ( spot.incomingEdges().isEmpty() )
-				roots.add( spot );
-		return roots;
+		Predicate< Spot > isRoot = spot -> spot.incomingEdges().isEmpty();
+		return RefCollectionUtils.filterSet( graph.vertices(), isRoot );
+	}
+
+	public static RefSet< Spot > getRoots( ModelGraph graph, int timepoint )
+	{
+		Predicate< Spot > isRoot = spot -> spot.getTimepoint() == timepoint
+				|| ( spot.incomingEdges().isEmpty() && spot.getTimepoint() > timepoint );
+		return RefCollectionUtils.filterSet( graph.vertices(), isRoot );
 	}
 
 	/**
 	 * @return true if the given spot is part of a branch that divides.
 	 */
-	public static boolean doesBranchDivide( ModelGraph graph, final Spot spot )
+	public static boolean doesBranchDivide( final Spot spot, final Spot ref )
 	{
-		Spot ref = graph.vertexRef();
-		try
-		{
-			Spot branchEnd = BranchGraphUtils.getBranchEnd( spot, ref );
-			return branchEnd.outgoingEdges().size() > 1;
-		}
-		finally
-		{
-			graph.releaseRef( ref );
-		}
+		Spot branchEnd = BranchGraphUtils.getBranchEnd( spot, ref );
+		return branchEnd.outgoingEdges().size() > 1;
 	}
 }

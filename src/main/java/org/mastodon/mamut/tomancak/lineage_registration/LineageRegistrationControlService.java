@@ -91,15 +91,14 @@ public class LineageRegistrationControlService extends AbstractService implement
 
 		private void sortSecondTrackScheme( SelectedProject project1, SelectedProject project2 )
 		{
-			Model model1 = project1.getAppModel().getModel();
-			Model model2 = project2.getAppModel().getModel();
 			executeTask( true, project1, project2, () -> {
 				dialog.clearLog();
 				dialog.log( "Sort the order of the child cells in the TrackScheme of project \"%s\".", project1.getName() );
 				dialog.log( "Use project \"%s\" as reference...", project2.getName() );
-				LineageRegistrationUtils.sortSecondTrackSchemeToMatch( model1, model2 );
+				RegisteredGraphs registration = runRegistrationAlgorithm( project1, project2 );
+				LineageRegistrationUtils.sortSecondTrackSchemeToMatch( project1.getModel(), project2.getModel(), registration );
 				project2.getAppModel().getBranchGraphSync().sync();
-				model2.setUndoPoint();
+				project2.getModel().setUndoPoint();
 				dialog.log( "done." );
 			} );
 		}
@@ -113,7 +112,9 @@ public class LineageRegistrationControlService extends AbstractService implement
 				dialog.clearLog();
 				dialog.log( "Create tag set \"lineages\" in project \"%s\"...", projectA.getName() );
 				dialog.log( "Create tag set \"lineages\" in project \"%s\"...", projectB.getName() );
-				LineageColoring.tagLineages( projectA.getModel(), projectB.getModel() );
+				LineageColoring.tagLineages(
+						projectA.getModel(), projectA.getFirstTimepoint(),
+						projectB.getModel(), projectB.getFirstTimepoint() );
 				projectA.getModel().setUndoPoint();
 				projectB.getModel().setUndoPoint();
 				dialog.log( "done." );
@@ -159,7 +160,8 @@ public class LineageRegistrationControlService extends AbstractService implement
 				dialog.log( "Copy tag set \"%s\" from project \"%s\" to project \"%s\"...",
 						tagSet.getName(), fromProject.getName(), toProject.getName() );
 				String newTagSetName = tagSet.getName() + " (" + fromProject.getName() + ")";
-				LineageRegistrationUtils.copyTagSetToSecond( fromModel, toModel, tagSet, newTagSetName );
+				RegisteredGraphs registration = runRegistrationAlgorithm( fromProject, toProject );
+				LineageRegistrationUtils.copyTagSetToSecond( fromModel, toModel, registration, tagSet, newTagSetName );
 				toModel.setUndoPoint();
 				dialog.log( "done." );
 			} );
@@ -193,9 +195,10 @@ public class LineageRegistrationControlService extends AbstractService implement
 					dialog.log( "Create tag set \"lineage registration\" in project \"%s\"...", projectA.getName() );
 				if ( modifyB )
 					dialog.log( "Create tag set \"lineage registration\" in project \"%s\"...", projectB.getName() );
+				RegisteredGraphs registration = runRegistrationAlgorithm( projectA, projectB );
 				Model modelA = projectA.getModel();
 				Model modelB = projectB.getModel();
-				LineageRegistrationUtils.tagCells( modelA, modelB, modifyA, modifyB );
+				LineageRegistrationUtils.tagCells( modelA, modelB, registration, modifyA, modifyB );
 				if ( modifyA )
 					modelA.setUndoPoint();
 				if ( modifyB )
@@ -223,13 +226,18 @@ public class LineageRegistrationControlService extends AbstractService implement
 					projectA.getGraph().getLock().readLock(),
 					projectB.getGraph().getLock().readLock() ) )
 			{
-				r = LineageRegistrationAlgorithm.run(
-						projectA.getGraph(),
-						projectB.getGraph() );
+				r = runRegistrationAlgorithm( projectA, projectB );
 			}
 			dialog.log( "Synchronize focused and highlighted spot between project A and project B." );
 			dialog.log( "Synchronize navigate to spot actions between project A and project B. (sync. group %d)", i + 1 );
 			coupling = new ModelCoupling( projectA.getAppModel(), projectB.getAppModel(), r, i );
 		}
+	}
+
+	private static RegisteredGraphs runRegistrationAlgorithm( SelectedProject projectA, SelectedProject projectB )
+	{
+		return LineageRegistrationAlgorithm.run(
+				projectA.getModel().getGraph(), projectA.getFirstTimepoint(),
+				projectB.getModel().getGraph(), projectB.getFirstTimepoint() );
 	}
 }

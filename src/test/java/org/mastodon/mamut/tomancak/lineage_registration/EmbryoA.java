@@ -14,47 +14,53 @@ class EmbryoA
 
 	final ModelGraph graph = model.getGraph();
 
-	final Spot a = addSpot( graph, null, "A", 2, 2, 0 );
+	final Spot a, aEnd, b, bEnd, c, a1, a2, b1, b2, c1, c2;
 
-	final Spot aEnd = addBranch( graph, a, 2 );
+	EmbryoA()
+	{
+		this( 0 );
+	}
 
-	final Spot a1 = addSpot( graph, aEnd, "A1", 2, 1, 0 );
-
-	final Spot a2 = addSpot( graph, aEnd, "A2", 2, 3, 0 );
-
-	final Spot b = addSpot( graph, null, "B", 4, 2, 0 );
-
-	final Spot bEnd = addBranch( graph, b, 3 );
-
-	final Spot b1 = addSpot( graph, bEnd, "B1", 4, 1, 0 );
-
-	final Spot b2 = addSpot( graph, bEnd, "B2", 4, 3, 0 );
-
-	final Spot c = addSpot( graph, null, "C", 4, 4, 0 );
-
-	final Spot c1 = addSpot( graph, c, "C1", 4, 4, 0 );
-
-	final Spot c2 = addSpot( graph, c, "C2", 4, 5, 0 );
+	EmbryoA( int startTime )
+	{
+		a = addSpot( graph, "A", startTime, 2, 2, 0 );
+		aEnd = addBranch( graph, a, 2 );
+		a1 = addSpot( graph, "A1", aEnd, 2, 1, 0 );
+		a2 = addSpot( graph, "A2", aEnd, 2, 3, 0 );
+		b = addSpot( graph, "B", startTime, 4, 2, 0 );
+		bEnd = addBranch( graph, b, 3 );
+		b1 = addSpot( graph, "B1", bEnd, 4, 1, 0 );
+		b2 = addSpot( graph, "B2", bEnd, 4, 3, 0 );
+		c = addSpot( graph, "C", startTime, 4, 4, 0 );
+		c1 = addSpot( graph, "C1", c, 4, 4, 0 );
+		c2 = addSpot( graph, "C2", c, 4, 5, 0 );
+	}
 
 	// helper methods
 
-	private static Spot addSpot( ModelGraph graph, Spot parent, String label, double... position )
+	private static Spot addSpot( ModelGraph graph, String label, int time, double... position )
 	{
-		int t = parent == null ? 0 : parent.getTimepoint() + 1;
-		Spot spot = graph.addVertex().init( t, position, 1 );
+		Spot spot = graph.addVertex().init( time, position, 1 );
 		spot.setLabel( label );
+		return spot;
+	}
+
+	static Spot addSpot( ModelGraph graph, String label, Spot parent, double... position )
+	{
+		int time = parent == null ? 2 : parent.getTimepoint() + 1;
+		Spot spot = addSpot( graph, label, time, position );
 		if ( parent != null )
 			graph.addEdge( parent, spot );
 		return spot;
 	}
 
-	private static Spot addBranch( ModelGraph graph, Spot branchStart, int length )
+	static Spot addBranch( ModelGraph graph, Spot branchStart, int length )
 	{
 		String label = branchStart.getLabel();
 		double[] position = { branchStart.getDoublePosition( 0 ), branchStart.getDoublePosition( 1 ), branchStart.getDoublePosition( 2 ) };
 		Spot s = branchStart;
 		for ( int i = 1; i < length; i++ )
-			s = addSpot( graph, s, label + "~" + i, position );
+			s = addSpot( graph, label + "~" + i, s, position );
 		return s;
 	}
 }
