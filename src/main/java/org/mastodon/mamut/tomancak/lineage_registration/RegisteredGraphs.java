@@ -13,7 +13,7 @@ import org.mastodon.mamut.model.Spot;
  * This datastructure holds two {@link ModelGraph}s and a mapping between them.
  * </p>
  * <p>
- * This is also the return type of {@link LineageRegistrationAlgorithm#run(ModelGraph, ModelGraph)}.
+ * This is also the return type of {@link LineageRegistrationAlgorithm#run}.
  * </p>
  */
 public class RegisteredGraphs
