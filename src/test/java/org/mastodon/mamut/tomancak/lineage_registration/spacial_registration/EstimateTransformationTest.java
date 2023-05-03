@@ -1,4 +1,4 @@
-package org.mastodon.mamut.tomancak.lineage_registration;
+package org.mastodon.mamut.tomancak.lineage_registration.spacial_registration;
 
 import static org.junit.Assert.assertArrayEquals;
 

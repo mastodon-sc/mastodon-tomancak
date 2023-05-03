@@ -33,7 +33,7 @@ public class LineageRegistrationAlgorithmTest
 	{
 		EmbryoA embryoA = new EmbryoA();
 		EmbryoB embryoB = new EmbryoB();
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryoA.graph, 0, embryoB.graph, 0 );
+		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryoA.model, 0, embryoB.model, 0 );
 		assertEquals( expected, asStrings( result.mapAB ) );
 	}
 
@@ -42,10 +42,10 @@ public class LineageRegistrationAlgorithmTest
 	{
 		EmbryoA embryoA = new EmbryoA();
 		EmbryoBSingleCellStage embryoB = new EmbryoBSingleCellStage();
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryoA.graph, 0, embryoB.graph, 2 );
+		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryoA.model, 0, embryoB.model, 2 );
 		assertEquals( expected, asStrings( result.mapAB ) );
 		assertEquals( embryoB.beforeA, result.mapAB.get( embryoA.a ) );
-		assertTransformEquals( embryoB.transform, result.transformAB );
+		assertTransformEquals( embryoB.transform, result.spacialRegistration.getTransformationAtoB( 0, 2 ) );
 	}
 
 	private void assertTransformEquals( AffineTransform3D expected, AffineTransform3D actual )

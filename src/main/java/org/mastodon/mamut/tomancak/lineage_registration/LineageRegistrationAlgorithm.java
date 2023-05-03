@@ -4,8 +4,12 @@ import net.imglib2.realtransform.AffineTransform3D;
 
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.ref.RefRefHashMap;
+import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.FixedSpacialRegistration;
+import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistration;
+import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistrationFactory;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
 
 /**
@@ -17,7 +21,7 @@ import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
  */
 public class LineageRegistrationAlgorithm
 {
-	private final AffineTransform3D transformAB;
+	private final SpacialRegistration spacialRegistration;
 
 	private final ModelGraph graphA;
 
@@ -35,16 +39,17 @@ public class LineageRegistrationAlgorithm
 	 * @return a {@link RegisteredGraphs} object that contains the two graphs and the
 	 * 	   mapping between the first spots of the branches in the two graphs.
 	 */
-	public static RegisteredGraphs run( ModelGraph graphA, int firstTimepointA, ModelGraph graphB, int firstTimepointB )
+	public static RegisteredGraphs run( Model modelA, int firstTimepointA, Model modelB, int firstTimepointB )
 	{
-		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots( graphA, firstTimepointA, graphB, firstTimepointB );
-		RefRefMap< Spot, Spot > rootsDividingSpots = getBranchEnds( roots, graphA, graphB );
-		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( rootsDividingSpots );
-		return run( graphA, graphB, roots, transformAB );
+		RefRefMap< Spot, Spot > roots =
+				RootsPairing.pairDividingRoots( modelA.getGraph(), firstTimepointA, modelB.getGraph(), firstTimepointB );
+		SpacialRegistrationFactory algorithm = FixedSpacialRegistration::forDividingRoots;
+		SpacialRegistration spacialRegistration = algorithm.run( modelA, modelB, roots );
+		return run( modelA.getGraph(), modelB.getGraph(), roots, spacialRegistration );
 	}
 
 	public static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB,
-			RefRefMap< Spot, Spot > roots, AffineTransform3D transformAB )
+			RefRefMap< Spot, Spot > roots, SpacialRegistration transformAB )
 	{
 		RefRefMap< Spot, Spot > mapping = new LineageRegistrationAlgorithm(
 				graphA, graphB,
@@ -53,9 +58,9 @@ public class LineageRegistrationAlgorithm
 	}
 
 	private LineageRegistrationAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,
-			AffineTransform3D transformAB )
+			SpacialRegistration spacialRegistration )
 	{
-		this.transformAB = noOffsetTransform( transformAB );
+		this.spacialRegistration = spacialRegistration;
 		this.graphA = graphA;
 		this.graphB = graphB;
 		this.mapAB = new RefRefHashMap<>( graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
@@ -89,6 +94,8 @@ public class LineageRegistrationAlgorithm
 				return;
 			double[] directionA = SortTreeUtils.directionOfCellDevision( graphA, dividingA );
 			double[] directionB = SortTreeUtils.directionOfCellDevision( graphB, dividingB );
+			AffineTransform3D transformAB = noOffsetTransform( spacialRegistration.getTransformationAtoB(
+					dividingA.getTimepoint(), dividingB.getTimepoint() ) );
 			transformAB.apply( directionA, directionA );
 			boolean flip = SortTreeUtils.scalarProduct( directionA, directionB ) < 0;
 			matchChildTree( dividingA, dividingB, 0, flip ? 1 : 0 );
@@ -135,33 +142,4 @@ public class LineageRegistrationAlgorithm
 		return noOffsetTransform;
 	}
 
-	/**
-	 * This function takes a collection of pairs of spots. The first spot in each pair
-	 * belongs to graphA, the second to graphB. It also returns a collection of pairs
-	 * of spots. Where the first spot in each pair is the branch end of the first spot
-	 * in the input collection, and the second spot in each pair is the branch end of
-	 * the second spot in the input collection.
-	 * <p>
-	 * A {@link RefRefMap} is used to store the pairs of spots.
-	 */
-	private static RefRefMap< Spot, Spot > getBranchEnds( RefRefMap< Spot, Spot > pairs, ModelGraph graphA, ModelGraph graphB )
-	{
-		Spot refA = graphA.vertexRef();
-		Spot refB = graphB.vertexRef();
-		try
-		{
-			RefRefMap< Spot, Spot > branchEnds = new RefRefHashMap<>( graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
-			RefMapUtils.forEach( pairs, ( spotA, spotB ) -> {
-				Spot endA = BranchGraphUtils.getBranchEnd( spotA, refA );
-				Spot endB = BranchGraphUtils.getBranchEnd( spotB, refB );
-				branchEnds.put( endA, endB );
-			} );
-			return branchEnds;
-		}
-		finally
-		{
-			graphA.releaseRef( refA );
-			graphB.releaseRef( refB );
-		}
-	}
 }

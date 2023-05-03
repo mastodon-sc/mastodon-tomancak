@@ -37,8 +37,8 @@ public class LineageRegistrationUtilsTest
 		// Only the root nodes of the dividing lineages are used
 		// to calculate the affine transform between the two "embryos".
 		registration = LineageRegistrationAlgorithm.run(
-				embryoA.model.getGraph(), 0,
-				embryoB.model.getGraph(), 0 );
+				embryoA.model, 0,
+				embryoB.model, 0 );
 	}
 
 	@Test

@@ -237,7 +237,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 	private static RegisteredGraphs runRegistrationAlgorithm( SelectedProject projectA, SelectedProject projectB )
 	{
 		return LineageRegistrationAlgorithm.run(
-				projectA.getModel().getGraph(), projectA.getFirstTimepoint(),
-				projectB.getModel().getGraph(), projectB.getFirstTimepoint() );
+				projectA.getModel(), projectA.getFirstTimepoint(),
+				projectB.getModel(), projectB.getFirstTimepoint() );
 	}
 }
