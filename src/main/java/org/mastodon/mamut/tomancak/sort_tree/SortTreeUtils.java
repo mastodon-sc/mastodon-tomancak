@@ -43,6 +43,17 @@ import java.util.NoSuchElementException;
 
 public class SortTreeUtils
 {
+	public static final int DIVISION_DIRECTION_AVERAGE_COUNT = 3;
+
+	/**
+	 * If {@code spot} is a {@link Spot} that divides at timepoint
+	 * {@code t = spot.getTimepoint}. Then the cell division direction
+	 * returned by {@link #directionOfCellDevision} is sampled not at
+	 * timepoint {@code t} but at a timepoint {@code s}. With
+	 * {@code s = t + DIVISION_DIRECTION_TIME_OFFSET}.
+	 */
+	public static final int DIVISION_DIRECTION_TIME_OFFSET = 1 + ( DIVISION_DIRECTION_AVERAGE_COUNT - 1 ) / 2;
+
 	/**
 	 * Returns an estimate of the cell division direction. This method
 	 * calculates the average position of the two daughter cells, in the first
@@ -57,8 +68,8 @@ public class SortTreeUtils
 		Spot ref2 = graph.vertexRef();
 		try {
 			OutgoingEdges<Link>.OutgoingEdgesIterator iterator = spot.outgoingEdges().iterator();
-			double[] childA = averageStartingPosition(graph, 3, iterator.next().getTarget(ref1));
-			double[] childB = averageStartingPosition(graph, 3, iterator.next().getTarget(ref2));
+			double[] childA = averageStartingPosition( graph, DIVISION_DIRECTION_AVERAGE_COUNT, iterator.next().getTarget( ref1 ) );
+			double[] childB = averageStartingPosition( graph, DIVISION_DIRECTION_AVERAGE_COUNT, iterator.next().getTarget( ref2 ) );
 			return subtract( childB, childA );
 		}
 		finally
@@ -132,7 +143,7 @@ public class SortTreeUtils
 			average[ i ] += spot.getDoublePosition( i );
 	}
 
-	private static void divide( double[] average, int size )
+	public static void divide( double[] average, int size )
 	{
 		for ( int i = 0; i < average.length; i++ )
 			average[ i ] /= size;

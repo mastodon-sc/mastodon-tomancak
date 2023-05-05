@@ -7,7 +7,7 @@ import org.mastodon.collection.ref.RefRefHashMap;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.FixedSpacialRegistration;
+import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.DynamicLandmarkRegistration;
 import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistration;
 import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistrationFactory;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
@@ -21,6 +21,8 @@ import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
  */
 public class LineageRegistrationAlgorithm
 {
+	private static final int TIME_OFFSET = SortTreeUtils.DIVISION_DIRECTION_TIME_OFFSET;
+
 	private final SpacialRegistration spacialRegistration;
 
 	private final ModelGraph graphA;
@@ -43,7 +45,7 @@ public class LineageRegistrationAlgorithm
 	{
 		RefRefMap< Spot, Spot > roots =
 				RootsPairing.pairDividingRoots( modelA.getGraph(), firstTimepointA, modelB.getGraph(), firstTimepointB );
-		SpacialRegistrationFactory algorithm = FixedSpacialRegistration::forDividingRoots;
+		SpacialRegistrationFactory algorithm = DynamicLandmarkRegistration::new;
 		SpacialRegistration spacialRegistration = algorithm.run( modelA, modelB, roots );
 		return run( modelA.getGraph(), modelB.getGraph(), roots, spacialRegistration );
 	}
@@ -95,7 +97,7 @@ public class LineageRegistrationAlgorithm
 			double[] directionA = SortTreeUtils.directionOfCellDevision( graphA, dividingA );
 			double[] directionB = SortTreeUtils.directionOfCellDevision( graphB, dividingB );
 			AffineTransform3D transformAB = noOffsetTransform( spacialRegistration.getTransformationAtoB(
-					dividingA.getTimepoint(), dividingB.getTimepoint() ) );
+					dividingA.getTimepoint() + TIME_OFFSET, dividingB.getTimepoint() + TIME_OFFSET ) );
 			transformAB.apply( directionA, directionA );
 			boolean flip = SortTreeUtils.scalarProduct( directionA, directionB ) < 0;
 			matchChildTree( dividingA, dividingB, 0, flip ? 1 : 0 );
