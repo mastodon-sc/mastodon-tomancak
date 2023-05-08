@@ -2,6 +2,7 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.mastodon.mamut.model.Link;
@@ -135,5 +136,17 @@ public class TagSetUtils
 	{
 		return tagSet.getTags().stream()
 				.collect( Collectors.toMap( TagSetStructure.Tag::label, tag -> tag ) );
+	}
+
+	/**
+	 * @return the first tag set that matches the given name.
+	 * @throws NoSuchElementException if the tagset was not found.
+	 */
+	public static TagSetStructure.TagSet findTagSet( TagSetModel< Spot, Link > tagsModel, String name )
+	{
+		for ( TagSetStructure.TagSet tagSet : tagsModel.getTagSetStructure().getTagSets() )
+			if ( name.equals( tagSet.getName() ) )
+				return tagSet;
+		throw new NoSuchElementException( "Did not find a tag set with the given name: " + name );
 	}
 }

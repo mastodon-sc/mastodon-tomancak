@@ -96,7 +96,7 @@ public class LineageRegistrationUtilsTest
 	private static Set< String > getTaggedSpots( Model model, String tagSetName, String tagLabel )
 	{
 		TagSetModel< Spot, Link > tagsModel = model.getTagSetModel();
-		TagSetStructure.TagSet tagSet = findTagSet( tagsModel, tagSetName );
+		TagSetStructure.TagSet tagSet = TagSetUtils.findTagSet( tagsModel, tagSetName );
 		TagSetStructure.Tag tag = findTag( tagSet, tagLabel );
 		return tagsModel.getVertexTags().getTaggedWith( tag ).stream().map( Spot::getLabel ).collect( Collectors.toSet() );
 	}
@@ -104,7 +104,7 @@ public class LineageRegistrationUtilsTest
 	private static Set< String > getTaggedEdges( Model model, String tagSetName, String tagLabel )
 	{
 		TagSetModel< Spot, Link > tagsModel = model.getTagSetModel();
-		TagSetStructure.TagSet tagSet = findTagSet( tagsModel, tagSetName );
+		TagSetStructure.TagSet tagSet = TagSetUtils.findTagSet( tagsModel, tagSetName );
 		TagSetStructure.Tag tag = findTag( tagSet, tagLabel );
 		Collection< Link > edges = tagsModel.getEdgeTags().getTaggedWith( tag );
 		HashSet< String > strings = new HashSet<>();
@@ -113,15 +113,7 @@ public class LineageRegistrationUtilsTest
 		return strings;
 	}
 
-	private static TagSetStructure.TagSet findTagSet( TagSetModel< Spot, Link > tagsModel, String name )
-	{
-		for ( TagSetStructure.TagSet tagSet : tagsModel.getTagSetStructure().getTagSets() )
-			if ( name.equals( tagSet.getName() ) )
-				return tagSet;
-		throw new NoSuchElementException();
-	}
-
-	public static TagSetStructure.Tag findTag( TagSetStructure.TagSet tagSet, String label )
+	private static TagSetStructure.Tag findTag( TagSetStructure.TagSet tagSet, String label )
 	{
 		for ( TagSetStructure.Tag tag : tagSet.getTags() )
 			if ( label.equals( tag.label() ) )
