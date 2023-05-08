@@ -7,9 +7,9 @@ import org.mastodon.collection.ref.RefRefHashMap;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.DynamicLandmarkRegistration;
 import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistration;
 import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistrationFactory;
+import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistrationMethod;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
 
 /**
@@ -41,22 +41,27 @@ public class LineageRegistrationAlgorithm
 	 * @return a {@link RegisteredGraphs} object that contains the two graphs and the
 	 * 	   mapping between the first spots of the branches in the two graphs.
 	 */
-	public static RegisteredGraphs run( Model modelA, int firstTimepointA, Model modelB, int firstTimepointB )
+	public static RegisteredGraphs run(
+			Model modelA,
+			int firstTimepointA,
+			Model modelB,
+			int firstTimepointB,
+			SpacialRegistrationMethod spacialRegistrationMethod )
 	{
 		RefRefMap< Spot, Spot > roots =
 				RootsPairing.pairDividingRoots( modelA.getGraph(), firstTimepointA, modelB.getGraph(), firstTimepointB );
-		SpacialRegistrationFactory algorithm = DynamicLandmarkRegistration::new;
+		SpacialRegistrationFactory algorithm = SpacialRegistrationMethod.getFactory( spacialRegistrationMethod );
 		SpacialRegistration spacialRegistration = algorithm.run( modelA, modelB, roots );
 		return run( modelA.getGraph(), modelB.getGraph(), roots, spacialRegistration );
 	}
 
 	public static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB,
-			RefRefMap< Spot, Spot > roots, SpacialRegistration transformAB )
+			RefRefMap< Spot, Spot > roots, SpacialRegistration spacialRegistration )
 	{
 		RefRefMap< Spot, Spot > mapping = new LineageRegistrationAlgorithm(
 				graphA, graphB,
-				roots, transformAB ).getMapping();
-		return new RegisteredGraphs( graphA, graphB, transformAB, mapping );
+				roots, spacialRegistration ).getMapping();
+		return new RegisteredGraphs( graphA, graphB, spacialRegistration, mapping );
 	}
 
 	private LineageRegistrationAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,

@@ -13,6 +13,7 @@ import net.imglib2.realtransform.AffineTransform3D;
 import org.junit.Test;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistrationMethod;
 
 public class LineageRegistrationAlgorithmTest
 {
@@ -33,7 +34,8 @@ public class LineageRegistrationAlgorithmTest
 	{
 		EmbryoA embryoA = new EmbryoA();
 		EmbryoB embryoB = new EmbryoB();
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryoA.model, 0, embryoB.model, 0 );
+		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryoA.model, 0, embryoB.model, 0,
+				SpacialRegistrationMethod.FIXED_ROOTS );
 		assertEquals( expected, asStrings( result.mapAB ) );
 	}
 
@@ -42,7 +44,8 @@ public class LineageRegistrationAlgorithmTest
 	{
 		EmbryoA embryoA = new EmbryoA();
 		EmbryoBSingleCellStage embryoB = new EmbryoBSingleCellStage();
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryoA.model, 0, embryoB.model, 2 );
+		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryoA.model, 0, embryoB.model, 2,
+				SpacialRegistrationMethod.FIXED_ROOTS );
 		assertEquals( expected, asStrings( result.mapAB ) );
 		assertEquals( embryoB.beforeA, result.mapAB.get( embryoA.a ) );
 		assertTransformEquals( embryoB.transform, result.spacialRegistration.getTransformationAtoB( 0, 2 ) );

@@ -25,6 +25,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.mastodon.app.ui.GroupLocksPanel;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.project.MamutProject;
+import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistrationMethod;
 
 /**
  * Dialog for the {@link LineageRegistrationPlugin}. It allows to select two
@@ -82,6 +83,9 @@ public class LineageRegistrationFrame extends JFrame
 
 	private final JFormattedTextField firstTimepointB = createNumberTextField();
 
+	private final JComboBox< SpacialRegistrationMethod > spacialRegistrationComboBox =
+			new JComboBox<>( SpacialRegistrationMethod.values() );
+
 	private final List< JToggleButton > syncGroupButtons;
 
 	private final List< JComponent > buttons = new ArrayList<>();
@@ -111,6 +115,9 @@ public class LineageRegistrationFrame extends JFrame
 		add( firstTimepointA );
 		add( new JLabel( "project B: " ), "gapbefore unrelated" );
 		add( firstTimepointB, "wrap" );
+
+		add( new JLabel( "Spacial registration method:" ) );
+		add( spacialRegistrationComboBox, "wrap" );
 
 		add( new JLabel( "Tag unmatched & flipped cells:" ), "gaptop unrelated" );
 		add( newOperationButton( "in both projects", TAG_CELLS_TOOLTIP, listener::onTagBothClicked ), "split 3" );
@@ -291,6 +298,11 @@ public class LineageRegistrationFrame extends JFrame
 	public SelectedProject getProjectB()
 	{
 		return getSelected( comboBoxB, firstTimepointB );
+	}
+
+	public SpacialRegistrationMethod getSpacialRegistrationMethod()
+	{
+		return ( SpacialRegistrationMethod ) spacialRegistrationComboBox.getSelectedItem();
 	}
 
 	private SelectedProject getSelected( JComboBox< MastodonInstance > comboBoxA, JFormattedTextField firstTimepointTextField )

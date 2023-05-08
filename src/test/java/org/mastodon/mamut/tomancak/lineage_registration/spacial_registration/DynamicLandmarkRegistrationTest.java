@@ -67,7 +67,8 @@ public class DynamicLandmarkRegistrationTest
 	@Test
 	public void testLineageRegistrationAlgorithm()
 	{
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryo1.model, 0, embryo2.model, 0 );
+		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryo1.model, 0, embryo2.model, 0,
+				SpacialRegistrationMethod.DYNAMIC_ROOTS );
 		assertEquals( embryo2.c21, result.mapAB.get( embryo1.c21 ) );
 		assertEquals( embryo2.c22, result.mapAB.get( embryo1.c22 ) );
 	}
