@@ -7,8 +7,8 @@ package org.mastodon.mamut.tomancak.lineage_registration.spacial_registration;
 public enum SpacialRegistrationMethod
 {
 	FIXED_ROOTS( "fixed spacial registration based on root cells" ),
-	DYNAMIC_ROOTS( "dynamic spacial registration based on root cells and their descendants" );
-	//TODO: "dynamic spacial registration based on \"landmarks\" tag set"
+	DYNAMIC_ROOTS( "dynamic spacial registration based on root cells and their descendants" ),
+	DYNAMIC_LANDMARKS( "dynamic spacial registration based on \"landmarks\" tag set" );
 
 	private final String toString;
 
@@ -30,7 +30,9 @@ public enum SpacialRegistrationMethod
 		case FIXED_ROOTS:
 			return FixedSpacialRegistration::forDividingRoots;
 		case DYNAMIC_ROOTS:
-			return DynamicLandmarkRegistration::new;
+			return DynamicLandmarkRegistration::forRoots;
+		case DYNAMIC_LANDMARKS:
+			return ( modelA, modelB, rootsAB ) -> DynamicLandmarkRegistration.forTagSet( modelA, modelB );
 		}
 		throw new AssertionError();
 	}

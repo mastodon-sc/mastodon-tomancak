@@ -3,20 +3,26 @@ package org.mastodon.mamut.tomancak.lineage_registration.spacial_registration;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.imglib2.realtransform.AffineTransform3D;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.ref.RefRefHashMap;
+import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.lineage_registration.LineageRegistrationAlgorithm;
 import org.mastodon.mamut.tomancak.lineage_registration.RegisteredGraphs;
+import org.mastodon.mamut.tomancak.lineage_registration.TagSetUtils;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
+import org.mastodon.model.tag.TagSetStructure;
 
 /**
  * Tests {@link DynamicLandmarkRegistration} and it's integration in the
@@ -53,15 +59,45 @@ public class DynamicLandmarkRegistrationTest
 	}
 
 	@Test
-	public void testGetTransformationAtoB()
+	public void testForRoots()
 	{
-		SpacialRegistration spacialRegistration = new DynamicLandmarkRegistration( embryo1.model, embryo2.model, pairedRoots );
+		SpacialRegistration spacialRegistration = DynamicLandmarkRegistration.forRoots( embryo1.model, embryo2.model, pairedRoots );
 		AffineTransform3D transformation = spacialRegistration.getTransformationAtoB( 2, 2 );
 		AffineTransform3D expected = new AffineTransform3D();
 		expected.rotate( 2, -2 * rotationPerTimepoint * 2 );
 		assertArrayEquals( expected.getRowPackedCopy(), transformation.getRowPackedCopy(), 0.1 );
 		// NB: The averaging of the landmark points over time causes the returned
 		// transformation not be exactly the rotation matrix.
+	}
+
+	@Test
+	public void testForTagSet()
+	{
+		addTags( embryo1 );
+		addTags( embryo2 );
+		SpacialRegistration spacialRegistration = DynamicLandmarkRegistration.forTagSet( embryo1.model, embryo2.model );
+		AffineTransform3D transformation = spacialRegistration.getTransformationAtoB( 2, 2 );
+		AffineTransform3D expected = new AffineTransform3D();
+		expected.rotate( 2, -2 * rotationPerTimepoint * 2 );
+		assertArrayEquals( expected.getRowPackedCopy(), transformation.getRowPackedCopy(), 0.1 );
+	}
+
+	private static void addTags( ExampleEmbryo embryo )
+	{
+		List< Pair< String, Integer > > colors = Arrays.asList(
+				Pair.of( "A", Color.red.getRGB() ),
+				Pair.of( "B", Color.green.getRGB() ),
+				Pair.of( "C", Color.blue.getRGB() ) );
+		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( embryo.model, "landmarks", colors );
+		tagBranches( tagSet, embryo.model, tagSet.getTags().get( 0 ), embryo.a, embryo.a1, embryo.a2 );
+		tagBranches( tagSet, embryo.model, tagSet.getTags().get( 1 ), embryo.b, embryo.b1, embryo.b2 );
+		tagBranches( tagSet, embryo.model, tagSet.getTags().get( 2 ), embryo.c, embryo.c1, embryo.c2, embryo.c21, embryo.c21 );
+	}
+
+	private static void tagBranches( TagSetStructure.TagSet tagSet, Model model, TagSetStructure.Tag tag, Spot... spots )
+	{
+		for ( Spot spot : spots )
+			TagSetUtils.tagBranch( model, tagSet, tag, spot );
 	}
 
 	@Test

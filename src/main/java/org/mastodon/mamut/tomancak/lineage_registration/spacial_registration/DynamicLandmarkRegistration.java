@@ -2,7 +2,6 @@ package org.mastodon.mamut.tomancak.lineage_registration.spacial_registration;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +9,7 @@ import java.util.Map;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.LinAlgHelpers;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.RefSet;
 import org.mastodon.collection.ref.RefSetImp;
@@ -18,7 +18,9 @@ import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.lineage_registration.RefMapUtils;
+import org.mastodon.mamut.tomancak.lineage_registration.TagSetUtils;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
+import org.mastodon.model.tag.TagSetStructure;
 
 import mpicbg.models.Point;
 import mpicbg.models.PointMatch;
@@ -26,41 +28,94 @@ import mpicbg.models.PointMatch;
 public class DynamicLandmarkRegistration implements SpacialRegistration
 {
 
-	private static int averageBefore = 2;
+	/**
+	 * The algorithm uses a rolling average to stabilize the landmarks
+	 * position over time. The actual window size used is
+	 * {@code 2 * HALF_WINDOW_SIZE + 1}.
+	 * <p>
+	 * (This averaging method was found to work best for the lineage
+	 * registration on some test datasets of macrostomum lignano embryos.)
+	 */
+	private static final int HALF_WINDOW_SIZE = 2;
 
-	private static int averageAfter = 2;
+	/**
+	 * Landmark positions that are used to compute the registration.
+	 * <p>
+	 * A list of type {@code List< double[] >} is thereby used to
+	 * hold a landmarks position as it changes over time. The i-th
+	 * element of the list is the position of the landmark at timepoint i.
+	 * <p>
+	 * The "left" value in each pair belongs to landmark in {@code modelA}.
+	 * The "right" value belongs to the respective landmark in {@code modelB}.
+	 */
+	private final List< Pair< List< double[] >, List< double[] > > > landmarks;
 
-	private static int averageCount = averageBefore + 1 + averageAfter;
+	/** The number of timepoints in {@code modelA}. */
+	private final int numTimepointsA;
 
-	private final Map< List< double[] >, List< double[] > > landmarks;
+	/** The number of timepoints in {@code modelB}. */
+	private final int numTimepointsB;
 
-	public DynamicLandmarkRegistration( Model modelA, Model modelB, RefRefMap< Spot, Spot > rootsAB )
+	/**
+	 * Initializes a {@link DynamicLandmarkRegistration}. The given pairs of roots
+	 * and all their descendants positions are used to compute a registration
+	 * between the two given {@link Model models}.
+	 */
+	public static DynamicLandmarkRegistration forRoots( Model modelA, Model modelB, RefRefMap< Spot, Spot > rootsAB )
 	{
-		int numTimepointsA = computeNumberOfTimepoints( modelA.getGraph() );
-		int numTimepointsB = computeNumberOfTimepoints( modelB.getGraph() );
-		landmarks = new HashMap<>();
+		DynamicLandmarkRegistration dynamicLandmarkRegistration = new DynamicLandmarkRegistration( modelA.getGraph(), modelB.getGraph() );
 		RefMapUtils.forEach( rootsAB, ( rootA, rootB ) -> {
-			List< double[] > landmarkA = computeLandmark( modelA.getGraph(), rootA, numTimepointsA );
-			List< double[] > landmarkB = computeLandmark( modelB.getGraph(), rootB, numTimepointsB );
-			landmarks.put( landmarkA, landmarkB );
+			Collection< Spot > descendantsA = getDescendants( modelA.getGraph(), rootA );
+			Collection< Spot > descendantsB = getDescendants( modelB.getGraph(), rootB );
+			dynamicLandmarkRegistration.addLandmark( descendantsA, descendantsB );
 		} );
+		return dynamicLandmarkRegistration;
 	}
 
-	private int computeNumberOfTimepoints( ModelGraph graph )
+	/**
+	 * Initializes a {@link DynamicLandmarkRegistration}. Each model must have a
+	 * tag set named "landmarks" that contains the tags to be used for registration.
+	 * Both tag sets must contain the same tags.
+	 */
+	public static DynamicLandmarkRegistration forTagSet( Model modelA, Model modelB )
 	{
-		int max = -1;
-		for ( Spot spot : graph.vertices() )
-			max = Math.max( max, spot.getTimepoint() );
-		return max + 1;
+
+		Map< String, TagSetStructure.Tag > tagSetA =
+				TagSetUtils.tagSetAsMap( TagSetUtils.findTagSet( modelA.getTagSetModel(), "landmarks" ) );
+
+		Map< String, TagSetStructure.Tag > tagSetB =
+				TagSetUtils.tagSetAsMap( TagSetUtils.findTagSet( modelB.getTagSetModel(), "landmarks" ) );
+
+		DynamicLandmarkRegistration dynamicLandmarkRegistration = new DynamicLandmarkRegistration( modelA.getGraph(), modelB.getGraph() );
+		for ( String tagLabel : tagSetA.keySet() )
+			if ( tagSetB.containsKey( tagLabel ) )
+			{
+				Collection< Spot > landmarkA = modelA.getTagSetModel().getVertexTags().getTaggedWith( tagSetA.get( tagLabel ) );
+				Collection< Spot > landmarkB = modelB.getTagSetModel().getVertexTags().getTaggedWith( tagSetB.get( tagLabel ) );
+				boolean valid = !landmarkA.isEmpty() && !landmarkB.isEmpty();
+				if ( valid )
+					dynamicLandmarkRegistration.addLandmark( landmarkA, landmarkB );
+			}
+		return dynamicLandmarkRegistration;
 	}
 
-	private List< double[] > computeLandmark( ModelGraph graph, Spot spot, int numTimepoints )
+	public DynamicLandmarkRegistration( ModelGraph graphA, ModelGraph graphB )
 	{
-		Collection< Spot > descendants = getDescendants( graph, spot );
-		return SortTreeUtils.calculateAndInterpolateAveragePosition( numTimepoints, descendants );
+		numTimepointsA = SortTreeUtils.getNumberOfTimePoints( graphA );
+		numTimepointsB = SortTreeUtils.getNumberOfTimePoints( graphB );
+		landmarks = new ArrayList<>();
 	}
 
-	private Collection< Spot > getDescendants( ModelGraph graph, Spot spot )
+	private void addLandmark( Collection< Spot > descendantsA, Collection< Spot > descendantsB )
+	{
+		List< double[] > landmarkA = SortTreeUtils.calculateAndInterpolateAveragePosition( numTimepointsA, descendantsA );
+		List< double[] > landmarkB = SortTreeUtils.calculateAndInterpolateAveragePosition( numTimepointsB, descendantsB );
+		List< double[] > rollingAverageA = rollingAverage( landmarkA );
+		List< double[] > rollingAverageB = rollingAverage( landmarkB );
+		landmarks.add( Pair.of( rollingAverageA, rollingAverageB ) );
+	}
+
+	private static Collection< Spot > getDescendants( ModelGraph graph, Spot spot )
 	{
 		RefSet< Spot > descendants = new RefSetImp<>( graph.vertices().getRefPool() );
 		Iterator< Spot > iterator = new DepthFirstIterator<>( spot, graph );
@@ -73,23 +128,36 @@ public class DynamicLandmarkRegistration implements SpacialRegistration
 	public AffineTransform3D getTransformationAtoB( int timepointA, int timepointB )
 	{
 		List< PointMatch > matches = new ArrayList<>();
-		landmarks.forEach( ( landmarkA, landmarkB ) -> {
-			Point pointA = new Point( average( landmarkA, timepointA ) );
-			Point pointB = new Point( average( landmarkB, timepointB ) );
+		landmarks.forEach( pair -> {
+			List< double[] > landmarkA = pair.getLeft();
+			List< double[] > landmarkB = pair.getRight();
+			Point pointA = new Point( get( landmarkA, timepointA ) );
+			Point pointB = new Point( get( landmarkB, timepointB ) );
 			matches.add( new PointMatch( pointA, pointB ) );
 		} );
 		return EstimateTransformation.fitTransform( matches );
 	}
 
-	private static double[] average( List< double[] > list, int i )
+	// -- Helper methods --
+
+	private static List< double[] > rollingAverage( List< double[] > list )
 	{
-		double[] array = new double[ 3 ];
-		for ( int j = i - averageBefore; j <= i + averageAfter; j++ )
-			LinAlgHelpers.add( array, get( list, j ), array );
-		SortTreeUtils.divide( array, averageCount );
-		return array;
+		List< double[] > output = new ArrayList<>( list.size() );
+		for ( int i = 0; i < list.size(); i++ )
+		{
+			double[] array = new double[ 3 ];
+			for ( int j = i - HALF_WINDOW_SIZE; j <= i + HALF_WINDOW_SIZE; j++ )
+				LinAlgHelpers.add( array, get( list, j ), array );
+			SortTreeUtils.divide( array, 2 * HALF_WINDOW_SIZE + 1 );
+			output.add( array );
+		}
+		return output;
 	}
 
+	/**
+	 * Similar to {@code list.get( i )} but returns the first or last element
+	 * instead of throwing an {@link IndexOutOfBoundsException}.
+	 */
 	private static double[] get( List< double[] > list, int j )
 	{
 		if ( j < 0 )
