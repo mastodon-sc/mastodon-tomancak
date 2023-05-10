@@ -11,6 +11,7 @@ import org.mastodon.collection.RefSet;
 import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.mamut.MamutAppModel;
 import org.mastodon.mamut.model.Link;
+import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
@@ -27,23 +28,28 @@ public class AddCenterSpots
 	{
 		RefSet< Spot > selectedSpots = appModel.getSelectionModel().getSelectedVertices();
 		if ( selectedSpots.isEmpty() )
+		{
 			JOptionPane.showMessageDialog( null, "No spots selected." );
-		Pair< RefList< Spot >, RefList< Link > > newSpotsAndLinks;
-		ModelGraph graph = appModel.getModel().getGraph();
+			return;
+		}
+
+		Model model = appModel.getModel();
+		ModelGraph graph = model.getGraph();
 		ReentrantReadWriteLock.WriteLock writeLock = graph.getLock().writeLock();
 		writeLock.lock();
 		try
 		{
 			int numTimepoints = appModel.getMaxTimepoint() + 1;
 			List< double[] > averagePosition = SortTreeUtils.calculateAveragePosition( numTimepoints, selectedSpots );
-			newSpotsAndLinks = addSpots( graph, averagePosition );
+			Pair< RefList< Spot >, RefList< Link > > newSpotsAndLinks = addSpots( graph, averagePosition );
+			graph.notifyGraphChanged();
+			model.setUndoPoint();
+			selectSpotsAndLinks( appModel, newSpotsAndLinks.getLeft(), newSpotsAndLinks.getRight() );
 		}
 		finally
 		{
 			writeLock.unlock();
 		}
-		appModel.getModel().setUndoPoint();
-		selectSpotsAndLinks( appModel, newSpotsAndLinks.getLeft(), newSpotsAndLinks.getRight() );
 	}
 
 	private static Pair< RefList< Spot >, RefList< Link > > addSpots( ModelGraph graph, List< double[] > averagePosition )
@@ -84,8 +90,10 @@ public class AddCenterSpots
 	private static void selectSpotsAndLinks( MamutAppModel appModel, RefList< Spot> spots, RefList< Link> links )
 	{
 		SelectionModel< Spot, Link > selectionModel = appModel.getSelectionModel();
+		selectionModel.pauseListeners();
 		selectionModel.clearSelection();
 		selectionModel.setVerticesSelected( spots, true );
 		selectionModel.setEdgesSelected( links, true );
+		selectionModel.resumeListeners();
 	}
 }
