@@ -117,6 +117,7 @@ public class LineageRegistrationFrame extends JFrame
 		add( firstTimepointB, "wrap" );
 
 		add( new JLabel( "Spacial registration method:" ) );
+		spacialRegistrationComboBox.setSelectedItem( SpacialRegistrationMethod.DYNAMIC_ROOTS );
 		add( spacialRegistrationComboBox, "wrap" );
 
 		add( new JLabel( "Tag unmatched & flipped cells:" ), "gaptop unrelated" );
