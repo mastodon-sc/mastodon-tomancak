@@ -33,6 +33,15 @@ import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.Spa
  */
 public class LineageRegistrationFrame extends JFrame
 {
+	private static final String FIRST_TIMEPOINT_TOOLTIP = "<html><body>"
+			+ "The first time point of a project to be used for the registration.<br>"
+			+ "<br>"
+			+ "This is useful if both projects start at different stages, or with<br>"
+			+ "less than three cells in the first timepoint. In this case:<br>"
+			+ "Select a stage of the embryo. For example 4 cell stage.<br>"
+			+ "And for both projects enter a time point at which the embryo has 4 cells.<br>"
+			+ "</body></html>";
+
 	private static final String SORT_TRACKSCHEME_TOOLTIP = "<html><body>"
 			+ "Orders the descendants in the TrackScheme of this project<br>"
 			+ "such that their order matches the order in the other project."
@@ -110,11 +119,13 @@ public class LineageRegistrationFrame extends JFrame
 		add( comboBoxB, "grow, wrap" );
 		add( newSimpleButton( "update list of projects", listener::onUpdateClicked ), "skip, wrap" );
 
-		add( new JLabel( "First timepoint to consider:" ), "gaptop unrelated" );
+		add( new JLabel( "First time point for registration:" ), "gaptop unrelated" );
 		add( new JLabel( "project A: " ), "split 4" );
 		add( firstTimepointA );
+		firstTimepointA.setToolTipText( FIRST_TIMEPOINT_TOOLTIP );
 		add( new JLabel( "project B: " ), "gapbefore unrelated" );
 		add( firstTimepointB, "wrap" );
+		firstTimepointB.setToolTipText( FIRST_TIMEPOINT_TOOLTIP );
 
 		add( new JLabel( "Spacial registration method:" ) );
 		spacialRegistrationComboBox.setSelectedItem( SpacialRegistrationMethod.DYNAMIC_ROOTS );
