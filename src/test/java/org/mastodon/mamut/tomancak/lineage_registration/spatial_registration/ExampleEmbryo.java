@@ -1,4 +1,4 @@
-package org.mastodon.mamut.tomancak.lineage_registration.spacial_registration;
+package org.mastodon.mamut.tomancak.lineage_registration.spatial_registration;
 
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;

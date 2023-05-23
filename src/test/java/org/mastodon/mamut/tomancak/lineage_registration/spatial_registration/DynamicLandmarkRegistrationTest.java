@@ -1,4 +1,4 @@
-package org.mastodon.mamut.tomancak.lineage_registration.spacial_registration;
+package org.mastodon.mamut.tomancak.lineage_registration.spatial_registration;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -61,8 +61,8 @@ public class DynamicLandmarkRegistrationTest
 	@Test
 	public void testForRoots()
 	{
-		SpacialRegistration spacialRegistration = DynamicLandmarkRegistration.forRoots( embryo1.model, embryo2.model, pairedRoots );
-		AffineTransform3D transformation = spacialRegistration.getTransformationAtoB( 2, 2 );
+		SpatialRegistration spatialRegistration = DynamicLandmarkRegistration.forRoots( embryo1.model, embryo2.model, pairedRoots );
+		AffineTransform3D transformation = spatialRegistration.getTransformationAtoB( 2, 2 );
 		AffineTransform3D expected = new AffineTransform3D();
 		expected.rotate( 2, -2 * rotationPerTimepoint * 2 );
 		assertArrayEquals( expected.getRowPackedCopy(), transformation.getRowPackedCopy(), 0.1 );
@@ -75,8 +75,8 @@ public class DynamicLandmarkRegistrationTest
 	{
 		addTags( embryo1 );
 		addTags( embryo2 );
-		SpacialRegistration spacialRegistration = DynamicLandmarkRegistration.forTagSet( embryo1.model, embryo2.model );
-		AffineTransform3D transformation = spacialRegistration.getTransformationAtoB( 2, 2 );
+		SpatialRegistration spatialRegistration = DynamicLandmarkRegistration.forTagSet( embryo1.model, embryo2.model );
+		AffineTransform3D transformation = spatialRegistration.getTransformationAtoB( 2, 2 );
 		AffineTransform3D expected = new AffineTransform3D();
 		expected.rotate( 2, -2 * rotationPerTimepoint * 2 );
 		assertArrayEquals( expected.getRowPackedCopy(), transformation.getRowPackedCopy(), 0.1 );
@@ -104,7 +104,7 @@ public class DynamicLandmarkRegistrationTest
 	public void testLineageRegistrationAlgorithm()
 	{
 		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryo1.model, 0, embryo2.model, 0,
-				SpacialRegistrationMethod.DYNAMIC_ROOTS );
+				SpatialRegistrationMethod.DYNAMIC_ROOTS );
 		assertEquals( embryo2.c21, result.mapAB.get( embryo1.c21 ) );
 		assertEquals( embryo2.c22, result.mapAB.get( embryo1.c22 ) );
 	}

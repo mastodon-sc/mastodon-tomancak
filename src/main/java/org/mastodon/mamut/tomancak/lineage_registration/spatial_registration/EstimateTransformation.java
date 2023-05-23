@@ -1,4 +1,4 @@
-package org.mastodon.mamut.tomancak.lineage_registration.spacial_registration;
+package org.mastodon.mamut.tomancak.lineage_registration.spatial_registration;
 
 import java.util.ArrayList;
 import java.util.List;

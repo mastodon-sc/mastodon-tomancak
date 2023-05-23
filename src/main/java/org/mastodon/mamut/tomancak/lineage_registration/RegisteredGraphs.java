@@ -6,8 +6,8 @@ import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.ref.RefRefHashMap;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.InverseSpacialRegistration;
-import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistration;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.InverseSpatialRegistration;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistration;
 
 /**
  * <p>
@@ -25,7 +25,7 @@ public class RegisteredGraphs
 	public final ModelGraph graphB;
 
 	/** A transformation that transforms coordinates in graph A to coordinates in graph B. */
-	public final SpacialRegistration spacialRegistration;
+	public final SpatialRegistration spatialRegistration;
 
 	/** Maps branch starting spot in graph A to corresponding branch starting spot in graph B. */
 	public final RefRefMap< Spot, Spot > mapAB;
@@ -40,9 +40,9 @@ public class RegisteredGraphs
 	 */
 	public final RefRefMap< Spot, Spot > mapBA;
 
-	public RegisteredGraphs( ModelGraph graphA, ModelGraph graphB, SpacialRegistration spacialRegistration, RefRefMap< Spot, Spot > mapAB )
+	public RegisteredGraphs( ModelGraph graphA, ModelGraph graphB, SpatialRegistration spatialRegistration, RefRefMap< Spot, Spot > mapAB )
 	{
-		this.spacialRegistration = spacialRegistration;
+		this.spatialRegistration = spatialRegistration;
 		this.graphA = graphA;
 		this.graphB = graphB;
 		this.mapAB = mapAB;
@@ -50,10 +50,10 @@ public class RegisteredGraphs
 	}
 
 	private RegisteredGraphs( ModelGraph graphA, ModelGraph graphB,
-			SpacialRegistration spacialRegistration,
+			SpatialRegistration spatialRegistration,
 			RefRefMap< Spot, Spot > mapAB, RefRefMap< Spot, Spot > mapBA )
 	{
-		this.spacialRegistration = spacialRegistration;
+		this.spatialRegistration = spatialRegistration;
 		this.graphA = graphA;
 		this.graphB = graphB;
 		this.mapAB = mapAB;
@@ -72,7 +72,7 @@ public class RegisteredGraphs
 	 */
 	public RegisteredGraphs swapAB()
 	{
-		return new RegisteredGraphs( this.graphB, this.graphA, new InverseSpacialRegistration( this.spacialRegistration ), this.mapBA,
+		return new RegisteredGraphs( this.graphB, this.graphA, new InverseSpatialRegistration( this.spatialRegistration ), this.mapBA,
 				this.mapAB );
 	}
 }

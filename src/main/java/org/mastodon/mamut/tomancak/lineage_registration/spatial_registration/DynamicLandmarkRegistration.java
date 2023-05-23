@@ -1,4 +1,4 @@
-package org.mastodon.mamut.tomancak.lineage_registration.spacial_registration;
+package org.mastodon.mamut.tomancak.lineage_registration.spatial_registration;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +25,7 @@ import org.mastodon.model.tag.TagSetStructure;
 import mpicbg.models.Point;
 import mpicbg.models.PointMatch;
 
-public class DynamicLandmarkRegistration implements SpacialRegistration
+public class DynamicLandmarkRegistration implements SpatialRegistration
 {
 
 	/**

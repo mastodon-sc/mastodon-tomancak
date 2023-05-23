@@ -17,7 +17,7 @@ import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistrationMethod;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationMethod;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 
@@ -40,7 +40,7 @@ public class LineageRegistrationUtilsTest
 		registration = LineageRegistrationAlgorithm.run(
 				embryoA.model, 0,
 				embryoB.model, 0,
-				SpacialRegistrationMethod.FIXED_ROOTS );
+				SpatialRegistrationMethod.FIXED_ROOTS );
 	}
 
 	@Test

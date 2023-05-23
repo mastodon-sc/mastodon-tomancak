@@ -1,4 +1,4 @@
-package org.mastodon.mamut.tomancak.lineage_registration.spacial_registration;
+package org.mastodon.mamut.tomancak.lineage_registration.spatial_registration;
 
 import net.imglib2.realtransform.AffineTransform3D;
 
@@ -10,18 +10,18 @@ import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.lineage_registration.BranchGraphUtils;
 import org.mastodon.mamut.tomancak.lineage_registration.RefMapUtils;
 
-public class FixedSpacialRegistration implements SpacialRegistration
+public class FixedSpatialRegistration implements SpatialRegistration
 {
 	private final AffineTransform3D transformAB;
 
-	public static SpacialRegistration forDividingRoots( Model modelA, Model modelB, RefRefMap< Spot, Spot > rootsAB )
+	public static SpatialRegistration forDividingRoots( Model modelA, Model modelB, RefRefMap< Spot, Spot > rootsAB )
 	{
 		RefRefMap< Spot, Spot > rootsDividingSpots = getBranchEnds( rootsAB, modelA.getGraph(), modelB.getGraph() );
 		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( rootsDividingSpots );
-		return new FixedSpacialRegistration( transformAB );
+		return new FixedSpatialRegistration( transformAB );
 	}
 
-	public FixedSpacialRegistration( AffineTransform3D transformAB )
+	public FixedSpatialRegistration( AffineTransform3D transformAB )
 	{
 		this.transformAB = transformAB;
 	}

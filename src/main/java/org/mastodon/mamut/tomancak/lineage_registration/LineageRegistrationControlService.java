@@ -239,6 +239,6 @@ public class LineageRegistrationControlService extends AbstractService implement
 		return LineageRegistrationAlgorithm.run(
 				projectA.getModel(), projectA.getFirstTimepoint(),
 				projectB.getModel(), projectB.getFirstTimepoint(),
-				dialog.getSpacialRegistrationMethod() );
+				dialog.getSpatialRegistrationMethod() );
 	}
 }

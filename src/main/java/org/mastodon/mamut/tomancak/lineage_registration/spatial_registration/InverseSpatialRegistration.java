@@ -1,12 +1,12 @@
-package org.mastodon.mamut.tomancak.lineage_registration.spacial_registration;
+package org.mastodon.mamut.tomancak.lineage_registration.spatial_registration;
 
 import net.imglib2.realtransform.AffineTransform3D;
 
-public class InverseSpacialRegistration implements SpacialRegistration
+public class InverseSpatialRegistration implements SpatialRegistration
 {
-	private final SpacialRegistration forward;
+	private final SpatialRegistration forward;
 
-	public InverseSpacialRegistration( SpacialRegistration forward )
+	public InverseSpatialRegistration( SpatialRegistration forward )
 	{
 		this.forward = forward;
 	}

@@ -7,9 +7,9 @@ import org.mastodon.collection.ref.RefRefHashMap;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistration;
-import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistrationFactory;
-import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistrationMethod;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistration;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationFactory;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationMethod;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
 
 /**
@@ -23,7 +23,7 @@ public class LineageRegistrationAlgorithm
 {
 	private static final int TIME_OFFSET = SortTreeUtils.DIVISION_DIRECTION_TIME_OFFSET;
 
-	private final SpacialRegistration spacialRegistration;
+	private final SpatialRegistration spatialRegistration;
 
 	private final ModelGraph graphA;
 
@@ -46,28 +46,28 @@ public class LineageRegistrationAlgorithm
 			int firstTimepointA,
 			Model modelB,
 			int firstTimepointB,
-			SpacialRegistrationMethod spacialRegistrationMethod )
+			SpatialRegistrationMethod spatialRegistrationMethod )
 	{
 		RefRefMap< Spot, Spot > roots =
 				RootsPairing.pairDividingRoots( modelA.getGraph(), firstTimepointA, modelB.getGraph(), firstTimepointB );
-		SpacialRegistrationFactory algorithm = SpacialRegistrationMethod.getFactory( spacialRegistrationMethod );
-		SpacialRegistration spacialRegistration = algorithm.run( modelA, modelB, roots );
-		return run( modelA.getGraph(), modelB.getGraph(), roots, spacialRegistration );
+		SpatialRegistrationFactory algorithm = SpatialRegistrationMethod.getFactory( spatialRegistrationMethod );
+		SpatialRegistration spatialRegistration = algorithm.run( modelA, modelB, roots );
+		return run( modelA.getGraph(), modelB.getGraph(), roots, spatialRegistration );
 	}
 
 	public static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB,
-			RefRefMap< Spot, Spot > roots, SpacialRegistration spacialRegistration )
+			RefRefMap< Spot, Spot > roots, SpatialRegistration spatialRegistration )
 	{
 		RefRefMap< Spot, Spot > mapping = new LineageRegistrationAlgorithm(
 				graphA, graphB,
-				roots, spacialRegistration ).getMapping();
-		return new RegisteredGraphs( graphA, graphB, spacialRegistration, mapping );
+				roots, spatialRegistration ).getMapping();
+		return new RegisteredGraphs( graphA, graphB, spatialRegistration, mapping );
 	}
 
 	private LineageRegistrationAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,
-			SpacialRegistration spacialRegistration )
+			SpatialRegistration spatialRegistration )
 	{
-		this.spacialRegistration = spacialRegistration;
+		this.spatialRegistration = spatialRegistration;
 		this.graphA = graphA;
 		this.graphB = graphB;
 		this.mapAB = new RefRefHashMap<>( graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
@@ -101,7 +101,7 @@ public class LineageRegistrationAlgorithm
 				return;
 			double[] directionA = SortTreeUtils.directionOfCellDevision( graphA, dividingA );
 			double[] directionB = SortTreeUtils.directionOfCellDevision( graphB, dividingB );
-			AffineTransform3D transformAB = noOffsetTransform( spacialRegistration.getTransformationAtoB(
+			AffineTransform3D transformAB = noOffsetTransform( spatialRegistration.getTransformationAtoB(
 					dividingA.getTimepoint() + TIME_OFFSET, dividingB.getTimepoint() + TIME_OFFSET ) );
 			transformAB.apply( directionA, directionA );
 			boolean flip = SortTreeUtils.scalarProduct( directionA, directionB ) < 0;

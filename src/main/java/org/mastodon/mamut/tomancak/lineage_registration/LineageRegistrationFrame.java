@@ -25,7 +25,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.mastodon.app.ui.GroupLocksPanel;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.project.MamutProject;
-import org.mastodon.mamut.tomancak.lineage_registration.spacial_registration.SpacialRegistrationMethod;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationMethod;
 
 /**
  * Dialog for the {@link LineageRegistrationPlugin}. It allows to select two
@@ -92,8 +92,8 @@ public class LineageRegistrationFrame extends JFrame
 
 	private final JFormattedTextField firstTimepointB = createNumberTextField();
 
-	private final JComboBox< SpacialRegistrationMethod > spacialRegistrationComboBox =
-			new JComboBox<>( SpacialRegistrationMethod.values() );
+	private final JComboBox< SpatialRegistrationMethod > spatialRegistrationComboBox =
+			new JComboBox<>( SpatialRegistrationMethod.values() );
 
 	private final List< JToggleButton > syncGroupButtons;
 
@@ -127,9 +127,9 @@ public class LineageRegistrationFrame extends JFrame
 		add( firstTimepointB, "wrap" );
 		firstTimepointB.setToolTipText( FIRST_TIMEPOINT_TOOLTIP );
 
-		add( new JLabel( "Spacial registration method:" ) );
-		spacialRegistrationComboBox.setSelectedItem( SpacialRegistrationMethod.DYNAMIC_ROOTS );
-		add( spacialRegistrationComboBox, "wrap" );
+		add( new JLabel( "Spatial registration method:" ) );
+		spatialRegistrationComboBox.setSelectedItem( SpatialRegistrationMethod.DYNAMIC_ROOTS );
+		add( spatialRegistrationComboBox, "wrap" );
 
 		add( new JLabel( "Tag unmatched & flipped cells:" ), "gaptop unrelated" );
 		add( newOperationButton( "in both projects", TAG_CELLS_TOOLTIP, listener::onTagBothClicked ), "split 3" );
@@ -312,9 +312,9 @@ public class LineageRegistrationFrame extends JFrame
 		return getSelected( comboBoxB, firstTimepointB );
 	}
 
-	public SpacialRegistrationMethod getSpacialRegistrationMethod()
+	public SpatialRegistrationMethod getSpatialRegistrationMethod()
 	{
-		return ( SpacialRegistrationMethod ) spacialRegistrationComboBox.getSelectedItem();
+		return ( SpatialRegistrationMethod ) spatialRegistrationComboBox.getSelectedItem();
 	}
 
 	private SelectedProject getSelected( JComboBox< MastodonInstance > comboBoxA, JFormattedTextField firstTimepointTextField )
