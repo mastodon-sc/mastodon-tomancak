@@ -2,9 +2,11 @@ package org.mastodon.mamut.tomancak.lineage_registration.spatial_registration;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.LinAlgHelpers;
@@ -63,6 +65,9 @@ public class DynamicLandmarkRegistration implements SpatialRegistration
 	 */
 	public static DynamicLandmarkRegistration forRoots( Model modelA, Model modelB, RefRefMap< Spot, Spot > rootsAB )
 	{
+		if ( rootsAB.size() < 3 )
+			throw new NotEnoughPairedRootsException();
+
 		DynamicLandmarkRegistration dynamicLandmarkRegistration = new DynamicLandmarkRegistration( modelA.getGraph(), modelB.getGraph() );
 		RefMapUtils.forEach( rootsAB, ( rootA, rootB ) -> {
 			Collection< Spot > descendantsA = getDescendants( modelA.getGraph(), rootA );
@@ -79,7 +84,6 @@ public class DynamicLandmarkRegistration implements SpatialRegistration
 	 */
 	public static DynamicLandmarkRegistration forTagSet( Model modelA, Model modelB )
 	{
-
 		Map< String, TagSetStructure.Tag > tagSetA =
 				TagSetUtils.tagSetAsMap( TagSetUtils.findTagSet( modelA.getTagSetModel(), "landmarks" ) );
 
@@ -96,7 +100,30 @@ public class DynamicLandmarkRegistration implements SpatialRegistration
 				if ( valid )
 					dynamicLandmarkRegistration.addLandmark( landmarkA, landmarkB );
 			}
+
+		if ( dynamicLandmarkRegistration.landmarks.size() < 3 )
+			throwNotEnoughLandmarksException( tagSetA, tagSetB );
+
 		return dynamicLandmarkRegistration;
+	}
+
+	private static void throwNotEnoughLandmarksException( Map< String, TagSetStructure.Tag> tagSetA, Map< String, TagSetStructure.Tag> tagSetB )
+	{
+		Set< String > intersection = new HashSet<>( tagSetA.keySet() );
+		intersection.retainAll( tagSetB.keySet() );
+		String message = "Not enough landmarks to compute a coordinate transform.\n"
+				+ "The algorithm requires at least 3 landmarks, that are present in both datasets.\n"
+				+ "\n"
+				+ "Please add more landmarks, and tag them."
+				+ "Make sure that tag labels are the same in both datasets.\n"
+				+ "\n"
+				+ "Tags of the \"landmarks\" tag set in the first dataset:\n"
+				+ "    " + tagSetA.keySet() + "\n"
+				+ "Tags of the \"landmarks\" tag set in the second dataset:\n"
+				+ "    " + tagSetB.keySet() + "\n"
+				+ "Only " + intersection.size() + " tag sets could be paired based on their name, but 3 are required:\n"
+				+ "    " + intersection + "\n";
+		throw new NotEnoughPairedTagsException( message );
 	}
 
 	public DynamicLandmarkRegistration( ModelGraph graphA, ModelGraph graphB )

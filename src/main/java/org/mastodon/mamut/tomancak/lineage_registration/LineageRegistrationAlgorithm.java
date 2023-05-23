@@ -7,6 +7,7 @@ import org.mastodon.collection.ref.RefRefHashMap;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.NotEnoughPairedRootsException;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistration;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationFactory;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationMethod;
@@ -48,11 +49,34 @@ public class LineageRegistrationAlgorithm
 			int firstTimepointB,
 			SpatialRegistrationMethod spatialRegistrationMethod )
 	{
-		RefRefMap< Spot, Spot > roots =
-				RootsPairing.pairDividingRoots( modelA.getGraph(), firstTimepointA, modelB.getGraph(), firstTimepointB );
-		SpatialRegistrationFactory algorithm = SpatialRegistrationMethod.getFactory( spatialRegistrationMethod );
-		SpatialRegistration spatialRegistration = algorithm.run( modelA, modelB, roots );
-		return run( modelA.getGraph(), modelB.getGraph(), roots, spatialRegistration );
+		try
+		{
+			RefRefMap< Spot, Spot > roots =
+					RootsPairing.pairDividingRoots( modelA.getGraph(), firstTimepointA, modelB.getGraph(), firstTimepointB );
+			SpatialRegistrationFactory algorithm = SpatialRegistrationMethod.getFactory( spatialRegistrationMethod );
+			SpatialRegistration spatialRegistration = algorithm.run( modelA, modelB, roots );
+			return run( modelA.getGraph(), modelB.getGraph(), roots, spatialRegistration );
+		}
+		catch ( NotEnoughPairedRootsException e )
+		{
+			throw newDetailedNotEnoughPairedRootsException( e, modelA, firstTimepointA, modelB, firstTimepointB );
+		}
+	}
+
+	private static NotEnoughPairedRootsException newDetailedNotEnoughPairedRootsException( NotEnoughPairedRootsException e, Model modelA, int firstTimepointA, Model modelB, int firstTimepointB )
+	{
+		String message = e.getMessage() + "\n"
+				+ "\n"
+				+ RootsPairing.report( modelA.getGraph(), firstTimepointA, modelB.getGraph(), firstTimepointB )
+				+ "\n"
+				+ "Please make sure to:\n"
+				+ "  - Select timepoints at which both embryos are at a similar stage\n"
+				+ "    and have at least 3 cells that divide.\n"
+				+ "  - Name those cells by setting the label of the first spot of the cell.\n"
+				+ "    The cell names need to match between the two datasets.\n"
+				+ "  - If there are less than three dividing cells, consider using the "
+				+ "    dynamic spatial registration that is based on landmarks.\n";
+		return new NotEnoughPairedRootsException( message );
 	}
 
 	public static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB,

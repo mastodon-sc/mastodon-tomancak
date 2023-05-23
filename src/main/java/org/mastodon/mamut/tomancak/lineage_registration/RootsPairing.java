@@ -37,9 +37,14 @@ public class RootsPairing
 	 */
 	static RefRefMap< Spot, Spot > pairDividingRoots( ModelGraph graphA, int timepointA, ModelGraph graphB, int timepointB )
 	{
-		RefSet< Spot > rootsA = getBranchStarts( filterDividingSpots( LineageTreeUtils.getRoots( graphA, timepointA ) ) );
-		RefSet< Spot > rootsB = getBranchStarts( filterDividingSpots( LineageTreeUtils.getRoots( graphB, timepointB ) ) );
+		RefSet< Spot > rootsA = getRoots( graphA, timepointA );
+		RefSet< Spot > rootsB = getRoots( graphB, timepointB );
 		return pairSpotsBasedOnLabel( rootsA, rootsB );
+	}
+
+	private static RefSet< Spot > getRoots( ModelGraph graph, int timepoint )
+	{
+		return getBranchStarts( filterDividingSpots( LineageTreeUtils.getRoots( graph, timepoint ) ) );
 	}
 
 	private static RefRefMap< Spot, Spot > pairSpotsBasedOnLabel( RefSet< Spot > spotsA, RefSet< Spot > spotsB )
@@ -95,5 +100,17 @@ public class RootsPairing
 		Set< T > intersection = new HashSet<>( a );
 		intersection.retainAll( b );
 		return intersection;
+	}
+
+	public static String report( ModelGraph graphA, int firstTimepointA, ModelGraph graphB, int firstTimepointB )
+	{
+		Set< String > rootsA = createLabelToSpotMap( getRoots( graphA, firstTimepointA ) ).keySet();
+		Set< String > rootsB = createLabelToSpotMap( getRoots( graphB, firstTimepointB ) ).keySet();
+		return "Roots found in the first dataset:\n"
+				+ "   " + rootsA + "\n"
+				+ "Roots found in the second dataset:\n"
+				+ "   " + rootsB + "\n"
+				+ "Roots found in both datasets:\n"
+				+ "   " + intersection( rootsA, rootsB ) + "\n";
 	}
 }

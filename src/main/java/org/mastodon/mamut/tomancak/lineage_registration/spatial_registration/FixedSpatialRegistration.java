@@ -16,6 +16,8 @@ public class FixedSpatialRegistration implements SpatialRegistration
 
 	public static SpatialRegistration forDividingRoots( Model modelA, Model modelB, RefRefMap< Spot, Spot > rootsAB )
 	{
+		if ( rootsAB.size() < 3 )
+			throw new NotEnoughPairedRootsException();
 		RefRefMap< Spot, Spot > rootsDividingSpots = getBranchEnds( rootsAB, modelA.getGraph(), modelB.getGraph() );
 		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( rootsDividingSpots );
 		return new FixedSpatialRegistration( transformAB );
