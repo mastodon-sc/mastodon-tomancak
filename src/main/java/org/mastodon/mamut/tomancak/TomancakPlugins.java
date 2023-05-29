@@ -84,6 +84,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String EXPORTS_SPOTS_COUNTS = "[tomancak] export spots counts";
 	private static final String MERGE_PROJECTS = "[tomancak] merge projects";
 	private static final String TWEAK_DATASET_PATH = "[tomancak] fix project image path";
+	private static final String RANDOM_COLOR_TREES = "[tomancak] random color trees";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "ctrl E" };
@@ -101,6 +102,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] EXPORTS_SPOTS_COUNTS_KEYS = { "not mapped" };
 	private static final String[] MERGE_PROJECTS_KEYS = { "not mapped" };
 	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
+	private static final String[] RANDOM_COLOR_TREES_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -121,6 +123,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( EXPORTS_SPOTS_COUNTS, "Export Spots Counts" );
 		menuTexts.put( MERGE_PROJECTS, "Merge Two Projects" );
 		menuTexts.put( TWEAK_DATASET_PATH, "Fix Image Path" );
+		menuTexts.put( RANDOM_COLOR_TREES, "Random Color Lineages" );
 	}
 
 	/*
@@ -152,6 +155,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( EXPORTS_SPOTS_COUNTS, EXPORTS_SPOTS_COUNTS_KEYS, "Exports counts of spots into CSV-like files to be imported in data processors." );
 			descriptions.add( MERGE_PROJECTS, MERGE_PROJECTS_KEYS, "Merge two Mastodon projects into one." );
 			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Allows to insert new path to the BDV data and whether it is relative or absolute." );
+			descriptions.add( RANDOM_COLOR_TREES, RANDOM_COLOR_TREES_KEYS, "Assign to every lineage tree a randomly chosen color from the selected tag set." );
 		}
 	}
 
@@ -185,6 +189,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction tweakDatasetPathAction;
 
+	private final AbstractNamedAction randomColorTreesAction;
+
 	private MamutPluginAppModel pluginAppModel;
 
 	public TomancakPlugins()
@@ -204,6 +210,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		exportSpotsCountsAction = new RunnableAction( EXPORTS_SPOTS_COUNTS, this::exportCounts );
 		mergeProjectsAction = new RunnableAction( MERGE_PROJECTS, this::mergeProjects );
 		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
+		randomColorTreesAction = new RunnableAction( RANDOM_COLOR_TREES, this::randomColorTrees );
 		updateEnabledActions();
 	}
 
@@ -220,6 +227,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		return Arrays.asList(
 				menu( "Plugins",
 						item( COPY_TAG ),
+						item( RANDOM_COLOR_TREES ),
 						menu( "Auxiliary Displays",
 								item( COMPACT_LINEAGE_VIEW )),
 						menu( "Trees Management",
@@ -264,6 +272,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( exportSpotsCountsAction, EXPORTS_SPOTS_COUNTS_KEYS );
 		actions.namedAction( mergeProjectsAction, MERGE_PROJECTS_KEYS );
 		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
+		actions.namedAction( randomColorTreesAction, RANDOM_COLOR_TREES_KEYS );
 	}
 
 	private void updateEnabledActions()
@@ -283,6 +292,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		exportSpotsCountsAction.setEnabled( appModel != null );
 		mergeProjectsAction.setEnabled( appModel != null );
 		tweakDatasetPathAction.setEnabled( appModel != null );
+		randomColorTreesAction.setEnabled( appModel != null );
 	}
 
 	private void exportPhyloXml()
@@ -412,5 +422,12 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		if ( pluginAppModel != null ) {
 			LabelSpotsSystematicallyDialog.showDialog( pluginAppModel.getAppModel() );
 		}
+	}
+
+	private void randomColorTrees()
+	{
+		this.getContext().getService(CommandService.class).run(
+				LineageRandomColorizer.class, true,
+				"pluginAppModel", pluginAppModel);
 	}
 }
