@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.mastodon.mamut.tomancak.lineage_registration.TagSetUtils.addNewTagSetToModel;
 import static org.mastodon.mamut.tomancak.lineage_registration.TagSetUtils.rgbToValidColor;
 
 @Plugin( type = Command.class, name = "Random colorize lineages" )
@@ -104,27 +105,16 @@ public class LineageRandomColorizer extends DynamicCommand  {
 	}
 
 	private TagSetStructure.TagSet createCoolSmallTagSet() {
-		TagSetStructure.TagSet tSet = pluginAppModel
-				.getAppModel()
-				.getModel()
-				.getTagSetModel()
-				.getTagSetStructure()
-				.createTagSet( "Palette of 16 colors" );
-
-		mokolePaletteOf16Colors.forEach(tSet::createTag);
-		return tSet;
+		return addNewTagSetToModel( pluginAppModel.getAppModel().getModel(),
+				"Palette of 16 colors", mokolePaletteOf16Colors.entrySet() );
 	}
 
 
 	private TagSetStructure.TagSet createNewTagSet(final int rColors,
 	                                               final int gColors,
 	                                               final int bColors) {
-		TagSetStructure.TagSet tSet = pluginAppModel
-				.getAppModel()
-				.getModel()
-				.getTagSetModel()
-				.getTagSetStructure()
-				.createTagSet( "Palette of "+(rColors*gColors*bColors)+" colors" );
+		final int colorsInTotal = rColors*gColors*bColors;
+		final Map<String, Integer> palette = new HashMap<>(colorsInTotal);
 
 		final int rStep = 256 / rColors; //relying on down-rounding
 		final int gStep = 256 / gColors;
@@ -134,10 +124,11 @@ public class LineageRandomColorizer extends DynamicCommand  {
 			for (int gColor = 0; gColor < gColors; ++gColor)
 				for (int bColor = 0; bColor < bColors; ++bColor) {
 					int color = ((rColor*rStep) << 16) + ((gColor*gStep) << 8) + bColor*bStep;
-					tSet.createTag("RGB "+(rColor*rStep)+","
+					palette.put("RGB "+(rColor*rStep)+","
 							+(gColor*gStep)+","+(bColor*bStep), rgbToValidColor(color) );
 				}
-		return tSet;
+		return addNewTagSetToModel( pluginAppModel.getAppModel().getModel(),
+				"Palette of "+colorsInTotal+" colors", palette.entrySet() );
 	}
 
 
