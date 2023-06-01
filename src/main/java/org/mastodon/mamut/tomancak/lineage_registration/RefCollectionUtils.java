@@ -6,7 +6,6 @@ import java.util.function.UnaryOperator;
 import org.mastodon.RefPool;
 import org.mastodon.collection.RefCollection;
 import org.mastodon.collection.RefCollections;
-import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.RefSet;
 
 public class RefCollectionUtils

@@ -1,8 +1,6 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
-import java.awt.Color;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
