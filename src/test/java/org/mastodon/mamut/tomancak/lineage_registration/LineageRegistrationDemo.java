@@ -14,14 +14,14 @@ import org.scijava.Context;
 
 public class LineageRegistrationDemo
 {
-	public static final String project1 = "/home/arzt/Desktop/mastodon-test/project1.mastodon";
-	public static final String project2 = "/home/arzt/Desktop/mastodon-test/project2.mastodon";
+	public static final String project1 = "/home/arzt/Datasets/Mette/E1.mastodon";
+	public static final String project2 = "/home/arzt/Datasets/Mette/E2.mastodon";
 
 	public static void main( String... args )
 	{
 		Context context = new Context();
-		openAppModel( context, "/home/arzt/Datasets/Mette/E1.mastodon" );
-		openAppModel( context, "/home/arzt/Datasets/Mette/E2.mastodon" );
+		openAppModel( context, project1 );
+		openAppModel( context, project2 );
 		context.service( LineageRegistrationControlService.class ).showDialog();
 	}
 
@@ -32,7 +32,7 @@ public class LineageRegistrationDemo
 		{
 			MamutProject project = new MamutProjectIO().load( projectPath );
 			WindowManager wm = new WindowManager( context );
-			wm.getProjectManager().open( project, false, true );
+			wm.getProjectManager().open( project );
 			TrackSchemeFrame frame = wm.createBranchTrackScheme().getFrame();
 			String baseName = FilenameUtils.getBaseName( projectPath );
 			frame.setTitle( frame.getTitle() + " " + baseName );
