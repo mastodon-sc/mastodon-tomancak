@@ -4,8 +4,13 @@ import net.imglib2.realtransform.AffineTransform3D;
 
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.ref.RefRefHashMap;
+import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.NotEnoughPairedRootsException;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistration;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationFactory;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationMethod;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
 
 /**
@@ -17,7 +22,9 @@ import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
  */
 public class LineageRegistrationAlgorithm
 {
-	private final AffineTransform3D transformAB;
+	private static final int TIME_OFFSET = SortTreeUtils.DIVISION_DIRECTION_TIME_OFFSET;
+
+	private final SpatialRegistration spatialRegistration;
 
 	private final ModelGraph graphA;
 
@@ -28,25 +35,63 @@ public class LineageRegistrationAlgorithm
 	 */
 	private final RefRefMap< Spot, Spot > mapAB;
 
-	public static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB,
-			RefRefMap< Spot, Spot > roots, AffineTransform3D transformAB )
+	/**
+	 * Runs the lineage registration algorithm for to given graphs. The spots before
+	 * the given timepoints are ignored.
+	 *
+	 * @return a {@link RegisteredGraphs} object that contains the two graphs and the
+	 * 	   mapping between the first spots of the branches in the two graphs.
+	 */
+	public static RegisteredGraphs run(
+			Model modelA,
+			int firstTimepointA,
+			Model modelB,
+			int firstTimepointB,
+			SpatialRegistrationMethod spatialRegistrationMethod )
 	{
-		RefRefMap< Spot, Spot > mapping = calculateMapping( graphA, graphB, roots, transformAB );
-		return new RegisteredGraphs( graphA, graphB, transformAB, mapping );
+		try
+		{
+			RefRefMap< Spot, Spot > roots =
+					RootsPairing.pairDividingRoots( modelA.getGraph(), firstTimepointA, modelB.getGraph(), firstTimepointB );
+			SpatialRegistrationFactory algorithm = SpatialRegistrationMethod.getFactory( spatialRegistrationMethod );
+			SpatialRegistration spatialRegistration = algorithm.run( modelA, modelB, roots );
+			return run( modelA, modelB, roots, spatialRegistration );
+		}
+		catch ( NotEnoughPairedRootsException e )
+		{
+			throw newDetailedNotEnoughPairedRootsException( e, modelA, firstTimepointA, modelB, firstTimepointB );
+		}
 	}
 
-	private static RefRefMap< Spot, Spot > calculateMapping( ModelGraph graphA, ModelGraph graphB,
-			RefRefMap< Spot, Spot > roots, AffineTransform3D transformAB )
+	private static NotEnoughPairedRootsException newDetailedNotEnoughPairedRootsException( NotEnoughPairedRootsException e, Model modelA, int firstTimepointA, Model modelB, int firstTimepointB )
 	{
-		return new LineageRegistrationAlgorithm(
-				graphA, graphB,
-				roots, transformAB ).getMapping();
+		String message = e.getMessage() + "\n"
+				+ "\n"
+				+ RootsPairing.report( modelA.getGraph(), firstTimepointA, modelB.getGraph(), firstTimepointB )
+				+ "\n"
+				+ "Please make sure to:\n"
+				+ "  - Select timepoints at which both embryos are at a similar stage\n"
+				+ "    and have at least 3 cells that divide.\n"
+				+ "  - Name those cells by setting the label of the first spot of the cell.\n"
+				+ "    The cell names need to match between the two datasets.\n"
+				+ "  - If there are less than three dividing cells, consider using the "
+				+ "    dynamic spatial registration that is based on landmarks.\n";
+		return new NotEnoughPairedRootsException( message );
+	}
+
+	public static RegisteredGraphs run( Model modelA, Model modelB,
+			RefRefMap< Spot, Spot > roots, SpatialRegistration spatialRegistration )
+	{
+		RefRefMap< Spot, Spot > mapping = new LineageRegistrationAlgorithm(
+				modelA.getGraph(), modelB.getGraph(),
+				roots, spatialRegistration ).getMapping();
+		return new RegisteredGraphs( modelA, modelB, spatialRegistration, mapping );
 	}
 
 	private LineageRegistrationAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,
-			AffineTransform3D transformAB )
+			SpatialRegistration spatialRegistration )
 	{
-		this.transformAB = noOffsetTransform( transformAB );
+		this.spatialRegistration = spatialRegistration;
 		this.graphA = graphA;
 		this.graphB = graphB;
 		this.mapAB = new RefRefHashMap<>( graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
@@ -65,14 +110,6 @@ public class LineageRegistrationAlgorithm
 		}
 	}
 
-	public static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB )
-	{
-		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots( graphA, graphB );
-		AffineTransform3D transformAB = EstimateTransformation.estimateScaleRotationAndTranslation( roots );
-		RegisteredGraphs result = run( graphA, graphB, roots, transformAB );
-		return result;
-	}
-
 	private void matchTree( Spot rootA, Spot rootB )
 	{
 		mapAB.put( rootA, rootB );
@@ -88,6 +125,8 @@ public class LineageRegistrationAlgorithm
 				return;
 			double[] directionA = SortTreeUtils.directionOfCellDevision( graphA, dividingA );
 			double[] directionB = SortTreeUtils.directionOfCellDevision( graphB, dividingB );
+			AffineTransform3D transformAB = noOffsetTransform( spatialRegistration.getTransformationAtoB(
+					dividingA.getTimepoint() + TIME_OFFSET, dividingB.getTimepoint() + TIME_OFFSET ) );
 			transformAB.apply( directionA, directionA );
 			boolean flip = SortTreeUtils.scalarProduct( directionA, directionB ) < 0;
 			matchChildTree( dividingA, dividingB, 0, flip ? 1 : 0 );
@@ -124,6 +163,8 @@ public class LineageRegistrationAlgorithm
 		return mapAB;
 	}
 
+	// -- Helper methods --
+
 	private static AffineTransform3D noOffsetTransform( AffineTransform3D transformAB )
 	{
 		AffineTransform3D noOffsetTransform = new AffineTransform3D();
@@ -131,4 +172,5 @@ public class LineageRegistrationAlgorithm
 		noOffsetTransform.setTranslation( 0, 0, 0 );
 		return noOffsetTransform;
 	}
+
 }

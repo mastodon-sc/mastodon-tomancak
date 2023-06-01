@@ -1,30 +1,37 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
-import net.imglib2.realtransform.AffineTransform3D;
+
+import javax.annotation.Nullable;
 
 import org.mastodon.RefPool;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.ref.RefRefHashMap;
+import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.InverseSpatialRegistration;
+import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistration;
 
 /**
  * <p>
  * This datastructure holds two {@link ModelGraph}s and a mapping between them.
  * </p>
  * <p>
- * This is also the return type of {@link LineageRegistrationAlgorithm#run(ModelGraph, ModelGraph)}.
+ * This is also the return type of {@link LineageRegistrationAlgorithm#run}.
  * </p>
  */
 public class RegisteredGraphs
 {
+	public final Model modelA;
+
+	public final Model modelB;
 
 	public final ModelGraph graphA;
 
 	public final ModelGraph graphB;
 
 	/** A transformation that transforms coordinates in graph A to coordinates in graph B. */
-	public final AffineTransform3D transformAB;
+	public final SpatialRegistration spatialRegistration;
 
 	/** Maps branch starting spot in graph A to corresponding branch starting spot in graph B. */
 	public final RefRefMap< Spot, Spot > mapAB;
@@ -39,24 +46,23 @@ public class RegisteredGraphs
 	 */
 	public final RefRefMap< Spot, Spot > mapBA;
 
-	public RegisteredGraphs( ModelGraph graphA, ModelGraph graphB, AffineTransform3D transformAB, RefRefMap< Spot, Spot > mapAB )
+	public RegisteredGraphs( Model modelA, Model modelB, SpatialRegistration spatialRegistration, RefRefMap< Spot, Spot > mapAB )
 	{
-		this.transformAB = transformAB;
-		this.graphA = graphA;
-		this.graphB = graphB;
-		this.mapAB = mapAB;
-		this.mapBA = invertRefRefMap( mapAB, graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
+		this( modelA, modelB, spatialRegistration, mapAB, null );
 	}
 
-	public RegisteredGraphs( ModelGraph graphA, ModelGraph graphB,
-			AffineTransform3D transformAB,
-			RefRefMap< Spot, Spot > mapAB, RefRefMap< Spot, Spot > mapBA )
+	private RegisteredGraphs( Model modelA, Model modelB,
+			SpatialRegistration spatialRegistration,
+			RefRefMap< Spot, Spot > mapAB,
+			@Nullable RefRefMap< Spot, Spot > mapBA )
 	{
-		this.transformAB = transformAB;
-		this.graphA = graphA;
-		this.graphB = graphB;
+		this.spatialRegistration = spatialRegistration;
+		this.modelA = modelA;
+		this.modelB = modelB;
+		this.graphA = modelA.getGraph();
+		this.graphB = modelB.getGraph();
 		this.mapAB = mapAB;
-		this.mapBA = mapBA;
+		this.mapBA = mapBA != null ? mapAB : invertRefRefMap( mapAB, graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
 	}
 
 	private static < K, V > RefRefMap< V, K > invertRefRefMap( RefRefMap< K, V > map, RefPool< K > keysPool, RefPool< V > valuesPool )
@@ -71,6 +77,7 @@ public class RegisteredGraphs
 	 */
 	public RegisteredGraphs swapAB()
 	{
-		return new RegisteredGraphs( this.graphB, this.graphA, this.transformAB.inverse(), this.mapBA, this.mapAB );
+		return new RegisteredGraphs( this.modelB, this.modelA, new InverseSpatialRegistration( this.spatialRegistration ), this.mapBA,
+				this.mapAB );
 	}
 }

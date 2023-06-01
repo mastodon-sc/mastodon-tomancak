@@ -1,8 +1,6 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
-import java.awt.Color;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,39 +28,35 @@ public class LineageRegistrationUtils
 {
 
 	/**
-	 * Sorts the descendants in the second {@link ModelGraph} to match the order
-	 * of the descendants in the first {@link ModelGraph}.
-	 * The sorting is based on the result of the
-	 * {@link LineageRegistrationAlgorithm}.
+	 * Sorts the descendants in the second graph {@link RegisteredGraphs#graphB}
+	 * to match the order of the descendants in the first {@link RegisteredGraphs#graphA}.
 	 */
-	public static void sortSecondTrackSchemeToMatch( Model modelA, Model modelB )
+	public static void sortSecondTrackSchemeToMatch( RegisteredGraphs result )
 	{
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( modelA.getGraph(), modelB.getGraph() );
 		RefList< Spot > spotsToFlipB = getSpotsToFlipB( result );
-		FlipDescendants.flipDescendants( modelB, spotsToFlipB );
+		FlipDescendants.flipDescendants( result.modelB, spotsToFlipB );
 	}
 
 	/**
-	 * Copy a tag set from modelA to modelB.
-	 * The {@link LineageRegistrationAlgorithm} is used to find the matching
-	 * between the branches in modelA and modelB. The tags are copied from
-	 * the branches  in modelA to the corresponding branches in modelB.
+	 * Copy a tag set from {@link RegisteredGraphs#modelA} to
+	 * {@link RegisteredGraphs#modelB}. The tags are copied from the branches in
+	 * modelA to the corresponding branches in modelB. The copying is down with
+	 * respect to {@link RegisteredGraphs#mapAB}.
 	 */
-	public static TagSetStructure.TagSet copyTagSetToSecond( Model modelA, Model modelB,
+	public static TagSetStructure.TagSet copyTagSetToSecondModel( RegisteredGraphs result,
 			TagSetStructure.TagSet tagSetModelA, String newTagSetName )
 	{
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( modelA.getGraph(), modelB.getGraph() );
 		List< Pair< String, Integer > > tags = tagSetModelA.getTags().stream()
 				.map( t -> Pair.of( t.label(), t.color() ) )
 				.collect( Collectors.toList() );
-		TagSetStructure.TagSet tagSetModelB = TagSetUtils.addNewTagSetToModel( modelB, tagSetModelA.getName(), tags );
+		TagSetStructure.TagSet tagSetModelB = TagSetUtils.addNewTagSetToModel( result.modelB, newTagSetName, tags );
 		Function< TagSetStructure.Tag, TagSetStructure.Tag > tagsAB = getTagMap( tagSetModelA, tagSetModelB );
-		copyBranchSpotTags( modelA, modelB, tagSetModelA, result, tagSetModelB, tagsAB );
-		copyBranchLinkTags( modelA, modelB, tagSetModelA, result, tagSetModelB, tagsAB );
+		copyBranchSpotTags( tagSetModelA, result, tagSetModelB, tagsAB );
+		copyBranchLinkTags( tagSetModelA, result, tagSetModelB, tagsAB );
 		return tagSetModelB;
 	}
 
-	private static void copyBranchLinkTags( Model modelA, Model modelB, TagSetStructure.TagSet tagSetModelA, RegisteredGraphs result,
+	private static void copyBranchLinkTags( TagSetStructure.TagSet tagSetModelA, RegisteredGraphs result,
 			TagSetStructure.TagSet tagSetModelB, Function< TagSetStructure.Tag, TagSetStructure.Tag > tagsAB )
 	{
 		ModelGraph graphA = result.graphA;
@@ -74,8 +68,8 @@ public class LineageRegistrationUtils
 		Link erefB = graphB.edgeRef();
 		try
 		{
-			ObjTagMap< Link, TagSetStructure.Tag > edgeTagsA = modelA.getTagSetModel().getEdgeTags().tags( tagSetModelA );
-			ObjTagMap< Link, TagSetStructure.Tag > edgeTagsB = modelB.getTagSetModel().getEdgeTags().tags( tagSetModelB );
+			ObjTagMap< Link, TagSetStructure.Tag > edgeTagsA = result.modelA.getTagSetModel().getEdgeTags().tags( tagSetModelA );
+			ObjTagMap< Link, TagSetStructure.Tag > edgeTagsB = result.modelB.getTagSetModel().getEdgeTags().tags( tagSetModelB );
 			for ( Spot spotA : result.mapAB.keySet() )
 			{
 				Spot spotB = result.mapAB.get( spotA, refB );
@@ -102,16 +96,16 @@ public class LineageRegistrationUtils
 		}
 	}
 
-	private static void copyBranchSpotTags( Model modelA, Model modelB, TagSetStructure.TagSet tagSetModelA, RegisteredGraphs result,
+	private static void copyBranchSpotTags( TagSetStructure.TagSet tagSetModelA, RegisteredGraphs result,
 			TagSetStructure.TagSet tagSetModelB,
 			Function< TagSetStructure.Tag, TagSetStructure.Tag > tagsAB )
 	{
 		for ( Spot spotA : result.mapAB.keySet() )
 		{
 			Spot spotB = result.mapAB.get( spotA );
-			TagSetStructure.Tag tagA = TagSetUtils.getBranchTag( modelA, tagSetModelA, spotA );
+			TagSetStructure.Tag tagA = TagSetUtils.getBranchTag( result.modelA, tagSetModelA, spotA );
 			TagSetStructure.Tag tagB = tagsAB.apply( tagA );
-			TagSetUtils.tagBranch( modelB, tagSetModelB, tagB, spotB );
+			TagSetUtils.tagBranch( result.modelB, tagSetModelB, tagB, spotB );
 		}
 	}
 
@@ -135,30 +129,34 @@ public class LineageRegistrationUtils
 	}
 
 	/**
-	 * Creates a new tag set in both models. It runs the {@link LineageRegistrationAlgorithm}
+	 * Creates a new tag set in both models. The tag set has two tags:
+	 * "not mapped" and "flipped". The cells / branches in
+	 * {@link RegisteredGraphs#modelA} and {@link RegisteredGraphs#modelB}
+	 * are tagged according to the mapping {@link RegisteredGraphs#mapAB}.
+	 *
 	 * and tags unmatched and flipped cells / branches.
 	 */
-	public static void tagCells( Model modelA, Model modelB, boolean modifyA, boolean modifyB )
+	public static void tagCells( RegisteredGraphs result, boolean modifyA, boolean modifyB )
 	{
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( modelA.getGraph(), modelB.getGraph() );
 		if ( modifyA )
-			tagSpotsA( modelA, result );
+			tagSpotsA( result );
 		if ( modifyB )
-			tagSpotsA( modelB, result.swapAB() );
+			tagSpotsA( result.swapAB() );
 	}
 
-	private static void tagSpotsA( Model modelA, RegisteredGraphs result )
+	private static void tagSpotsA( RegisteredGraphs result )
 	{
-		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( modelA, "lineage registration", Arrays.asList(
+		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( result.modelA, "lineage registration", Arrays.asList(
 				Pair.of( "not mapped", 0xff00ccff ),
 				Pair.of( "flipped", 0xffeeaa00 )
 		) );
-		tagUnmatchedSpots( modelA, result, tagSet, tagSet.getTags().get( 0 ) );
-		tagFlippedSpots( modelA, result, tagSet, tagSet.getTags().get( 1 ) );
+		tagUnmatchedSpotsInModelA( result, tagSet, tagSet.getTags().get( 0 ) );
+		tagFlippedSpotsInModelA( result, tagSet, tagSet.getTags().get( 1 ) );
 	}
 
-	private static void tagFlippedSpots( Model modelA, RegisteredGraphs result, TagSetStructure.TagSet tagSet, TagSetStructure.Tag tag )
+	private static void tagFlippedSpotsInModelA( RegisteredGraphs result, TagSetStructure.TagSet tagSet, TagSetStructure.Tag tag )
 	{
+		Model modelA = result.modelA;
 		ObjTagMap< Link, TagSetStructure.Tag > edgeTags = modelA.getTagSetModel().getEdgeTags().tags( tagSet );
 		Spot ref = modelA.getGraph().vertexRef();
 		try
@@ -176,8 +174,9 @@ public class LineageRegistrationUtils
 		}
 	}
 
-	private static void tagUnmatchedSpots( Model modelA, RegisteredGraphs result, TagSetStructure.TagSet tagSet, TagSetStructure.Tag tag )
+	private static void tagUnmatchedSpotsInModelA( RegisteredGraphs result, TagSetStructure.TagSet tagSet, TagSetStructure.Tag tag )
 	{
+		Model modelA = result.modelA;
 		ObjTagMap< Link, TagSetStructure.Tag > edgeTags = modelA.getTagSetModel().getEdgeTags().tags( tagSet );
 		for ( Spot spot : getUnmatchSpotsA( result ) )
 		{
@@ -193,8 +192,9 @@ public class LineageRegistrationUtils
 	}
 
 	/**
-	 * Returns the spots in graph A that need to be flipped in order for the
-	 * descendants of graph A to match the order of the descendants in graph B.
+	 * Returns the spots in {@link RegisteredGraphs#graphA} that need to be
+	 * flipped in order for the descendants of graph A to match the order
+	 * of the descendants in graph B.
 	 */
 	public static RefList< Spot > getSpotsToFlipA( RegisteredGraphs r )
 	{

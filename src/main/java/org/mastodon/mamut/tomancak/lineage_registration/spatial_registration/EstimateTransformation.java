@@ -1,4 +1,4 @@
-package org.mastodon.mamut.tomancak.lineage_registration;
+package org.mastodon.mamut.tomancak.lineage_registration.spatial_registration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ class EstimateTransformation
 			List< PointMatch > matches = new ArrayList<>( pairs.size() );
 			for ( Spot spotA : pairs.keySet() )
 			{
-				Spot spotB = pairs.get( spotA );
+				Spot spotB = pairs.get( spotA, refB );
 				Point pointA = new Point( spotA.positionAsDoubleArray() );
 				Point pointB = new Point( spotB.positionAsDoubleArray() );
 				matches.add( new PointMatch( pointA, pointB, 1 ) );
@@ -65,7 +65,7 @@ class EstimateTransformation
 		}
 	}
 
-	private static AffineTransform3D fitTransform( List< PointMatch > matches )
+	public static AffineTransform3D fitTransform( List< PointMatch > matches )
 	{
 		try
 		{

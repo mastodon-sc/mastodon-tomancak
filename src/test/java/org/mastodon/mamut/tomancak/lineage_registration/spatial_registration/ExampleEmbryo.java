@@ -1,39 +1,44 @@
-package org.mastodon.mamut.tomancak.lineage_registration;
+package org.mastodon.mamut.tomancak.lineage_registration.spatial_registration;
 
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 
 /**
- * Example data for testing {@link LineageRegistrationAlgorithm} and {@link LineageRegistrationUtils}.
+ * Holds a {@link Model} that is used in the {@link DynamicLandmarkRegistrationTest}.
+ * <p>
+ * The graph has 3 spot at timepoint 0: a, b, c. All three spots immediately
+ * divide into a1, a2, b1, b2, c1, c2. Only c2 divides further into c21 and
+ * c22.
  */
-class EmbryoA
+public class ExampleEmbryo
 {
 
 	final Model model = new Model();
 
 	final ModelGraph graph = model.getGraph();
 
-	final Spot a, aEnd, b, bEnd, c, a1, a2, b1, b2, c1, c2;
+	final Spot a, a1, a1End, a2, a2End, b, b1, b1End, b2, b2End, c, c1, c1End, c2, c2End, c21, c22;
 
-	EmbryoA()
+	ExampleEmbryo()
 	{
-		this( 0 );
-	}
-
-	EmbryoA( int startTime )
-	{
-		a = addSpot( graph, "A", startTime, 2, 2, 0 );
-		aEnd = addBranch( graph, a, 2 );
-		a1 = addSpot( graph, "A1", aEnd, 2, 1, 0 );
-		a2 = addSpot( graph, "A2", aEnd, 2, 3, 0 );
-		b = addSpot( graph, "B", startTime, 4, 2, 0 );
-		bEnd = addBranch( graph, b, 3 );
-		b1 = addSpot( graph, "B1", bEnd, 4, 1, 0 );
-		b2 = addSpot( graph, "B2", bEnd, 4, 3, 0 );
-		c = addSpot( graph, "C", startTime, 4, 4, 0 );
+		a = addSpot( graph, "A", 0, 2, 2, 0 );
+		a1 = addSpot( graph, "A1", a, 2, 1, 0 );
+		a1End = addBranch( graph, a1, 5 );
+		a2 = addSpot( graph, "A2", a, 2, 3, 0 );
+		a2End = addBranch( graph, a2, 5 );
+		b = addSpot( graph, "B", 0, 4, 2, 0 );
+		b1 = addSpot( graph, "B1", b, 4, 1, 0 );
+		b1End = addBranch( graph, b1, 5 );
+		b2 = addSpot( graph, "B2", b, 4, 3, 0 );
+		b2End = addBranch( graph, b2, 5 );
+		c = addSpot( graph, "C", 0, 4, 4, 0 );
 		c1 = addSpot( graph, "C1", c, 4, 4, 0 );
+		c1End = addBranch( graph, c1, 5 );
 		c2 = addSpot( graph, "C2", c, 4, 5, 0 );
+		c2End = addBranch( graph, c2, 4 );
+		c21 = addSpot( graph, "C21", c2End, 3, 5, 0 );
+		c22 = addSpot( graph, "C22", c2End, 5, 5, 0 );
 	}
 
 	// helper methods

@@ -8,9 +8,7 @@ import java.util.stream.Collectors;
 
 import org.mastodon.collection.RefCollection;
 import org.mastodon.collection.RefRefMap;
-import org.mastodon.graph.algorithm.traversal.DepthFirstSearch;
-import org.mastodon.graph.algorithm.traversal.GraphSearch;
-import org.mastodon.graph.algorithm.traversal.SearchListener;
+import org.mastodon.graph.algorithm.traversal.DepthFirstIterator;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
@@ -27,9 +25,11 @@ public class LineageColoring
 	 * The tags of matching roots node gets the same colors assigned.
 	 * Finally, the tag is applied to all the descendants of a root node.
 	 */
-	public static void tagLineages( Model embryoA, Model embryoB )
+	public static void tagLineages( Model embryoA, int firstTimepointA, Model embryoB, int firstTimepointB )
 	{
-		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots( embryoA.getGraph(), embryoB.getGraph() );
+		RefRefMap< Spot, Spot > roots = RootsPairing.pairDividingRoots(
+				embryoA.getGraph(), firstTimepointA,
+				embryoB.getGraph(), firstTimepointB );
 		List< String > labels = roots.keySet().stream().map( Spot::getLabel ).sorted().collect( Collectors.toList() );
 		Map< String, Integer > colorMap = createColorMap( labels );
 		tagLineages( colorMap, roots.keySet(), embryoA );
@@ -48,38 +48,14 @@ public class LineageColoring
 	{
 		ObjTagMap< Spot, TagSetStructure.Tag > spotTags = model.getTagSetModel().getVertexTags().tags( tagSet );
 		ObjTagMap< Link, TagSetStructure.Tag > edgeTags = model.getTagSetModel().getEdgeTags().tags( tagSet );
-
-		SearchListener< Spot, Link, DepthFirstSearch< Spot, Link > > searchListener =
-				new SearchListener< Spot, Link, DepthFirstSearch< Spot, Link > >()
-				{
-					@Override
-					public void processVertexLate( Spot spot, DepthFirstSearch< Spot, Link > search )
-					{
-						// do nothing
-					}
-
-					@Override
-					public void processVertexEarly( Spot spot, DepthFirstSearch< Spot, Link > spotLinkDepthFirstSearch )
-					{
-						spotTags.set( spot, tag );
-					}
-
-					@Override
-					public void processEdge( Link link, Spot spot, Spot v1, DepthFirstSearch< Spot, Link > spotLinkDepthFirstSearch )
-					{
-						edgeTags.set( link, tag );
-					}
-
-					@Override
-					public void crossComponent( Spot spot, Spot v1, DepthFirstSearch< Spot, Link > spotLinkDepthFirstSearch )
-					{
-						// do nothing
-					}
-				};
-
-		DepthFirstSearch< Spot, Link > search = new DepthFirstSearch<>( model.getGraph(), GraphSearch.SearchDirection.DIRECTED );
-		search.setTraversalListener( searchListener );
-		search.start( root );
+		DepthFirstIterator< Spot, Link > iterator = new DepthFirstIterator<>( root, model.getGraph() );
+		while ( iterator.hasNext() )
+		{
+			Spot spot = iterator.next();
+			spotTags.set( spot, tag );
+			for ( Link edge : spot.outgoingEdges() )
+				edgeTags.set( edge, tag );
+		}
 	}
 
 	/**

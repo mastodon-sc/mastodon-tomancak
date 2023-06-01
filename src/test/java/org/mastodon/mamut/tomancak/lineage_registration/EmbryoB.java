@@ -12,8 +12,19 @@ import org.mastodon.mamut.model.Spot;
  */
 class EmbryoB extends EmbryoA
 {
+
+	public final AffineTransform3D transform;
+
 	EmbryoB()
 	{
+		this( 0 );
+	}
+
+	EmbryoB( int startTime )
+	{
+		super( startTime );
+		transform = new AffineTransform3D();
+		transform.rotate( 0, Math.PI / 2 );
 		transformSpotPositions();
 		flipB1andB2Positions();
 	}
@@ -21,8 +32,6 @@ class EmbryoB extends EmbryoA
 	private void transformSpotPositions()
 	{
 		// transform spot positions: rotate 90 degrees around x-axis
-		AffineTransform3D transform = new AffineTransform3D();
-		transform.rotate( 0, Math.PI / 2 );
 		for ( Spot spot : graph.vertices() )
 			transform.apply( spot, spot );
 	}
