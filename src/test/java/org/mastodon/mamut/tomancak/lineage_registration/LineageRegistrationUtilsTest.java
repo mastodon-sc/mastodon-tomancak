@@ -49,7 +49,7 @@ public class LineageRegistrationUtilsTest
 		assertEquals( embryoB.a1, firstChild( embryoB.graph, embryoB.a ) );
 		assertEquals( embryoB.b1, firstChild( embryoB.graph, embryoB.b ) );
 		assertEquals( embryoB.c1, firstChild( embryoB.graph, embryoB.c ) );
-		LineageRegistrationUtils.sortSecondTrackSchemeToMatch( embryoA.model, embryoB.model, registration );
+		LineageRegistrationUtils.sortSecondTrackSchemeToMatch( registration );
 		assertEquals( embryoB.a1, firstChild( embryoB.graph, embryoB.a ) );
 		assertEquals( embryoB.c1, firstChild( embryoB.graph, embryoB.c ) );
 		assertEquals( embryoB.b2, firstChild( embryoB.graph, embryoB.b ) );
@@ -58,7 +58,7 @@ public class LineageRegistrationUtilsTest
 	@Test
 	public void testTagCells()
 	{
-		LineageRegistrationUtils.tagCells( embryoA.model, embryoB.model, registration, true, true );
+		LineageRegistrationUtils.tagCells( registration, true, true );
 		assertEquals( Collections.emptySet(), getTaggedSpots( embryoA.model, "lineage registration", "not mapped" ) );
 		assertEquals( set( "B1", "B2" ), getTaggedSpots( embryoA.model, "lineage registration", "flipped" ) );
 		assertEquals( Collections.emptySet(), getTaggedSpots( embryoB.model, "lineage registration", "not mapped" ) );
@@ -81,7 +81,7 @@ public class LineageRegistrationUtilsTest
 		TagSetUtils.tagBranch( embryoA.model, tagSet, bar, embryoA.b1 );
 		embryoA.model.getTagSetModel().getEdgeTags().set( embryoA.model.getGraph().getEdge( embryoA.bEnd, embryoA.b1 ), bar );
 		// process
-		LineageRegistrationUtils.copyTagSetToSecond( embryoA.model, embryoB.model, registration, tagSet, "test" );
+		LineageRegistrationUtils.copyTagSetToSecondModel( registration, tagSet, "test" );
 		// test: tag set for embryoB
 		assertEquals( set( "A", "A~1", "A1", "A2" ), getTaggedSpots( embryoB.model, "test", "foo" ) );
 		assertEquals( set( "B2" ), getTaggedSpots( embryoB.model, "test", "bar" ) );

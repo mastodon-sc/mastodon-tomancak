@@ -1,9 +1,12 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
 
+import javax.annotation.Nullable;
+
 import org.mastodon.RefPool;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.ref.RefRefHashMap;
+import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.InverseSpatialRegistration;
@@ -19,6 +22,9 @@ import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.Spa
  */
 public class RegisteredGraphs
 {
+	public final Model modelA;
+
+	public final Model modelB;
 
 	public final ModelGraph graphA;
 
@@ -40,24 +46,23 @@ public class RegisteredGraphs
 	 */
 	public final RefRefMap< Spot, Spot > mapBA;
 
-	public RegisteredGraphs( ModelGraph graphA, ModelGraph graphB, SpatialRegistration spatialRegistration, RefRefMap< Spot, Spot > mapAB )
+	public RegisteredGraphs( Model modelA, Model modelB, SpatialRegistration spatialRegistration, RefRefMap< Spot, Spot > mapAB )
 	{
-		this.spatialRegistration = spatialRegistration;
-		this.graphA = graphA;
-		this.graphB = graphB;
-		this.mapAB = mapAB;
-		this.mapBA = invertRefRefMap( mapAB, graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
+		this( modelA, modelB, spatialRegistration, mapAB, null );
 	}
 
-	private RegisteredGraphs( ModelGraph graphA, ModelGraph graphB,
+	private RegisteredGraphs( Model modelA, Model modelB,
 			SpatialRegistration spatialRegistration,
-			RefRefMap< Spot, Spot > mapAB, RefRefMap< Spot, Spot > mapBA )
+			RefRefMap< Spot, Spot > mapAB,
+			@Nullable RefRefMap< Spot, Spot > mapBA )
 	{
 		this.spatialRegistration = spatialRegistration;
-		this.graphA = graphA;
-		this.graphB = graphB;
+		this.modelA = modelA;
+		this.modelB = modelB;
+		this.graphA = modelA.getGraph();
+		this.graphB = modelB.getGraph();
 		this.mapAB = mapAB;
-		this.mapBA = mapBA;
+		this.mapBA = mapBA != null ? mapAB : invertRefRefMap( mapAB, graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
 	}
 
 	private static < K, V > RefRefMap< V, K > invertRefRefMap( RefRefMap< K, V > map, RefPool< K > keysPool, RefPool< V > valuesPool )
@@ -72,7 +77,7 @@ public class RegisteredGraphs
 	 */
 	public RegisteredGraphs swapAB()
 	{
-		return new RegisteredGraphs( this.graphB, this.graphA, new InverseSpatialRegistration( this.spatialRegistration ), this.mapBA,
+		return new RegisteredGraphs( this.modelB, this.modelA, new InverseSpatialRegistration( this.spatialRegistration ), this.mapBA,
 				this.mapAB );
 	}
 }

@@ -96,7 +96,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 				dialog.log( "Sort the order of the child cells in the TrackScheme of project \"%s\".", project1.getName() );
 				dialog.log( "Use project \"%s\" as reference...", project2.getName() );
 				RegisteredGraphs registration = runRegistrationAlgorithm( project1, project2 );
-				LineageRegistrationUtils.sortSecondTrackSchemeToMatch( project1.getModel(), project2.getModel(), registration );
+				LineageRegistrationUtils.sortSecondTrackSchemeToMatch( registration );
 				project2.getAppModel().getBranchGraphSync().sync();
 				project2.getModel().setUndoPoint();
 				dialog.log( "done." );
@@ -161,7 +161,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 						tagSet.getName(), fromProject.getName(), toProject.getName() );
 				String newTagSetName = tagSet.getName() + " (" + fromProject.getName() + ")";
 				RegisteredGraphs registration = runRegistrationAlgorithm( fromProject, toProject );
-				LineageRegistrationUtils.copyTagSetToSecond( fromModel, toModel, registration, tagSet, newTagSetName );
+				LineageRegistrationUtils.copyTagSetToSecondModel( registration, tagSet, newTagSetName );
 				toModel.setUndoPoint();
 				dialog.log( "done." );
 			} );
@@ -196,13 +196,11 @@ public class LineageRegistrationControlService extends AbstractService implement
 				if ( modifyB )
 					dialog.log( "Create tag set \"lineage registration\" in project \"%s\"...", projectB.getName() );
 				RegisteredGraphs registration = runRegistrationAlgorithm( projectA, projectB );
-				Model modelA = projectA.getModel();
-				Model modelB = projectB.getModel();
-				LineageRegistrationUtils.tagCells( modelA, modelB, registration, modifyA, modifyB );
+				LineageRegistrationUtils.tagCells( registration, modifyA, modifyB );
 				if ( modifyA )
-					modelA.setUndoPoint();
+					projectA.getModel().setUndoPoint();
 				if ( modifyB )
-					modelB.setUndoPoint();
+					projectB.getModel().setUndoPoint();
 				dialog.log( "done." );
 			} );
 		}

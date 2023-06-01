@@ -55,7 +55,7 @@ public class LineageRegistrationAlgorithm
 					RootsPairing.pairDividingRoots( modelA.getGraph(), firstTimepointA, modelB.getGraph(), firstTimepointB );
 			SpatialRegistrationFactory algorithm = SpatialRegistrationMethod.getFactory( spatialRegistrationMethod );
 			SpatialRegistration spatialRegistration = algorithm.run( modelA, modelB, roots );
-			return run( modelA.getGraph(), modelB.getGraph(), roots, spatialRegistration );
+			return run( modelA, modelB, roots, spatialRegistration );
 		}
 		catch ( NotEnoughPairedRootsException e )
 		{
@@ -79,13 +79,13 @@ public class LineageRegistrationAlgorithm
 		return new NotEnoughPairedRootsException( message );
 	}
 
-	public static RegisteredGraphs run( ModelGraph graphA, ModelGraph graphB,
+	public static RegisteredGraphs run( Model modelA, Model modelB,
 			RefRefMap< Spot, Spot > roots, SpatialRegistration spatialRegistration )
 	{
 		RefRefMap< Spot, Spot > mapping = new LineageRegistrationAlgorithm(
-				graphA, graphB,
+				modelA.getGraph(), modelB.getGraph(),
 				roots, spatialRegistration ).getMapping();
-		return new RegisteredGraphs( graphA, graphB, spatialRegistration, mapping );
+		return new RegisteredGraphs( modelA, modelB, spatialRegistration, mapping );
 	}
 
 	private LineageRegistrationAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,
