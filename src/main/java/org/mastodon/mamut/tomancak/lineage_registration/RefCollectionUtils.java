@@ -11,6 +11,10 @@ import org.mastodon.collection.RefSet;
 public class RefCollectionUtils
 {
 
+	/**
+	 * Returns a new {@link RefSet} containing all elements of the given
+	 * {@link RefCollection} that satisfy the given {@link Predicate}.
+	 */
 	public static < T > RefSet< T > filterSet( RefCollection< T > values, Predicate< T > predicate )
 	{
 		RefSet< T > filtered = RefCollections.createRefSet( values );
@@ -20,6 +24,11 @@ public class RefCollectionUtils
 		return filtered;
 	}
 
+	/**
+	 * Applies the given {@code function} to all elements of the given
+	 * {@link RefCollection} and returns a new {@link RefSet} containing the
+	 * results.
+	 */
 	public static < T > RefSet< T > applySet( RefCollection< T > values, UnaryOperator< T > function )
 	{
 		RefSet< T > filtered = RefCollections.createRefSet( values );
@@ -28,11 +37,22 @@ public class RefCollectionUtils
 		return filtered;
 	}
 
+	/**
+	 * Extracts the {@link RefPool} from a given {@link RefCollection}.
+	 * <p>
+	 * Similar to {@link RefCollections#tryGetRefPool(RefCollection)}
+	 * but throws an exception instead of returning "null" in case of
+	 * a failure.
+	 *
+	 * @see RefCollections#tryGetRefPool(RefCollection)
+	 * @throws IllegalArgumentException if that fails.
+	 */
 	public static < T > RefPool< T > getRefPool( RefCollection< T > collection )
 	{
 		RefPool< T > pool = RefCollections.tryGetRefPool( collection );
 		if ( pool == null )
-			throw new IllegalArgumentException( "Could not get RefPool from the given RefSet." );
+			throw new IllegalArgumentException( "Could not get RefPool from the given RefCollection. Collection class: "
+					+ collection.getClass() );
 		return pool;
 	}
 }
