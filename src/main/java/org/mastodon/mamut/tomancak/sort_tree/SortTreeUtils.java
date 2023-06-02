@@ -29,6 +29,8 @@
 package org.mastodon.mamut.tomancak.sort_tree;
 
 import net.imglib2.RealLocalizable;
+import net.imglib2.util.LinAlgHelpers;
+
 import org.mastodon.graph.ref.OutgoingEdges;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.ModelGraph;
@@ -271,5 +273,16 @@ public class SortTreeUtils
 		for(Spot spot : graph.vertices())
 			max = Math.max( max, spot.getTimepoint() );
 		return max + 1;
+	}
+
+	public static double angle( double[] directionA, double[] directionB )
+	{
+		double cos = scalarProduct( directionA, directionB ) / LinAlgHelpers.length( directionA ) / LinAlgHelpers.length( directionB );
+		return Math.acos( cos );
+	}
+
+	public static double angleInDegree( double[] directionA, double[] directionB )
+	{
+		return angle( directionA, directionB ) * 180 / Math.PI;
 	}
 }
