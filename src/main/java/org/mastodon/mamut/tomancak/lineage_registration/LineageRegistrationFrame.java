@@ -66,8 +66,12 @@ public class LineageRegistrationFrame extends JFrame
 			+ "Tags on individual spot are therefor not copied."
 			+ "</body></html>";
 
-	private static final String ANGLES_TOOLTIP = "<html><body>"
-			+ "Store the angles between cell division directions<br>"
+	private static final String PLOT_ANGLES_TOOLTIP = "<html><body>"
+			+ "Show a plot of angles between paired cell division over time.<br>"
+			+ "</body></html>";
+
+	private static final String ANGLES_FEATURE_TOOLTIP = "<html><body>"
+			+ "Stores the angles between cell division directions<br>"
 			+ "as a feature in both projects.<br>"
 			+ "</body></html>";
 
@@ -147,7 +151,8 @@ public class LineageRegistrationFrame extends JFrame
 		add( newOperationButton( "from A to B ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetAtoB ), "split 2" );
 		add( newOperationButton( "from B to A ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetBtoA ), "wrap" );
 		add( new JLabel( "Angles between cell division directions:") );
-		add( newOperationButton( "plot angles", ANGLES_TOOLTIP, listener::onPlotAnglesClicked ), "wrap" );
+		add( newOperationButton( "plot angles", PLOT_ANGLES_TOOLTIP, listener::onPlotAnglesClicked ), "split 2" );
+		add( newOperationButton( "add angles to table", ANGLES_FEATURE_TOOLTIP, listener::onAddAnglesFeatureClicked ), "wrap" );
 		add( new JLabel( "Others:" ), "gaptop unrelated" );
 		add( newOperationButton( "color paired lineages", TAG_LINEAGES_TOOLTIP, listener::onColorLineagesClicked ), "wrap" );
 		add( new JLabel( "Couple projects:" ), "gaptop unrelated" );
@@ -384,6 +389,8 @@ public class LineageRegistrationFrame extends JFrame
 		void onSyncGroupClicked( int i );
 
 		void onPlotAnglesClicked();
+
+		void onAddAnglesFeatureClicked();
 	}
 
 	private static class DummyListener implements Listener
@@ -451,6 +458,12 @@ public class LineageRegistrationFrame extends JFrame
 
 		@Override
 		public void onPlotAnglesClicked()
+		{
+
+		}
+
+		@Override
+		public void onAddAnglesFeatureClicked()
 		{
 
 		}
