@@ -9,11 +9,6 @@ import javax.swing.JOptionPane;
 
 import net.imagej.ImageJService;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartFrame;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.mastodon.collection.RefDoubleMap;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.model.Model;
@@ -246,7 +241,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 			SelectedProject projectB = dialog.getProjectB();
 			RegisteredGraphs registeredGraphs = runRegistrationAlgorithm( projectA, projectB );
 			RefDoubleMap< Spot > anglesA = registeredGraphs.anglesA;
-			plotAngleAgainstTimepoint( anglesA );
+			LineageRegistrationUtils.plotAngleAgainstTimepoint( anglesA );
 		}
 
 		@Override
@@ -259,25 +254,6 @@ public class LineageRegistrationControlService extends AbstractService implement
 			CellDivisionAngleFeature.declare( registeredGraphs.modelB, registeredGraphs.anglesB );
 		}
 
-		private void plotAngleAgainstTimepoint( RefDoubleMap< Spot > anglesA )
-		{
-			final XYSeriesCollection dataset = new XYSeriesCollection();
-			final XYSeries series = new XYSeries( "Angles" );
-			Spot ref = anglesA.keySet().iterator().next();
-			for ( Spot spot : anglesA.keySet() )
-			{
-				final double angle = anglesA.get( spot );
-				series.add( BranchGraphUtils.getBranchEnd( spot, ref ).getTimepoint(), angle );
-			}
-			dataset.addSeries( series );
-			final JFreeChart chart = ChartFactory.createScatterPlot(
-					"Angles between cell division directions", "timepoint", "angle", dataset);
-			chart.getXYPlot().getRangeAxis().setRange( 0, 180 );
-
-			final ChartFrame frame = new ChartFrame( "Angles between cell division directions", chart );
-			frame.pack();
-			frame.setVisible( true );
-		}
 	}
 
 	private RegisteredGraphs runRegistrationAlgorithm( SelectedProject projectA, SelectedProject projectB )

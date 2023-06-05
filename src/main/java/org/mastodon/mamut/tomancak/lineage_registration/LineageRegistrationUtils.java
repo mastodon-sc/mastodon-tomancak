@@ -9,6 +9,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.mastodon.collection.RefDoubleMap;
 import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefSet;
 import org.mastodon.collection.ref.RefArrayList;
@@ -261,4 +267,26 @@ public class LineageRegistrationUtils
 		return branchStarts;
 	}
 
+	/**
+	 * Shows a plot: cell division angles vs. cell division timepoint.
+	 */
+	public static void plotAngleAgainstTimepoint( RefDoubleMap< Spot > angles )
+	{
+		final XYSeriesCollection dataset = new XYSeriesCollection();
+		final XYSeries series = new XYSeries( "Angles" );
+		Spot ref = angles.keySet().iterator().next();
+		for ( Spot spot : angles.keySet() )
+		{
+			final double angle = angles.get( spot );
+			series.add( BranchGraphUtils.getBranchEnd( spot, ref ).getTimepoint(), angle );
+		}
+		dataset.addSeries( series );
+		String title = "Angles between paired cell division directions";
+		final JFreeChart chart = ChartFactory.createScatterPlot( title, "timepoint", "angle", dataset );
+		chart.getXYPlot().getRangeAxis().setRange( 0, 180 );
+
+		final ChartFrame frame = new ChartFrame( title, chart );
+		frame.pack();
+		frame.setVisible( true );
+	}
 }
