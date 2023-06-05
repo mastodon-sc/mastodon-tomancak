@@ -1,20 +1,64 @@
 package org.mastodon.mamut.tomancak.lineage_registration.angle_feature;
 
+import java.util.Iterator;
+
 import org.mastodon.collection.RefDoubleMap;
 import org.mastodon.feature.Dimension;
+import org.mastodon.feature.DoubleScalarFeature;
+import org.mastodon.feature.Feature;
 import org.mastodon.feature.FeatureProjectionSpec;
 import org.mastodon.feature.FeatureSpec;
 import org.mastodon.feature.Multiplicity;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.model.branch.BranchSpot;
+import org.mastodon.mamut.model.branch.ModelBranchGraph;
+import org.mastodon.properties.DoublePropertyMap;
 import org.scijava.plugin.Plugin;
 
-public class CellDivisionAngleFeature extends BranchScalarFeature< BranchSpot, Spot >
+public class CellDivisionAngleFeature extends DoubleScalarFeature< Spot >
 {
 
+	private static final String KEY = "Angle between paired cell divisions";
+
+	public static final String INFO_STRING = "Result of the lineage registration algorithm: angle between paired cell division directions.";
+
+	public static final FeatureProjectionSpec PROJECTION_SPEC =
+			new FeatureProjectionSpec( KEY, Dimension.ANGLE );
+
+	public static final Spec SPEC = new Spec();
+
+	/**
+	 * Adds a {@link CellDivisionAngleFeature} to the {@code model.getFeatureModel()}.
+	 *
+	 * @param model The {@link Model} to which the feature is added.
+	 * @param angles The values that will be stored in the feature.
+	 *               This {@link RefDoubleMap} is expected to only contain values
+	 *               for the first spot of each branch. This value is copied to all
+	 *               other spots of the branch.
+	 */
+	public static void declare( Model model, RefDoubleMap< Spot > angles )
+	{
+		DoublePropertyMap< Spot > spotAngles = new DoublePropertyMap<>( model.getGraph().vertices().getRefPool(), Double.NaN );
+		ModelBranchGraph branchGraph = model.getBranchGraph();
+		BranchSpot ref = branchGraph.vertexRef();
+		for ( Spot spot : angles.keySet() )
+		{
+			double angle = angles.get( spot );
+			BranchSpot branchSpot = branchGraph.getBranchVertex( spot, ref );
+			Iterator< Spot > iterator = branchGraph.vertexBranchIterator( branchSpot );
+			while ( iterator.hasNext() )
+				spotAngles.set( iterator.next(), angle );
+			branchGraph.releaseIterator( iterator );
+		}
+		branchGraph.releaseRef( ref );
+
+		CellDivisionAngleFeature feature = new CellDivisionAngleFeature( spotAngles );
+		model.getFeatureModel().declareFeature( feature );
+	}
+
 	@Plugin( type = FeatureSpec.class )
-	public static class Spec extends FeatureSpec< CellDivisionAngleFeature, BranchSpot >
+	public static class Spec extends FeatureSpec< CellDivisionAngleFeature, Spot >
 	{
 		public Spec()
 		{
@@ -22,32 +66,20 @@ public class CellDivisionAngleFeature extends BranchScalarFeature< BranchSpot, S
 					KEY,
 					INFO_STRING,
 					CellDivisionAngleFeature.class,
-					BranchSpot.class,
+					Spot.class,
 					Multiplicity.SINGLE,
 					PROJECTION_SPEC );
 		}
 	}
 
-	public static final String INFO_STRING = "Result of the lineage registration algorithm: angle between paired cell division directions.";
-
-	private static final String KEY = "Angle between paired cell divisions";
-
-	private static final Dimension DIMENSION = Dimension.ANGLE;
-
-	public static final FeatureProjectionSpec PROJECTION_SPEC =
-			new FeatureProjectionSpec( KEY, DIMENSION );
-
-	private static final Spec specs = new Spec();
-
-	public CellDivisionAngleFeature( final Model model )
+	public CellDivisionAngleFeature( DoublePropertyMap< Spot > angles )
 	{
-		super( KEY, DIMENSION, DIMENSION.getUnits( model.getSpaceUnits(), model.getTimeUnits() ),
-				model.getBranchGraph(), model.getGraph().vertices().getRefPool() );
+		super( KEY, Dimension.ANGLE, "degree", angles);
 	}
 
 	@Override
-	public Spec getSpec()
+	public FeatureSpec< ? extends Feature< Spot >, Spot > getSpec()
 	{
-		return specs;
+		return SPEC;
 	}
 }

@@ -18,8 +18,6 @@ import org.mastodon.collection.RefDoubleMap;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.model.branch.BranchSpot;
-import org.mastodon.mamut.model.branch.ModelBranchGraph;
 import org.mastodon.mamut.tomancak.lineage_registration.angle_feature.CellDivisionAngleFeature;
 import org.mastodon.mamut.tomancak.lineage_registration.coupling.ModelCoupling;
 import org.mastodon.model.tag.TagSetStructure;
@@ -257,23 +255,8 @@ public class LineageRegistrationControlService extends AbstractService implement
 			SelectedProject projectA = dialog.getProjectA();
 			SelectedProject projectB = dialog.getProjectB();
 			RegisteredGraphs registeredGraphs = runRegistrationAlgorithm( projectA, projectB );
-			declareAnglesFeature( registeredGraphs.anglesA, projectA.getModel() );
-			declareAnglesFeature( registeredGraphs.anglesB, projectB.getModel() );
-		}
-
-		private void declareAnglesFeature( RefDoubleMap< Spot > anglesA, Model model )
-		{
-			CellDivisionAngleFeature feature = new CellDivisionAngleFeature( model );
-			ModelBranchGraph branchGraph = model.getBranchGraph();
-			BranchSpot ref = branchGraph.vertexRef();
-			for ( Spot spot : anglesA.keySet() )
-			{
-				BranchSpot branchSpot = branchGraph.getBranchVertex( spot, ref );
-				double angle = anglesA.get( spot );
-				feature.set( branchSpot, angle );
-			}
-			branchGraph.releaseRef( ref );
-			model.getFeatureModel().declareFeature( feature );
+			CellDivisionAngleFeature.declare( registeredGraphs.modelA, registeredGraphs.anglesA );
+			CellDivisionAngleFeature.declare( registeredGraphs.modelB, registeredGraphs.anglesB );
 		}
 
 		private void plotAngleAgainstTimepoint( RefDoubleMap< Spot > anglesA )
