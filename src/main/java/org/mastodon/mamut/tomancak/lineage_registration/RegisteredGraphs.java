@@ -1,8 +1,5 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
-
-import javax.annotation.Nullable;
-
 import org.mastodon.RefPool;
 import org.mastodon.collection.RefDoubleMap;
 import org.mastodon.collection.RefRefMap;
@@ -51,15 +48,17 @@ public class RegisteredGraphs
 
 	public RegisteredGraphs( Model modelA, Model modelB, SpatialRegistration spatialRegistration, RefRefMap< Spot, Spot > mapAB, RefDoubleMap< Spot > anglesA )
 	{
-		this( modelA, modelB, spatialRegistration, mapAB, null, anglesA, null );
+		this( modelA, modelB, spatialRegistration,
+				mapAB, invertRefRefMap( mapAB, spotRefPool( modelA ), spotRefPool( modelB ) ),
+				anglesA, computeAnglesB( mapAB, anglesA, spotRefPool( modelB ) ) );
 	}
 
 	private RegisteredGraphs( Model modelA, Model modelB,
 			SpatialRegistration spatialRegistration,
 			RefRefMap< Spot, Spot > mapAB,
-			@Nullable RefRefMap< Spot, Spot > mapBA,
+			RefRefMap< Spot, Spot > mapBA,
 			RefDoubleMap< Spot > anglesA,
-			@Nullable RefDoubleMap< Spot > anglesB )
+			RefDoubleMap< Spot > anglesB )
 	{
 		this.spatialRegistration = spatialRegistration;
 		this.modelA = modelA;
@@ -67,16 +66,9 @@ public class RegisteredGraphs
 		this.graphA = modelA.getGraph();
 		this.graphB = modelB.getGraph();
 		this.mapAB = mapAB;
-		this.mapBA = mapBA != null ? mapAB : invertRefRefMap( mapAB, graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
+		this.mapBA = mapBA;
 		this.anglesA = anglesA;
-		this.anglesB = anglesB != null ? anglesB : concatMaps( this.mapBA, anglesA );
-	}
-
-	private static < K, V > RefRefMap< V, K > invertRefRefMap( RefRefMap< K, V > map, RefPool< K > keysPool, RefPool< V > valuesPool )
-	{
-		RefRefMap< V, K > inverted = new RefRefHashMap<>( valuesPool, keysPool );
-		RefMapUtils.forEach( map, ( k, v ) -> inverted.put( v, k ) );
-		return inverted;
+		this.anglesB = anglesB;
 	}
 
 	/**
@@ -88,10 +80,34 @@ public class RegisteredGraphs
 				this.mapAB, this.anglesB, this.anglesA );
 	}
 
-	private RefDoubleMap< Spot > concatMaps( RefRefMap< Spot, Spot > mapBA, RefDoubleMap< Spot > anglesA )
+	private static < K, V > RefRefMap< V, K > invertRefRefMap( RefRefMap< K, V > map, RefPool< K > keysPool, RefPool< V > valuesPool )
 	{
-		final RefDoubleMap< Spot > anglesB = new RefDoubleHashMap<>( graphB.vertices().getRefPool(), Double.NaN );
-		RefMapUtils.forEach( mapBA, ( spotB, spotA ) -> anglesB.put( spotB, anglesA.get( spotA ) ) );
-		return anglesB;
+		RefRefMap< V, K > inverted = new RefRefHashMap<>( valuesPool, keysPool );
+		RefMapUtils.forEach( map, ( k, v ) -> inverted.put( v, k ) );
+		return inverted;
+	}
+
+	private static RefDoubleMap< Spot > computeAnglesB( RefRefMap< Spot, Spot > mapAB, RefDoubleMap< Spot > anglesA, RefPool< Spot > refPoolB )
+	{
+		final Spot refB = refPoolB.createRef();
+		try
+		{
+			final RefDoubleMap< Spot > anglesB = new RefDoubleHashMap<>( refPoolB, Double.NaN );
+			for ( Spot spotA : anglesA.keySet() )
+			{
+				final Spot spotB = mapAB.get( spotA, refB );
+				anglesB.put( spotB, anglesA.get( spotA ) );
+			}
+			return anglesB;
+		}
+		finally
+		{
+			refPoolB.releaseRef( refB );
+		}
+	}
+
+	private static RefPool< Spot > spotRefPool( Model model )
+	{
+		return model.getGraph().vertices().getRefPool();
 	}
 }
