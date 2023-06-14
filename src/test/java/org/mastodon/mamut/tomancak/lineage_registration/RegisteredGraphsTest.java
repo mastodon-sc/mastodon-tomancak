@@ -35,6 +35,8 @@ public class RegisteredGraphsTest
 
 	private RefDoubleMap< Spot > anglesA;
 
+	private SpatialRegistration spatialRegistration;
+
 	private RegisteredGraphs registeredGraphs;
 
 	@Before
@@ -50,13 +52,25 @@ public class RegisteredGraphsTest
 		mapAB.put( spotA2, spotB2 );
 		anglesA = new RefDoubleHashMap<>( modelA.getGraph().vertices().getRefPool(), Double.NaN );
 		anglesA.put( spotA1, 30 );
-		SpatialRegistration spatialRegistration = ( timepointA, timepointB ) -> new AffineTransform3D();
+		spatialRegistration = ( timepointA, timepointB ) -> new AffineTransform3D();
 		registeredGraphs = new RegisteredGraphs( modelA, modelB, spatialRegistration, mapAB, anglesA );
 	}
 
 	private static Spot addSpot( Model modelA )
 	{
 		return modelA.getGraph().addVertex().init( 0, new double[] { 0, 0, 0 }, 1 );
+	}
+
+	@Test
+	public void testSimpleFields()
+	{
+		assertSame( modelA, registeredGraphs.modelA );
+		assertSame( modelB, registeredGraphs.modelB );
+		assertSame( modelA.getGraph(), registeredGraphs.graphA );
+		assertSame( modelB.getGraph(), registeredGraphs.graphB );
+		assertSame( mapAB, registeredGraphs.mapAB );
+		assertSame( anglesA, registeredGraphs.anglesA );
+		assertSame( spatialRegistration, registeredGraphs.spatialRegistration );
 	}
 
 	@Test
