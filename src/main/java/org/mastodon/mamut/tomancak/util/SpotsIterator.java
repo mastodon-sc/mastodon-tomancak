@@ -160,6 +160,73 @@ public class SpotsIterator
 	}
 
 
+	/** traverses earlier (smaller time point) direct ancestors
+	 *  of the given spot until it reaches a branching point, and
+	 *  not further away that given, while not getting further away
+	 *  than specified */
+	public
+	void findUpstreamSpot(final Spot srcSpot, final Spot tgtSpot,
+	                      final int maxTimeTravel)
+	{
+		//TODO: throw exceptions...
+		if (srcSpot == null || tgtSpot == null) return;
+		if (maxTimeTravel <= 0) return;
+
+		final Link lRef = modelGraph.edgeRef();
+		final Spot sRef = modelGraph.vertices().createRef();
+		final Spot prevSpotRef = modelGraph.vertices().createRef();
+		final Spot nextSpotRef = modelGraph.vertices().createRef();
+
+		prevSpotRef.refTo(srcSpot);
+		tgtSpot.refTo(srcSpot);
+		int time = tgtSpot.getTimepoint();
+		final int oldestTP = srcSpot.getTimepoint() - maxTimeTravel;
+
+		while (time > oldestTP) {
+			int predecessors = 0, successors = 0;
+			for (int n=0; n < tgtSpot.incomingEdges().size(); ++n)
+			{
+				tgtSpot.incomingEdges().get(n, lRef).getSource( sRef );
+				if (sRef.getTimepoint() < time && isEligible(sRef)) {
+					nextSpotRef.refTo(sRef);
+					predecessors++;
+				}
+				if (sRef.getTimepoint() > time && isEligible(sRef)) successors++;
+			}
+
+			for (int n=0; n < tgtSpot.outgoingEdges().size(); ++n)
+			{
+				tgtSpot.outgoingEdges().get(n, lRef).getTarget( sRef );
+				if (sRef.getTimepoint() < time && isEligible(sRef)) {
+					nextSpotRef.refTo(sRef);
+					predecessors++;
+				}
+				if (sRef.getTimepoint() > time && isEligible(sRef)) successors++;
+			}
+
+			if (successors > 1 && tgtSpot.getInternalPoolIndex() != srcSpot.getInternalPoolIndex()) {
+				//tgt is now one-beyond (and is not the starting dividing mother)
+				tgtSpot.refTo(prevSpotRef);
+				return;
+			}
+			if (predecessors != 1) {
+				//>1: tgt cannot choose which upstream way to continue, stopping now
+				//=0: tgt cannot continue, there's nowhere to move
+				return;
+			}
+			prevSpotRef.refTo(tgtSpot);
+			tgtSpot.refTo(nextSpotRef);
+			time = tgtSpot.getTimepoint();
+		}
+		//reached max distance with tgtSpot, nothing else to do as tgtSpot is already set
+
+		modelGraph.vertices().releaseRef(prevSpotRef);
+		modelGraph.vertices().releaseRef(nextSpotRef);
+		modelGraph.vertices().releaseRef(sRef);
+		modelGraph.releaseRef(lRef);
+	}
+
+
 	/** traverses future (higher time point) direct descendants
 	 *  of the given root spot */
 	public
