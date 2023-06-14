@@ -234,7 +234,7 @@ public class LineageRegistrationFrame extends JFrame
 				+ "<li>Both projects should show stereotypically developing embryos.</li>"
 				+ "<li>The first frames should show both the embryos at a similar developmental stage.</li>"
 				+ "<li>Root nodes must be labeled, and the labels should match between the two projects.</li>"
-				+ "<li>There needs to be at least three lineages with cell divisions,"
+				+ "<li>There needs to be at least three lineages with cell divisions, "
 				+ "that can be paired based on their names.</li>"
 				+ "</ul>"
 				+ "(Note: The plugin ignores lineages that have no cell divisions.)<br><br>"
