@@ -2,7 +2,9 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 
 import net.imglib2.realtransform.AffineTransform3D;
 
+import org.mastodon.collection.RefDoubleMap;
 import org.mastodon.collection.RefRefMap;
+import org.mastodon.collection.ref.RefDoubleHashMap;
 import org.mastodon.collection.ref.RefRefHashMap;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
@@ -34,6 +36,11 @@ public class LineageRegistrationAlgorithm
 	 * Map branch starting spots in graphA to branch starting spots in graphB.
 	 */
 	private final RefRefMap< Spot, Spot > mapAB;
+
+	/**
+	 * A map from branch starting spots in graphA to the angle between the paired cell division directions.
+	 */
+	private final RefDoubleMap< Spot > angles;
 
 	/**
 	 * Runs the lineage registration algorithm for to given graphs. The spots before
@@ -82,10 +89,15 @@ public class LineageRegistrationAlgorithm
 	public static RegisteredGraphs run( Model modelA, Model modelB,
 			RefRefMap< Spot, Spot > roots, SpatialRegistration spatialRegistration )
 	{
-		RefRefMap< Spot, Spot > mapping = new LineageRegistrationAlgorithm(
+		LineageRegistrationAlgorithm algorithm = new LineageRegistrationAlgorithm(
 				modelA.getGraph(), modelB.getGraph(),
-				roots, spatialRegistration ).getMapping();
-		return new RegisteredGraphs( modelA, modelB, spatialRegistration, mapping );
+				roots, spatialRegistration );
+		return new RegisteredGraphs( modelA, modelB, spatialRegistration, algorithm.getMapping(), algorithm.getAngles() );
+	}
+
+	private RefDoubleMap< Spot > getAngles()
+	{
+		return angles;
 	}
 
 	private LineageRegistrationAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,
@@ -95,6 +107,7 @@ public class LineageRegistrationAlgorithm
 		this.graphA = graphA;
 		this.graphB = graphB;
 		this.mapAB = new RefRefHashMap<>( graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
+		this.angles = new RefDoubleHashMap<>( graphA.vertices().getRefPool(), Double.NaN );
 		Spot refB = graphB.vertexRef();
 		try
 		{
@@ -128,7 +141,9 @@ public class LineageRegistrationAlgorithm
 			AffineTransform3D transformAB = noOffsetTransform( spatialRegistration.getTransformationAtoB(
 					dividingA.getTimepoint() + TIME_OFFSET, dividingB.getTimepoint() + TIME_OFFSET ) );
 			transformAB.apply( directionA, directionA );
-			boolean flip = SortTreeUtils.scalarProduct( directionA, directionB ) < 0;
+			double angle = SortTreeUtils.angleInDegree( directionA, directionB );
+			angles.put( rootA, angle );
+			boolean flip = angle > 90;
 			matchChildTree( dividingA, dividingB, 0, flip ? 1 : 0 );
 			matchChildTree( dividingA, dividingB, 1, flip ? 0 : 1 );
 		}

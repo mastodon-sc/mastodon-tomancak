@@ -9,8 +9,11 @@ import javax.swing.JOptionPane;
 
 import net.imagej.ImageJService;
 
+import org.mastodon.collection.RefDoubleMap;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.lineage_registration.angle_feature.CellDivisionAngleFeature;
 import org.mastodon.mamut.tomancak.lineage_registration.coupling.ModelCoupling;
 import org.mastodon.model.tag.TagSetStructure;
 import org.scijava.plugin.Plugin;
@@ -230,6 +233,27 @@ public class LineageRegistrationControlService extends AbstractService implement
 			dialog.log( "Synchronize navigate to spot actions between project A and project B. (sync. group %d)", i + 1 );
 			coupling = new ModelCoupling( projectA.getAppModel(), projectB.getAppModel(), r, i );
 		}
+
+		@Override
+		public void onPlotAnglesClicked()
+		{
+			SelectedProject projectA = dialog.getProjectA();
+			SelectedProject projectB = dialog.getProjectB();
+			RegisteredGraphs registeredGraphs = runRegistrationAlgorithm( projectA, projectB );
+			RefDoubleMap< Spot > anglesA = registeredGraphs.anglesA;
+			LineageRegistrationUtils.plotAngleAgainstTimepoint( anglesA );
+		}
+
+		@Override
+		public void onAddAnglesFeatureClicked()
+		{
+			SelectedProject projectA = dialog.getProjectA();
+			SelectedProject projectB = dialog.getProjectB();
+			RegisteredGraphs registeredGraphs = runRegistrationAlgorithm( projectA, projectB );
+			CellDivisionAngleFeature.declare( registeredGraphs.modelA, registeredGraphs.anglesA );
+			CellDivisionAngleFeature.declare( registeredGraphs.modelB, registeredGraphs.anglesB );
+		}
+
 	}
 
 	private RegisteredGraphs runRegistrationAlgorithm( SelectedProject projectA, SelectedProject projectB )

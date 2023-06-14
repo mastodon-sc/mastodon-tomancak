@@ -66,6 +66,15 @@ public class LineageRegistrationFrame extends JFrame
 			+ "Tags on individual spot are therefor not copied."
 			+ "</body></html>";
 
+	private static final String PLOT_ANGLES_TOOLTIP = "<html><body>"
+			+ "Show a plot of angles between paired cell division directions over time.<br>"
+			+ "</body></html>";
+
+	private static final String ANGLES_FEATURE_TOOLTIP = "<html><body>"
+			+ "Stores the angles between paired cell division directions<br>"
+			+ "as a feature in both projects.<br>"
+			+ "</body></html>";
+
 	private static final String TAG_LINEAGES_TOOLTIP = "<html><body>"
 			+ "Creates a new tag set \"lineages\" in both projects<br>"
 			+ "Lineages with the same root node label get a tag with the same color.<br>"
@@ -141,6 +150,9 @@ public class LineageRegistrationFrame extends JFrame
 		add( new JLabel( "Copy tag set:" ) );
 		add( newOperationButton( "from A to B ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetAtoB ), "split 2" );
 		add( newOperationButton( "from B to A ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetBtoA ), "wrap" );
+		add( new JLabel( "Cell division angles:") );
+		add( newOperationButton( "plot angles", PLOT_ANGLES_TOOLTIP, listener::onPlotAnglesClicked ), "split 2" );
+		add( newOperationButton( "add angles to table", ANGLES_FEATURE_TOOLTIP, listener::onAddAnglesFeatureClicked ), "wrap" );
 		add( new JLabel( "Others:" ), "gaptop unrelated" );
 		add( newOperationButton( "color paired lineages", TAG_LINEAGES_TOOLTIP, listener::onColorLineagesClicked ), "wrap" );
 		add( new JLabel( "Couple projects:" ), "gaptop unrelated" );
@@ -222,7 +234,7 @@ public class LineageRegistrationFrame extends JFrame
 				+ "<li>Both projects should show stereotypically developing embryos.</li>"
 				+ "<li>The first frames should show both the embryos at a similar developmental stage.</li>"
 				+ "<li>Root nodes must be labeled, and the labels should match between the two projects.</li>"
-				+ "<li>There needs to be at least three lineages with cell divisions,"
+				+ "<li>There needs to be at least three lineages with cell divisions, "
 				+ "that can be paired based on their names.</li>"
 				+ "</ul>"
 				+ "(Note: The plugin ignores lineages that have no cell divisions.)<br><br>"
@@ -375,6 +387,10 @@ public class LineageRegistrationFrame extends JFrame
 		void onTagProjectBClicked();
 
 		void onSyncGroupClicked( int i );
+
+		void onPlotAnglesClicked();
+
+		void onAddAnglesFeatureClicked();
 	}
 
 	private static class DummyListener implements Listener
@@ -436,6 +452,18 @@ public class LineageRegistrationFrame extends JFrame
 
 		@Override
 		public void onSyncGroupClicked( int i )
+		{
+
+		}
+
+		@Override
+		public void onPlotAnglesClicked()
+		{
+
+		}
+
+		@Override
+		public void onAddAnglesFeatureClicked()
 		{
 
 		}

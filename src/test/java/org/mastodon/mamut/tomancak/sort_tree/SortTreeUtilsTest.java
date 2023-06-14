@@ -112,6 +112,15 @@ public class SortTreeUtilsTest
 		assertArrayEquals( array(5,6,7), positions.get(6), 0.0 );
 	}
 
+	@Test
+	public void testAngleInDegree() {
+		double delta = 0.0001;
+		assertEquals( 0, SortTreeUtils.angleInDegree( array( 2, 0, 0 ), array( 3, 0, 0 ) ), delta );
+		assertEquals( 180, SortTreeUtils.angleInDegree( array( 2, 0, 0 ), array( -3, 0, 0 ) ), delta );
+		assertEquals( 90, SortTreeUtils.angleInDegree( array( 0, 1, 1 ), array( 0, -2, 2 ) ), delta );
+		assertEquals( 135, SortTreeUtils.angleInDegree( array( 1, 1, 0 ), array( - 0.5, 0, 0 ) ), delta );
+	}
+
 	private double[] array( double... values )
 	{
 		return values;
