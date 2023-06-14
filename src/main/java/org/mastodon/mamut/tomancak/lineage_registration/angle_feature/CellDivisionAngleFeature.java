@@ -19,7 +19,7 @@ import org.scijava.plugin.Plugin;
 public class CellDivisionAngleFeature extends DoubleScalarFeature< Spot >
 {
 
-	private static final String KEY = "Angle between paired cell divisions";
+	private static final String KEY = "Cell division angle";
 
 	public static final String INFO_STRING = "Result of the lineage registration algorithm: angle between paired cell division directions.";
 
