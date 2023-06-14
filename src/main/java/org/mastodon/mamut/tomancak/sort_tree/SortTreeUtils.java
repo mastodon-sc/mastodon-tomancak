@@ -275,12 +275,18 @@ public class SortTreeUtils
 		return max + 1;
 	}
 
+	/**
+	 * @return the angle between two vectors in radians.
+	 */
 	public static double angle( double[] directionA, double[] directionB )
 	{
 		double cos = scalarProduct( directionA, directionB ) / LinAlgHelpers.length( directionA ) / LinAlgHelpers.length( directionB );
 		return Math.acos( cos );
 	}
 
+	/**
+	 * @return the angle between two vectors in degrees.
+	 */
 	public static double angleInDegree( double[] directionA, double[] directionB )
 	{
 		return angle( directionA, directionB ) * 180 / Math.PI;
