@@ -32,13 +32,16 @@ import static org.mastodon.app.ui.ViewMenuBuilder.item;
 import static org.mastodon.app.ui.ViewMenuBuilder.menu;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.mastodon.app.ui.ViewMenuBuilder;
 import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.mamut.project.MamutProject;
@@ -51,11 +54,13 @@ import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
 import org.mastodon.mamut.tomancak.merging.MergingDialog;
 import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
+import org.mastodon.mamut.tomancak.sort_tree.SortTree;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeLeftRightDialog;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeExternInternDialog;
 import org.mastodon.mamut.tomancak.spots.AddCenterSpots;
 import org.mastodon.mamut.tomancak.spots.FilterOutSolists;
 import org.mastodon.mamut.tomancak.spots.InterpolateMissingSpots;
+import org.mastodon.model.SelectionModel;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.ui.keymap.CommandDescriptions;
 import org.mastodon.ui.keymap.KeyConfigContexts;
@@ -78,6 +83,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String COMPACT_LINEAGE_VIEW = "[tomancak] show compact lineage";
 	private static final String SORT_TREE = "[tomancak] sort lineage tree";
 	private static final String SORT_TREE_EXTERN_INTERN = "[tomancak] sort lineage tree extern intern";
+	private static final String SORT_TREE_LIFETIME = "[tomancak] sort lineage tree lifetime";
 	private static final String LABEL_SPOTS_SYSTEMATICALLY = "[tomancak] label spots systematically";
 	private static final String REMOVE_SOLISTS_SPOTS = "[tomancak] remove solists spots";
 	private static final String EXPORTS_LINEAGE_LENGTHS = "[tomancak] export lineage lengths";
@@ -95,6 +101,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] COMPACT_LINEAGE_VIEW_KEYS = { "not mapped" };
 	private static final String[] SORT_TREE_KEYS = { "ctrl S" };
 	private static final String[] SORT_TREE_EXTERN_INTERN_KEYS = { "not mapped" };
+	private static final String[] SORT_TREE_LIFETIME_KEYS = { "not mapped" };
 	private static final String[] LABEL_SPOTS_SYSTEMATICALLY_KEYS = { "not mapped" };
 	private static final String[] REMOVE_SOLISTS_SPOTS_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_LINEAGE_LENGTHS_KEYS = { "not mapped" };
@@ -114,8 +121,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( LABEL_SELECTED_SPOTS, "Label Selected Spots" );
 		menuTexts.put( CHANGE_BRANCH_LABELS, "Change Branch's Labels");
 		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show Compact Lineage" );
-		menuTexts.put( SORT_TREE, "Sort Lineage Tree" );
+		menuTexts.put( SORT_TREE, "Sort Lineage Tree (Left-Right-Anchors)" );
 		menuTexts.put( SORT_TREE_EXTERN_INTERN, "Sort Lineage Tree (Extern-Intern)" );
+		menuTexts.put( SORT_TREE_LIFETIME, "Sort Lineage Tree (Cell Lifecycle Duration)" );
 		menuTexts.put( LABEL_SPOTS_SYSTEMATICALLY, "Systematically Label Spots (Extern-Intern)" );
 		menuTexts.put( REMOVE_SOLISTS_SPOTS, "Remove Spots Solists" );
 		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export Lineage Lengths" );
@@ -146,8 +154,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( LABEL_SELECTED_SPOTS, LABEL_SELECTED_SPOTS_KEYS, "Set label for all selected spots." );
 			descriptions.add( CHANGE_BRANCH_LABELS, CHANGE_BRANCH_LABELS_KEYS, "Change the labels of all the spots between to division." );
 			descriptions.add( COMPACT_LINEAGE_VIEW, COMPACT_LINEAGE_VIEW_KEYS, "Show compact representation of the lineage tree.");
-			descriptions.add( SORT_TREE, SORT_TREE_KEYS, "Sort selected node according to tagged anchors.");
-			descriptions.add( SORT_TREE_EXTERN_INTERN, SORT_TREE_EXTERN_INTERN_KEYS, "Sort selected nodes according to tagged center anchor.");
+			descriptions.add( SORT_TREE, SORT_TREE_KEYS, "Sort selected spots according to tagged anchors.");
+			descriptions.add( SORT_TREE_EXTERN_INTERN, SORT_TREE_EXTERN_INTERN_KEYS, "Sort selected spots according to tagged center anchor.");
+			descriptions.add( SORT_TREE_LIFETIME, SORT_TREE_LIFETIME_KEYS, "Sort selected spots, such that the child cell with the longer cell cycle duration is left in the TrackScheme.");
 			descriptions.add( LABEL_SPOTS_SYSTEMATICALLY, LABEL_SPOTS_SYSTEMATICALLY_KEYS, "Child cells are named after their parent cell, with a \"1\" or \"2\" appended to the label.");
 			descriptions.add( REMOVE_SOLISTS_SPOTS, REMOVE_SOLISTS_SPOTS_KEYS, "Finds and removes isolated spots from the lineage, based on conditions." );
 			descriptions.add( EXPORTS_LINEAGE_LENGTHS, EXPORTS_LINEAGE_LENGTHS_KEYS, "Exports lineage lengths into CSV-like files to be imported in data processors." );
@@ -177,6 +186,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction sortTreeExternInternAction;
 
+	private final AbstractNamedAction sortTreeLifetimeAction;
+
 	private final AbstractNamedAction labelSpotsSystematicallyAction;
 
 	private final AbstractNamedAction removeSolistsAction;
@@ -204,6 +215,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		lineageTreeViewAction = new RunnableAction( COMPACT_LINEAGE_VIEW, this::showLineageView );
 		sortTreeAction = new RunnableAction( SORT_TREE, this::sortTree );
 		sortTreeExternInternAction = new RunnableAction( SORT_TREE_EXTERN_INTERN, this::sortTreeExternIntern );
+		sortTreeLifetimeAction = new RunnableAction( SORT_TREE_LIFETIME, this::sortTreeCellLifetime );
 		labelSpotsSystematicallyAction = new RunnableAction( LABEL_SPOTS_SYSTEMATICALLY, this::labelSpotsSystematically );
 		removeSolistsAction = new RunnableAction( REMOVE_SOLISTS_SPOTS, this::filterOutSolists );
 		exportLineageLengthsAction = new RunnableAction( EXPORTS_LINEAGE_LENGTHS, this::exportLengths );
@@ -238,6 +250,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 								item( FLIP_DESCENDANTS ),
 								item( SORT_TREE ),
 								item( SORT_TREE_EXTERN_INTERN ),
+								item( SORT_TREE_LIFETIME ),
 								item( LABEL_SPOTS_SYSTEMATICALLY ) ),
 				menu( "Exports",
 								item( EXPORTS_LINEAGE_LENGTHS ),
@@ -266,6 +279,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( lineageTreeViewAction, COMPACT_LINEAGE_VIEW_KEYS );
 		actions.namedAction( sortTreeAction, SORT_TREE_KEYS );
 		actions.namedAction( sortTreeExternInternAction, SORT_TREE_EXTERN_INTERN_KEYS );
+		actions.namedAction( sortTreeLifetimeAction, SORT_TREE_LIFETIME_KEYS );
 		actions.namedAction( labelSpotsSystematicallyAction, LABEL_SPOTS_SYSTEMATICALLY_KEYS );
 		actions.namedAction( removeSolistsAction, REMOVE_SOLISTS_SPOTS_KEYS );
 		actions.namedAction( exportLineageLengthsAction, EXPORTS_LINEAGE_LENGTHS_KEYS );
@@ -286,6 +300,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		lineageTreeViewAction.setEnabled( appModel != null );
 		sortTreeAction.setEnabled( appModel != null );
 		sortTreeExternInternAction.setEnabled( appModel != null );
+		sortTreeLifetimeAction.setEnabled( appModel != null );
 		labelSpotsSystematicallyAction.setEnabled( appModel != null );
 		removeSolistsAction.setEnabled( appModel != null );
 		exportLineageLengthsAction.setEnabled( appModel != null );
@@ -341,6 +356,19 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private void sortTreeExternIntern()
 	{
 		SortTreeExternInternDialog.showDialog( pluginAppModel.getAppModel() );
+	}
+
+	private void sortTreeCellLifetime()
+	{
+		MamutAppModel appModel = pluginAppModel.getAppModel();
+		Model model = appModel.getModel();
+		SelectionModel< Spot, Link > selectionModel = appModel.getSelectionModel();
+
+		Collection< Spot > vertices = selectionModel.getSelectedVertices();
+		if ( vertices.isEmpty() )
+			vertices = model.getGraph().vertices();
+
+		SortTree.sortCellLifetime( model, vertices );
 	}
 
 	private void showLineageView() {

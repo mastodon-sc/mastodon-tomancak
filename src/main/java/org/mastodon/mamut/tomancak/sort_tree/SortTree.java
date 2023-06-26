@@ -60,6 +60,11 @@ public class SortTree
 		sort( model, vertices, new ExternInternOrder( model.getGraph(), centerSpots ) );
 	}
 
+	public static void sortCellLifetime( Model model, Collection<Spot> vertices )
+	{
+		sort( model, vertices, new CellLifetimeOrder( model.getGraph() ) );
+	}
+
 	public static void sort( Model model, Collection<Spot> vertices, Predicate<Spot> order )
 	{
 		ModelGraph graph = model.getGraph();
