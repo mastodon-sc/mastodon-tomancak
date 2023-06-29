@@ -26,7 +26,7 @@ public class LineageRegistrationDemo
 	}
 
 
-	private static WindowManager openAppModel( Context context, String projectPath )
+	public static WindowManager openAppModel( Context context, String projectPath )
 	{
 		try
 		{
