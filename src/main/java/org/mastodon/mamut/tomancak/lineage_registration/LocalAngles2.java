@@ -36,16 +36,11 @@ public class LocalAngles2
 		LocalAngles2 localAngles2 = new LocalAngles2( graphA, graphB );
 		ArrayList< Pair< Double, Double > > pairs = new ArrayList<>();
 		RefMapUtils.forEach( rg.mapAB, ( branchStartA, branchStartB ) -> {
-			try
-			{
-				double angle = localAngles2.computeAngle( branchStartA, branchStartB );
-				int timepointA = endTimepoint( graphA, branchStartA );
-				pairs.add( new ValuePair<>( ( double ) timepointA, angle ) );
-			}
-			catch ( NullPointerException exception )
-			{
-				// ignore missing landmarks
-			}
+			double angle = localAngles2.computeAngle( branchStartA, branchStartB );
+			if ( Double.isNaN( angle ) )
+				return;
+			int timepointA = endTimepoint( graphA, branchStartA );
+			pairs.add( new ValuePair<>( ( double ) timepointA, angle ) );
 		} );
 		return pairs;
 	}
@@ -64,13 +59,20 @@ public class LocalAngles2
 		landmarksMapB = getLandmarksMap( graphB, branchStartsB );
 	}
 
-	private double computeAngle( Spot branchStartA, Spot branchStartB )
+	public double computeAngle( Spot branchStartA, Spot branchStartB )
 	{
-		double[][] landmarksA = landmarksMapA.get( branchStartA );
-		double[][] landmarksB = landmarksMapB.get( branchStartB );
-		double[] directionA = cellDivisionDirection( graphA, branchStartA );
-		double[] directionB = cellDivisionDirection( graphB, branchStartB );
-		return computeAngle( directionA, landmarksA, directionB, landmarksB );
+		try
+		{
+			double[][] landmarksA = landmarksMapA.get( branchStartA );
+			double[][] landmarksB = landmarksMapB.get( branchStartB );
+			double[] directionA = cellDivisionDirection( graphA, branchStartA );
+			double[] directionB = cellDivisionDirection( graphB, branchStartB );
+			return computeAngle( directionA, landmarksA, directionB, landmarksB );
+		}
+		catch ( NullPointerException exception )
+		{
+			return Double.NaN;
+		}
 	}
 
 	private static double computeAngle( double[] directionA, double[][] landmarksA, double[] directionB, double[][] landmarksB )

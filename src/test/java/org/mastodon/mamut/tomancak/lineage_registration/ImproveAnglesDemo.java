@@ -49,21 +49,22 @@ public class ImproveAnglesDemo
 			WindowManager windowManager2 = LineageRegistrationDemo.openAppModel( context, LineageRegistrationDemo.project2 );
 			ImproveAnglesDemo.removeBackEdges( windowManager1.getAppModel().getModel().getGraph() );
 			ImproveAnglesDemo.removeBackEdges( windowManager2.getAppModel().getModel().getGraph() );
-			RegisteredGraphs rg1 = LineageRegistrationAlgorithm.run(
-					windowManager1.getAppModel().getModel(), 0,
-					windowManager2.getAppModel().getModel(), 0,
-					SpatialRegistrationMethod.DYNAMIC_ROOTS );
-			LineageRegistrationUtils.sortSecondTrackSchemeToMatch( rg1 );
-			RegisteredGraphs rg = LineageRegistrationAlgorithm.run(
-					windowManager1.getAppModel().getModel(), 0,
-					windowManager2.getAppModel().getModel(), 0,
-					SpatialRegistrationMethod.DYNAMIC_ROOTS );
-			List< Pair< Double, Double > > globalAngles = getGloablAngles( rg );
-			LineageRegistrationUtils.plotAngleAgainstTimepoint( rg.anglesA );
-			List< Pair< Double, Double > > localAngles = LocalAngles2.getLocalAngles( rg );
+			LineageRegistrationAlgorithm.USE_LOCAL_ANGLES = false;
+			List< Pair< Double, Double > > globalAngles = getAngles( windowManager1, windowManager2 );
+			LineageRegistrationAlgorithm.USE_LOCAL_ANGLES = true;
+			List< Pair< Double, Double > > localAngles = getAngles( windowManager1, windowManager2 );
 			plotAngles( localAngles, globalAngles );
 			plotAngles( average( localAngles ), average( globalAngles ) );
 		}
+	}
+
+	private static List< Pair< Double, Double > > getAngles( WindowManager windowManager1, WindowManager windowManager2 )
+	{
+		RegisteredGraphs rg = LineageRegistrationAlgorithm.run(
+				windowManager1.getAppModel().getModel(), 0,
+				windowManager2.getAppModel().getModel(), 0,
+				SpatialRegistrationMethod.DYNAMIC_ROOTS );
+		return getGloablAngles( rg );
 	}
 
 	private static List< Pair< Double, Double > > average( List< Pair< Double, Double > > values )
@@ -121,6 +122,8 @@ public class ImproveAnglesDemo
 		{
 			Spot spot = branchGraphA.getFirstLinkedVertex( branch, ref );
 			double v = rg.anglesA.get( spot );
+			if ( v > 90. )
+				v = 180. - v;
 			anglesGlobal.add( new ValuePair<>( ( double ) branch.getTimepoint(), v ) );
 		}
 		return anglesGlobal;

@@ -26,6 +26,8 @@ public class LineageRegistrationAlgorithm
 {
 	private static final int TIME_OFFSET = SortTreeUtils.DIVISION_DIRECTION_TIME_OFFSET;
 
+	public static boolean USE_LOCAL_ANGLES = true;
+
 	private final SpatialRegistration spatialRegistration;
 
 	private final ModelGraph graphA;
@@ -41,6 +43,8 @@ public class LineageRegistrationAlgorithm
 	 * A map from branch starting spots in graphA to the angle between the paired cell division directions.
 	 */
 	private final RefDoubleMap< Spot > angles;
+
+	private final LocalAngles2 localAngles;
 
 	/**
 	 * Runs the lineage registration algorithm for to given graphs. The spots before
@@ -108,6 +112,7 @@ public class LineageRegistrationAlgorithm
 		this.graphB = graphB;
 		this.mapAB = new RefRefHashMap<>( graphA.vertices().getRefPool(), graphB.vertices().getRefPool() );
 		this.angles = new RefDoubleHashMap<>( graphA.vertices().getRefPool(), Double.NaN );
+		this.localAngles = USE_LOCAL_ANGLES ? new LocalAngles2( graphA, graphB ) : null;
 		Spot refB = graphB.vertexRef();
 		try
 		{
@@ -136,7 +141,8 @@ public class LineageRegistrationAlgorithm
 					dividingB.outgoingEdges().size() == 2;
 			if ( !bothDivide )
 				return;
-			double angle = computeAngle( dividingA, dividingB );
+			double localAngle = localAngles != null ? localAngles.computeAngle( rootA, rootB ) : Double.NaN;
+			double angle = Double.isNaN( localAngle ) ? computeAngle( dividingA, dividingB ) : localAngle;
 			angles.put( rootA, angle );
 			boolean flip = angle > 90;
 			matchChildTree( dividingA, dividingB, 0, flip ? 1 : 0 );
@@ -156,8 +162,7 @@ public class LineageRegistrationAlgorithm
 		AffineTransform3D transformAB = noOffsetTransform( spatialRegistration.getTransformationAtoB(
 				dividingA.getTimepoint() + TIME_OFFSET, dividingB.getTimepoint() + TIME_OFFSET ) );
 		transformAB.apply( directionA, directionA );
-		double angle = SortTreeUtils.angleInDegree( directionA, directionB );
-		return angle;
+		return SortTreeUtils.angleInDegree( directionA, directionB );
 	}
 
 	private void matchChildTree( Spot dividingA, Spot dividingB, int indexA, int indexB )
