@@ -2,8 +2,10 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.LinAlgHelpers;
@@ -55,7 +57,27 @@ public class ImproveAnglesDemo
 			LineageRegistrationUtils.plotAngleAgainstTimepoint( rg.anglesA );
 			List< Pair< Double, Double > > localAngles = LocalAngles2.getLocalAngles( rg );
 			plotAngles( localAngles, globalAngles );
+			plotAngles( average( localAngles ), average( globalAngles ) );
 		}
+	}
+
+	private static List< Pair< Double, Double > > average( List< Pair< Double, Double > > values )
+	{
+		Map< Integer, Average > bins = new HashMap<>();
+		double width = 50;
+		for ( Pair< Double, Double > pair : values )
+		{
+			Double x = pair.getA();
+			Double y = pair.getB();
+			if ( x.isNaN() || y.isNaN() )
+				continue;
+			int bin = ( int ) Math.round( x / width );
+			Average average = bins.computeIfAbsent( bin, b -> new Average() );
+			average.add( y );
+		}
+		List< Pair< Double, Double > > result = new ArrayList<>();
+		bins.forEach( ( bin, average ) -> result.add( new ValuePair<>( bin * width, average.get() ) ) );
+		return result;
 	}
 
 	private static List< Pair< Double, Double > > getLocalAngles( RegisteredGraphs rg )

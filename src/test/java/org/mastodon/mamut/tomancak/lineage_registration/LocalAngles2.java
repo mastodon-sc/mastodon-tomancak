@@ -1,7 +1,5 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
-import static org.mastodon.mamut.tomancak.lineage_registration.ImproveAnglesDemo.computeAngle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,11 +8,14 @@ import net.imglib2.util.LinAlgHelpers;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 
+import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefObjectMap;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.RefSet;
+import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.collection.ref.RefObjectHashMap;
 import org.mastodon.collection.ref.RefRefHashMap;
+import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.EstimateTransformation;
@@ -28,6 +29,8 @@ public class LocalAngles2
 {
 	public static List< Pair< Double, Double > > getLocalAngles( RegisteredGraphs rg )
 	{
+		removeBackEdges( rg.graphA );
+		removeBackEdges( rg.graphB );
 		ArrayList< Pair< Double, Double > > pairs = new ArrayList<>();
 		ModelGraph graphA = rg.graphA;
 		ModelGraph graphB = rg.graphB;
@@ -36,15 +39,40 @@ public class LocalAngles2
 		RefObjectMap< Spot, double[][] > landmarksMapA = getLandmarksMap( graphA, branchStartsA );
 		RefObjectMap< Spot, double[][] > landmarksMapB = getLandmarksMap( graphB, branchStartsB );
 		RefMapUtils.forEach( rg.mapAB, ( branchStartA, branchStartB ) -> {
-			double[][] landmarksA = landmarksMapA.get( branchStartA );
-			double[][] landmarksB = landmarksMapB.get( branchStartB );
-			double[] directionA = cellDivisionDirection( graphA, branchStartA );
-			double[] directionB = cellDivisionDirection( graphB, branchStartB );
-			double angle = computeAngle( directionA, landmarksA, directionB, landmarksB );
-			int timepointA = endTimepoint( graphA, branchStartA );
-			pairs.add( new ValuePair<>( ( double ) timepointA, angle ) );
+			try
+			{
+				double[][] landmarksA = landmarksMapA.get( branchStartA );
+				double[][] landmarksB = landmarksMapB.get( branchStartB );
+				double[] directionA = cellDivisionDirection( graphA, branchStartA );
+				double[] directionB = cellDivisionDirection( graphB, branchStartB );
+				double angle = computeAngle( directionA, landmarksA, directionB, landmarksB );
+				int timepointA = endTimepoint( graphA, branchStartA );
+				pairs.add( new ValuePair<>( ( double ) timepointA, angle ) );
+			}
+			catch ( NullPointerException exception )
+			{
+				// ignore missing landmarks
+			}
 		} );
 		return pairs;
+	}
+
+	private static void removeBackEdges( ModelGraph graph )
+	{
+		RefList< Link > back = new RefArrayList<>( graph.edges().getRefPool() );
+		Spot ref1 = graph.vertexRef();
+		Spot ref2 = graph.vertexRef();
+		for ( Link link : graph.edges() )
+		{
+			Spot source = link.getSource( ref1 );
+			Spot target = link.getTarget( ref2 );
+			if ( source.getTimepoint() >= target.getTimepoint() )
+				back.add( link );
+		}
+		if ( !back.isEmpty() )
+			System.out.println( "Removing " + back.size() + " back edges." );
+		for ( Link link : back )
+			graph.remove( link );
 	}
 
 	private static double computeAngle( double[] directionA, double[][] landmarksA, double[] directionB, double[][] landmarksB )
@@ -54,6 +82,7 @@ public class LocalAngles2
 			matches.add( new PointMatch( new Point( landmarksA[ i ] ), new Point( landmarksB[ i ] ) ) );
 		AffineTransform3D tranformAB = EstimateTransformation.fitTransform( matches );
 		double[] target = new double[ 3 ];
+		tranformAB.setTranslation( 0, 0, 0 );
 		tranformAB.applyInverse( target, directionB );
 		return SortTreeUtils.angleInDegree( directionA, target );
 	}
@@ -77,31 +106,35 @@ public class LocalAngles2
 		RefRefMap< Spot, Spot > parentMap = getParentMap( graph, branchStarts );
 		RefRefMap< Spot, Spot > siblingMap = getSiblingsMap( graph, branchStarts );
 		RefRefMap< Spot, Spot > auntMap = concat( graph, parentMap, siblingMap );
-		return landmarksMap( graph, branchStarts, siblingMap, auntMap );
-	}
-
-	private static RefObjectMap< Spot, double[][] > landmarksMap( ModelGraph graph, RefSet< Spot > branchStarts, RefRefMap< Spot, Spot > siblingMap, RefRefMap< Spot, Spot > auntMap )
-	{
-		Spot ref2 = graph.vertices().createRef();
-		Spot ref3 = graph.vertices().createRef();
+		RefRefMap< Spot, Spot > grandAuntMap = concat( graph, parentMap, auntMap );
+		RefRefMap< Spot, Spot > ggAuntMap = concat( graph, parentMap, grandAuntMap );
+		Spot ref = graph.vertices().createRef();
 		try
 		{
 			RefObjectMap< Spot, double[][] > landmarks = new RefObjectHashMap<>( graph.vertices().getRefPool() );
 			for ( Spot spot : branchStarts )
 			{
-				int timepoint = endTimepoint( graph, spot );
-				int divisionTime = timepoint + 2;
-				double[] spotPosition = getDescendantsPosition( graph, spot, divisionTime );
-				double[] siblingsPosition = getDescendantsPosition( graph, siblingMap.get( spot, ref2 ), divisionTime );
-				double[] auntsPosition = getDescendantsPosition( graph, auntMap.get( spot, ref3 ), divisionTime );
-				landmarks.put( spot, new double[][] { spotPosition, siblingsPosition, auntsPosition } );
+				try
+				{
+					int timepoint = endTimepoint( graph, spot );
+					int divisionTime = timepoint + 2;
+					double[] spotPosition = getDescendantsPosition( graph, spot, divisionTime );
+					double[] siblingsPosition = getDescendantsPosition( graph, siblingMap.get( spot, ref ), divisionTime );
+					double[] auntsPosition = getDescendantsPosition( graph, auntMap.get( spot, ref ), divisionTime );
+					double[] grantAuntsPosition = getDescendantsPosition( graph, grandAuntMap.get( spot, ref ), divisionTime );
+					double[] ggAuntsPosition = getDescendantsPosition( graph, ggAuntMap.get( spot, ref ), divisionTime );
+					landmarks.put( spot, new double[][] { spotPosition, siblingsPosition, auntsPosition, grantAuntsPosition, ggAuntsPosition } );
+				}
+				catch ( NullPointerException e )
+				{
+					// ignore
+				}
 			}
 			return landmarks;
 		}
 		finally
 		{
-			graph.vertices().releaseRef( ref2 );
-			graph.vertices().releaseRef( ref3 );
+			graph.vertices().releaseRef( ref );
 		}
 	}
 
@@ -140,6 +173,8 @@ public class LocalAngles2
 				count++;
 			}
 		}
+		if ( count == 0 )
+			throw new NullPointerException( "No descendants found." );
 		LinAlgHelpers.scale( sum, 1.0 / count, sum );
 		return sum;
 	}
@@ -155,7 +190,8 @@ public class LocalAngles2
 			{
 				Spot y = map1.get( x, ref1 );
 				Spot z = map2.get( y, ref2 );
-				map.put( x, z );
+				if ( z != null )
+					map.put( x, z );
 			}
 			return map;
 		}
