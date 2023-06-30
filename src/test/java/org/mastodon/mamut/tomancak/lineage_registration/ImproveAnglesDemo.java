@@ -53,7 +53,7 @@ public class ImproveAnglesDemo
 					SpatialRegistrationMethod.DYNAMIC_ROOTS );
 			List< Pair< Double, Double > > globalAngles = getGloablAngles( rg );
 			LineageRegistrationUtils.plotAngleAgainstTimepoint( rg.anglesA );
-			List< Pair< Double, Double > > localAngles = getLocalAngles( rg );
+			List< Pair< Double, Double > > localAngles = LocalAngles2.getLocalAngles( rg );
 			plotAngles( localAngles, globalAngles );
 		}
 	}
