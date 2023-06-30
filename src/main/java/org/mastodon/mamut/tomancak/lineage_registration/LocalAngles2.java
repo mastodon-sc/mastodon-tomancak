@@ -108,6 +108,7 @@ public class LocalAngles2
 		RefRefMap< Spot, Spot > auntMap = concat( graph, parentMap, siblingMap );
 		RefRefMap< Spot, Spot > grandAuntMap = concat( graph, parentMap, auntMap );
 		RefRefMap< Spot, Spot > ggAuntMap = concat( graph, parentMap, grandAuntMap );
+		RefRefMap< Spot, Spot > gggAuntMap = concat( graph, parentMap, ggAuntMap );
 		Spot ref = graph.vertices().createRef();
 		try
 		{
@@ -123,7 +124,8 @@ public class LocalAngles2
 					double[] auntsPosition = getDescendantsPosition( graph, auntMap.get( spot, ref ), divisionTime );
 					double[] grantAuntsPosition = getDescendantsPosition( graph, grandAuntMap.get( spot, ref ), divisionTime );
 					double[] ggAuntsPosition = getDescendantsPosition( graph, ggAuntMap.get( spot, ref ), divisionTime );
-					landmarks.put( spot, new double[][] { spotPosition, siblingsPosition, auntsPosition, grantAuntsPosition, ggAuntsPosition } );
+					double[] gggAuntsPosition = getDescendantsPosition( graph, gggAuntMap.get( spot, ref ), divisionTime );
+					landmarks.put( spot, new double[][] { spotPosition, siblingsPosition, auntsPosition, grantAuntsPosition, ggAuntsPosition, gggAuntsPosition } );
 				}
 				catch ( NullPointerException e )
 				{
