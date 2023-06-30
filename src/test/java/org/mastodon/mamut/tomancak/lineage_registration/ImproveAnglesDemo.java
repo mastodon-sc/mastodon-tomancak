@@ -42,48 +42,61 @@ public class ImproveAnglesDemo
 		{
 			WindowManager windowManager1 = LineageRegistrationDemo.openAppModel( context, LineageRegistrationDemo.project1 );
 			WindowManager windowManager2 = LineageRegistrationDemo.openAppModel( context, LineageRegistrationDemo.project2 );
+			RegisteredGraphs rg1 = LineageRegistrationAlgorithm.run(
+					windowManager1.getAppModel().getModel(), 0,
+					windowManager2.getAppModel().getModel(), 0,
+					SpatialRegistrationMethod.DYNAMIC_ROOTS );
+			LineageRegistrationUtils.sortSecondTrackSchemeToMatch( rg1 );
 			RegisteredGraphs rg = LineageRegistrationAlgorithm.run(
 					windowManager1.getAppModel().getModel(), 0,
 					windowManager2.getAppModel().getModel(), 0,
 					SpatialRegistrationMethod.DYNAMIC_ROOTS );
+			List< Pair< Double, Double > > globalAngles = getGloablAngles( rg );
 			LineageRegistrationUtils.plotAngleAgainstTimepoint( rg.anglesA );
-			ModelGraph graphA = windowManager1.getAppModel().getModel().getGraph();
-			ModelBranchGraph branchGraphA = new ModelBranchGraph( graphA );
-			List< RefObjectMap< BranchSpot, double[] > > da = getRefObjectMaps( graphA, branchGraphA );
-			ModelGraph graphB = windowManager2.getAppModel().getModel().getGraph();
-			ModelBranchGraph branchGraphB = new ModelBranchGraph( graphB );
-			List< RefObjectMap< BranchSpot, double[] > > db = getRefObjectMaps( graphB, branchGraphB );
-			RefRefMap< BranchSpot, BranchSpot > map = toBranchSpotMap( rg.mapAB, branchGraphA, branchGraphB );
-			List< Pair< Double, Double > > angles = new ArrayList<>();
-			BranchSpot ref = branchGraphA.vertexRef();
-			Spot ref2 = graphA.vertexRef();
-			Average meanOldAngle = new Average();
-			Average meanNewAngle = new Average();
-			RefMapUtils.forEach( map, ( a, b ) -> {
-				try
-				{
-					if ( !isFirstChild( branchGraphA, a ) )
-						return;
-					double v = computeAngle( a, da, b, db );
-					BranchSpot parent = a.incomingEdges().iterator().next().getSource( ref );
-					Spot parentStart = branchGraphA.getFirstLinkedVertex( parent, ref2 );
-					if ( parentStart.getTimepoint() < 200 )
-						return;
-					double w = rg.anglesA.get( parentStart );
-					if ( w > 90. )
-						w = 180. - w;
-					meanNewAngle.add( v );
-					meanOldAngle.add( w );
-					angles.add( new ValuePair<>( Math.min( v, w ), w ) );
-				}
-				catch ( NullPointerException e )
-				{
-					// ignore (happens when a or b is not in the map)
-				}
-			} );
-			System.out.println( "old: " + meanOldAngle.get() + " new: " + meanNewAngle.get() );
-			plotAngles( angles );
+			List< Pair< Double, Double > > localAngles = getLocalAngles( rg );
+			plotAngles( localAngles, globalAngles );
 		}
+	}
+
+	private static List< Pair< Double, Double > > getLocalAngles( RegisteredGraphs rg )
+	{
+		ModelGraph graphA = rg.graphA;
+		ModelBranchGraph branchGraphA = new ModelBranchGraph( graphA );
+		List< RefObjectMap< BranchSpot, double[] > > da = getRefObjectMaps( graphA, branchGraphA );
+		ModelGraph graphB = rg.graphB;
+		ModelBranchGraph branchGraphB = new ModelBranchGraph( graphB );
+		List< RefObjectMap< BranchSpot, double[] > > db = getRefObjectMaps( graphB, branchGraphB );
+		RefRefMap< BranchSpot, BranchSpot > map = toBranchSpotMap( rg.mapAB, branchGraphA, branchGraphB );
+		List< Pair< Double, Double > > localAngles = new ArrayList<>();
+		RefMapUtils.forEach( map, ( a, b ) -> {
+			try
+			{
+				if ( !isFirstChild( branchGraphA, a ) )
+					return;
+				double v = computeAngle( a, da, b, db );
+				localAngles.add( new ValuePair<>( a.getFirstTimePoint() - 1., v ) );
+			}
+			catch ( NullPointerException e )
+			{
+				// ignore (happens when a or b is not in the map)
+			}
+		} );
+		return localAngles;
+	}
+
+	private static List< Pair< Double, Double > > getGloablAngles( RegisteredGraphs rg )
+	{
+		ModelGraph graphA = rg.graphA;
+		ModelBranchGraph branchGraphA = new ModelBranchGraph( graphA );
+		Spot ref = graphA.vertexRef();
+		List< Pair< Double, Double > > anglesGlobal = new ArrayList<>();
+		for ( BranchSpot branch : branchGraphA.vertices() )
+		{
+			Spot spot = branchGraphA.getFirstLinkedVertex( branch, ref );
+			double v = rg.anglesA.get( spot );
+			anglesGlobal.add( new ValuePair<>( ( double ) branch.getTimepoint(), v ) );
+		}
+		return anglesGlobal;
 	}
 
 	private static List< RefObjectMap< BranchSpot, double[] > > getRefObjectMaps( ModelGraph graphA, ModelBranchGraph branchGraphA )
@@ -94,7 +107,7 @@ public class ImproveAnglesDemo
 		RefObjectMap< BranchSpot, double[] > values = computeMovement( graphA, branchGraphA );
 		RefObjectMap< BranchSpot, double[] > x = fromParentToChild( values, branchGraphA );
 		RefObjectMap< BranchSpot, double[] > y = fromParentToChild( x, branchGraphA );
-		return Arrays.asList( directionsA, parentDirectionsA, grantParentDirectionsA, x );
+		return Arrays.asList( directionsA, parentDirectionsA, grantParentDirectionsA );
 	}
 
 	private static RefObjectMap< BranchSpot, double[] > computeMovement( ModelGraph graphA, ModelBranchGraph branchGraphA )
@@ -199,18 +212,24 @@ public class ImproveAnglesDemo
 		}
 	}
 
-	private static void plotAngles( List< Pair< Double, Double > > angles )
+	private static void plotAngles( List< Pair< Double, Double > > localAngles, List< Pair< Double, Double > > globalAngles )
 	{
 		// Use JFreeChart to plot the angles.
 		XYSeriesCollection dataset = new XYSeriesCollection();
-		XYSeries series = new XYSeries( "Angles" );
-		for ( Pair< Double, Double > angle : angles )
-			series.add( angle.getA(), angle.getB() );
-		dataset.addSeries( series );
-		JFreeChart chart = ChartFactory.createScatterPlot( "Angles", "Angle A", "Angle B", dataset );
+		dataset.addSeries( getXySeries( "local angles", localAngles ) );
+		dataset.addSeries( getXySeries( "global angles", globalAngles ) );
+		JFreeChart chart = ChartFactory.createScatterPlot( "Angles", "time", "angle", dataset );
 		ChartFrame frame = new ChartFrame( "Angles", chart );
 		frame.pack();
 		frame.setVisible( true );
+	}
+
+	private static XYSeries getXySeries( String title, List< Pair< Double, Double > > values )
+	{
+		XYSeries series = new XYSeries( title );
+		for ( Pair< Double, Double > value : values )
+			series.add( value.getA(), value.getB() );
+		return series;
 	}
 
 	private static BranchSpot getParent( BranchSpot a, BranchSpot refA )

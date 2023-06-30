@@ -32,13 +32,13 @@ public class LineageRegistrationDemo
 		{
 			MamutProject project = new MamutProjectIO().load( projectPath );
 			WindowManager wm = new WindowManager( context );
-			wm.getProjectManager().open( project );
-			TrackSchemeFrame frame = wm.createBranchTrackScheme().getFrame();
-			String baseName = FilenameUtils.getBaseName( projectPath );
-			frame.setTitle( frame.getTitle() + " " + baseName );
-			MainWindow mainWindow = new MainWindow( wm );
-			mainWindow.setVisible( true );
-			mainWindow.setTitle( mainWindow.getTitle() + " " + baseName );
+			wm.getProjectManager().open( project, false );
+			//TrackSchemeFrame frame = wm.createBranchTrackScheme().getFrame();
+			//String baseName = FilenameUtils.getBaseName( projectPath );
+			//frame.setTitle( frame.getTitle() + " " + baseName );
+			//MainWindow mainWindow = new MainWindow( wm );
+			//mainWindow.setVisible( true );
+			//mainWindow.setTitle( mainWindow.getTitle() + " " + baseName );
 			return wm;
 		}
 		catch ( SpimDataException | IOException e )
