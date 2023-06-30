@@ -136,12 +136,7 @@ public class LineageRegistrationAlgorithm
 					dividingB.outgoingEdges().size() == 2;
 			if ( !bothDivide )
 				return;
-			double[] directionA = SortTreeUtils.directionOfCellDevision( graphA, dividingA );
-			double[] directionB = SortTreeUtils.directionOfCellDevision( graphB, dividingB );
-			AffineTransform3D transformAB = noOffsetTransform( spatialRegistration.getTransformationAtoB(
-					dividingA.getTimepoint() + TIME_OFFSET, dividingB.getTimepoint() + TIME_OFFSET ) );
-			transformAB.apply( directionA, directionA );
-			double angle = SortTreeUtils.angleInDegree( directionA, directionB );
+			double angle = computeAngle( dividingA, dividingB );
 			angles.put( rootA, angle );
 			boolean flip = angle > 90;
 			matchChildTree( dividingA, dividingB, 0, flip ? 1 : 0 );
@@ -152,6 +147,17 @@ public class LineageRegistrationAlgorithm
 			graphA.releaseRef( refA );
 			graphB.releaseRef( refB );
 		}
+	}
+
+	private double computeAngle( Spot dividingA, Spot dividingB )
+	{
+		double[] directionA = SortTreeUtils.directionOfCellDevision( graphA, dividingA );
+		double[] directionB = SortTreeUtils.directionOfCellDevision( graphB, dividingB );
+		AffineTransform3D transformAB = noOffsetTransform( spatialRegistration.getTransformationAtoB(
+				dividingA.getTimepoint() + TIME_OFFSET, dividingB.getTimepoint() + TIME_OFFSET ) );
+		transformAB.apply( directionA, directionA );
+		double angle = SortTreeUtils.angleInDegree( directionA, directionB );
+		return angle;
 	}
 
 	private void matchChildTree( Spot dividingA, Spot dividingB, int indexA, int indexB )

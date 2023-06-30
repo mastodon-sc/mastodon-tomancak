@@ -17,11 +17,14 @@ import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefObjectMap;
 import org.mastodon.collection.RefRefMap;
+import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.collection.ref.RefObjectHashMap;
 import org.mastodon.collection.ref.RefRefHashMap;
 import org.mastodon.mamut.WindowManager;
+import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.model.branch.BranchLink;
@@ -44,6 +47,8 @@ public class ImproveAnglesDemo
 		{
 			WindowManager windowManager1 = LineageRegistrationDemo.openAppModel( context, LineageRegistrationDemo.project1 );
 			WindowManager windowManager2 = LineageRegistrationDemo.openAppModel( context, LineageRegistrationDemo.project2 );
+			ImproveAnglesDemo.removeBackEdges( windowManager1.getAppModel().getModel().getGraph() );
+			ImproveAnglesDemo.removeBackEdges( windowManager2.getAppModel().getModel().getGraph() );
 			RegisteredGraphs rg1 = LineageRegistrationAlgorithm.run(
 					windowManager1.getAppModel().getModel(), 0,
 					windowManager2.getAppModel().getModel(), 0,
@@ -157,6 +162,24 @@ public class ImproveAnglesDemo
 			dB[ i ] = db.get( i ).get( b );
 		}
 		return computeAngle( dA, dB );
+	}
+
+	static void removeBackEdges( ModelGraph graph )
+	{
+		RefList< Link > back = new RefArrayList<>( graph.edges().getRefPool() );
+		Spot ref1 = graph.vertexRef();
+		Spot ref2 = graph.vertexRef();
+		for ( Link link : graph.edges() )
+		{
+			Spot source = link.getSource( ref1 );
+			Spot target = link.getTarget( ref2 );
+			if ( source.getTimepoint() >= target.getTimepoint() )
+				back.add( link );
+		}
+		if ( !back.isEmpty() )
+			System.out.println( "Removing " + back.size() + " back edges." );
+		for ( Link link : back )
+			graph.remove( link );
 	}
 
 	static class Average

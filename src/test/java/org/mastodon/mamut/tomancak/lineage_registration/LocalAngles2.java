@@ -8,14 +8,11 @@ import net.imglib2.util.LinAlgHelpers;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 
-import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefObjectMap;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.RefSet;
-import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.collection.ref.RefObjectHashMap;
 import org.mastodon.collection.ref.RefRefHashMap;
-import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.EstimateTransformation;
@@ -27,25 +24,21 @@ import mpicbg.models.PointMatch;
 
 public class LocalAngles2
 {
+
+	private RefObjectMap< Spot, double[][] > landmarksMapA;
+
+	private RefObjectMap< Spot, double[][] > landmarksMapB;
+
 	public static List< Pair< Double, Double > > getLocalAngles( RegisteredGraphs rg )
 	{
-		removeBackEdges( rg.graphA );
-		removeBackEdges( rg.graphB );
-		ArrayList< Pair< Double, Double > > pairs = new ArrayList<>();
 		ModelGraph graphA = rg.graphA;
 		ModelGraph graphB = rg.graphB;
-		RefSet< Spot > branchStartsA = BranchGraphUtils.getAllBranchStarts( graphA );
-		RefSet< Spot > branchStartsB = BranchGraphUtils.getAllBranchStarts( graphB );
-		RefObjectMap< Spot, double[][] > landmarksMapA = getLandmarksMap( graphA, branchStartsA );
-		RefObjectMap< Spot, double[][] > landmarksMapB = getLandmarksMap( graphB, branchStartsB );
+		LocalAngles2 localAngles2 = new LocalAngles2( graphA, graphB );
+		ArrayList< Pair< Double, Double > > pairs = new ArrayList<>();
 		RefMapUtils.forEach( rg.mapAB, ( branchStartA, branchStartB ) -> {
 			try
 			{
-				double[][] landmarksA = landmarksMapA.get( branchStartA );
-				double[][] landmarksB = landmarksMapB.get( branchStartB );
-				double[] directionA = cellDivisionDirection( graphA, branchStartA );
-				double[] directionB = cellDivisionDirection( graphB, branchStartB );
-				double angle = computeAngle( directionA, landmarksA, directionB, landmarksB );
+				double angle = localAngles2.computeAngle( branchStartA, branchStartB );
 				int timepointA = endTimepoint( graphA, branchStartA );
 				pairs.add( new ValuePair<>( ( double ) timepointA, angle ) );
 			}
@@ -57,22 +50,27 @@ public class LocalAngles2
 		return pairs;
 	}
 
-	private static void removeBackEdges( ModelGraph graph )
+	private final ModelGraph graphA;
+
+	private final ModelGraph graphB;
+
+	public LocalAngles2( ModelGraph graphA, ModelGraph graphB )
 	{
-		RefList< Link > back = new RefArrayList<>( graph.edges().getRefPool() );
-		Spot ref1 = graph.vertexRef();
-		Spot ref2 = graph.vertexRef();
-		for ( Link link : graph.edges() )
-		{
-			Spot source = link.getSource( ref1 );
-			Spot target = link.getTarget( ref2 );
-			if ( source.getTimepoint() >= target.getTimepoint() )
-				back.add( link );
-		}
-		if ( !back.isEmpty() )
-			System.out.println( "Removing " + back.size() + " back edges." );
-		for ( Link link : back )
-			graph.remove( link );
+		this.graphA = graphA;
+		this.graphB = graphB;
+		RefSet< Spot > branchStartsA = BranchGraphUtils.getAllBranchStarts( graphA );
+		RefSet< Spot > branchStartsB = BranchGraphUtils.getAllBranchStarts( graphB );
+		landmarksMapA = getLandmarksMap( graphA, branchStartsA );
+		landmarksMapB = getLandmarksMap( graphB, branchStartsB );
+	}
+
+	private double computeAngle( Spot branchStartA, Spot branchStartB )
+	{
+		double[][] landmarksA = landmarksMapA.get( branchStartA );
+		double[][] landmarksB = landmarksMapB.get( branchStartB );
+		double[] directionA = cellDivisionDirection( graphA, branchStartA );
+		double[] directionB = cellDivisionDirection( graphB, branchStartB );
+		return computeAngle( directionA, landmarksA, directionB, landmarksB );
 	}
 
 	private static double computeAngle( double[] directionA, double[][] landmarksA, double[] directionB, double[][] landmarksB )
