@@ -18,7 +18,7 @@ import org.mastodon.mamut.model.Spot;
  * This class holds a function for estimating a 3d rigid transformation
  * between two sets of points.
  */
-class EstimateTransformation
+public class EstimateTransformation
 {
 
 	private EstimateTransformation()
