@@ -54,7 +54,9 @@ public class ImproveAnglesDemo
 			LineageRegistrationAlgorithm.USE_LOCAL_ANGLES = true;
 			List< Pair< Double, Double > > localAngles = getAngles( windowManager1, windowManager2 );
 			plotAngles( localAngles, globalAngles );
-			plotAngles( average( localAngles ), average( globalAngles ) );
+			plotAngles( averageBins( localAngles ), averageBins( globalAngles ) );
+			System.out.println( "local mean angle: " + localAngles.stream().mapToDouble( Pair::getB ).filter( x -> !Double.isNaN( x ) ).average() );
+			System.out.println( "global mean angle: " + globalAngles.stream().mapToDouble( Pair::getB ).filter( x -> !Double.isNaN( x ) ).average() );
 		}
 	}
 
@@ -67,7 +69,7 @@ public class ImproveAnglesDemo
 		return getGloablAngles( rg );
 	}
 
-	private static List< Pair< Double, Double > > average( List< Pair< Double, Double > > values )
+	private static List< Pair< Double, Double > > averageBins( List< Pair< Double, Double > > values )
 	{
 		Map< Integer, Average > bins = new HashMap<>();
 		double width = 50;
@@ -264,9 +266,10 @@ public class ImproveAnglesDemo
 	{
 		// Use JFreeChart to plot the angles.
 		XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries( getXySeries( "local angles", localAngles ) );
 		dataset.addSeries( getXySeries( "global angles", globalAngles ) );
+		dataset.addSeries( getXySeries( "local angles", localAngles ) );
 		JFreeChart chart = ChartFactory.createScatterPlot( "Angles", "time", "angle", dataset );
+		chart.getXYPlot().getRangeAxis().setRange( 0, 90 );
 		ChartFrame frame = new ChartFrame( "Angles", chart );
 		frame.pack();
 		frame.setVisible( true );
