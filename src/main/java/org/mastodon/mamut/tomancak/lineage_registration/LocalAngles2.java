@@ -122,10 +122,12 @@ public class LocalAngles2
 					double[] spotPosition = getDescendantsPosition( graph, spot, divisionTime );
 					double[] siblingsPosition = getDescendantsPosition( graph, siblingMap.get( spot, ref ), divisionTime );
 					double[] auntsPosition = getDescendantsPosition( graph, auntMap.get( spot, ref ), divisionTime );
-					double[] grantAuntsPosition = getDescendantsPosition( graph, grandAuntMap.get( spot, ref ), divisionTime );
-					double[] ggAuntsPosition = getDescendantsPosition( graph, ggAuntMap.get( spot, ref ), divisionTime );
-					double[] gggAuntsPosition = getDescendantsPosition( graph, gggAuntMap.get( spot, ref ), divisionTime );
-					landmarks.put( spot, new double[][] { spotPosition, siblingsPosition, auntsPosition, grantAuntsPosition, ggAuntsPosition, gggAuntsPosition } );
+					// NB: The next line is there just to creat a NullPointerException if gen < 2.
+					// Using the new method to compute the angle early on, gives slightly worse angles.
+					//double[] grantAuntsPosition = getDescendantsPosition( graph, grandAuntMap.get( spot, ref ), divisionTime );
+//					double[] ggAuntsPosition = getDescendantsPosition( graph, ggAuntMap.get( spot, ref ), divisionTime );
+//					double[] gggAuntsPosition = getDescendantsPosition( graph, gggAuntMap.get( spot, ref ), divisionTime );
+					landmarks.put( spot, new double[][] { spotPosition, siblingsPosition, auntsPosition } );
 				}
 				catch ( NullPointerException e )
 				{
@@ -160,7 +162,7 @@ public class LocalAngles2
 		for ( DepthFirstIteration.Step< Spot > step : DepthFirstIteration.forRoot( graph, branchEnd ) )
 		{
 			Spot node = step.node();
-			if ( node.getTimepoint() > divisionTime + 2 )
+			if ( node.getTimepoint() > divisionTime + 1 )
 			{
 				step.truncate();
 				continue;
@@ -168,7 +170,7 @@ public class LocalAngles2
 			if ( !step.isFirstVisit() )
 				continue;
 
-			if ( node.getTimepoint() >= divisionTime - 2 )
+			if ( node.getTimepoint() >= divisionTime - 1 )
 			{
 				for ( int d = 0; d < 3; d++ )
 					sum[ d ] += node.getDoublePosition( d );

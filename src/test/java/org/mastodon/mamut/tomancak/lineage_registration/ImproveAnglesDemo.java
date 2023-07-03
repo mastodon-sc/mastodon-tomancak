@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.LinAlgHelpers;
@@ -45,8 +46,8 @@ public class ImproveAnglesDemo
 	{
 		try (Context context = new Context())
 		{
-			WindowManager windowManager1 = LineageRegistrationDemo.openAppModel( context, LineageRegistrationDemo.project1 );
-			WindowManager windowManager2 = LineageRegistrationDemo.openAppModel( context, LineageRegistrationDemo.project2 );
+			WindowManager windowManager1 = LineageRegistrationDemo.openAppModel( context, LineageRegistrationDemo.Ml_2022_05_03 );
+			WindowManager windowManager2 = LineageRegistrationDemo.openAppModel( context, LineageRegistrationDemo.Ml_2022_01_27 );
 			ImproveAnglesDemo.removeBackEdges( windowManager1.getAppModel().getModel().getGraph() );
 			ImproveAnglesDemo.removeBackEdges( windowManager2.getAppModel().getModel().getGraph() );
 			LineageRegistrationAlgorithm.USE_LOCAL_ANGLES = false;
