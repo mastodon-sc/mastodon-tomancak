@@ -55,9 +55,14 @@ public class ImproveAnglesDemo
 			List< Pair< Double, Double > > localAngles = getAngles( windowManager1, windowManager2 );
 			plotAngles( localAngles, globalAngles );
 			plotAngles( averageBins( localAngles ), averageBins( globalAngles ) );
-			System.out.println( "local mean angle: " + localAngles.stream().mapToDouble( Pair::getB ).filter( x -> !Double.isNaN( x ) ).average() );
-			System.out.println( "global mean angle: " + globalAngles.stream().mapToDouble( Pair::getB ).filter( x -> !Double.isNaN( x ) ).average() );
+			System.out.println( "local mean angle: " + computeMean( localAngles ) );
+			System.out.println( "global mean angle: " + computeMean( globalAngles ) );
 		}
+	}
+
+	private static double computeMean( List< Pair< Double, Double > > localAngles )
+	{
+		return localAngles.stream().mapToDouble( Pair::getB ).filter( x -> !Double.isNaN( x ) ).average().orElseThrow( NoSuchElementException::new );
 	}
 
 	private static List< Pair< Double, Double > > getAngles( WindowManager windowManager1, WindowManager windowManager2 )
@@ -266,8 +271,8 @@ public class ImproveAnglesDemo
 	{
 		// Use JFreeChart to plot the angles.
 		XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries( getXySeries( "global angles", globalAngles ) );
-		dataset.addSeries( getXySeries( "local angles", localAngles ) );
+		dataset.addSeries( getXySeries( "global angles", globalAngles, -.1 ) );
+		dataset.addSeries( getXySeries( "local angles", localAngles, .1 ) );
 		JFreeChart chart = ChartFactory.createScatterPlot( "Angles", "time", "angle", dataset );
 		chart.getXYPlot().getRangeAxis().setRange( 0, 90 );
 		ChartFrame frame = new ChartFrame( "Angles", chart );
@@ -275,11 +280,11 @@ public class ImproveAnglesDemo
 		frame.setVisible( true );
 	}
 
-	private static XYSeries getXySeries( String title, List< Pair< Double, Double > > values )
+	private static XYSeries getXySeries( String title, List< Pair< Double, Double > > values, double x_offset )
 	{
 		XYSeries series = new XYSeries( title );
 		for ( Pair< Double, Double > value : values )
-			series.add( value.getA(), value.getB() );
+			series.add( value.getA() + x_offset, value.getB() );
 		return series;
 	}
 
