@@ -52,7 +52,7 @@ public class LineageRegistrationDemo
 		{
 			MamutProject project = new MamutProjectIO().load( projectPath );
 			WindowManager wm = new WindowManager( context );
-			wm.getProjectManager().open( project, false );
+			wm.getProjectManager().open( project, false, true );
 			//TrackSchemeFrame frame = wm.createBranchTrackScheme().getFrame();
 			//String baseName = FilenameUtils.getBaseName( projectPath );
 			//frame.setTitle( frame.getTitle() + " " + baseName );

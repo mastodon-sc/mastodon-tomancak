@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.LinAlgHelpers;
@@ -31,6 +32,7 @@ import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.model.branch.BranchLink;
 import org.mastodon.mamut.model.branch.BranchSpot;
 import org.mastodon.mamut.model.branch.ModelBranchGraph;
+import org.mastodon.mamut.tomancak.lineage_registration.coupling.ModelCoupling;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.EstimateTransformation;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationMethod;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
@@ -44,6 +46,12 @@ public class ImproveAnglesDemo
 {
 	public static void main( String... args )
 	{
+		compareAllDatasets();
+		plotAngles();
+	}
+
+	private static void plotAngles()
+	{
 		try (Context context = new Context())
 		{
 			WindowManager windowManager1 = LineageRegistrationDemo.openAppModel( context, LineageRegistrationDemo.Ml_2022_05_03 );
@@ -51,28 +59,65 @@ public class ImproveAnglesDemo
 			ImproveAnglesDemo.removeBackEdges( windowManager1.getAppModel().getModel().getGraph() );
 			ImproveAnglesDemo.removeBackEdges( windowManager2.getAppModel().getModel().getGraph() );
 			LineageRegistrationAlgorithm.USE_LOCAL_ANGLES = false;
-			List< Pair< Double, Double > > globalAngles = getAngles( windowManager1, windowManager2 );
+			RegisteredGraphs globalRegistration = LineageRegistrationAlgorithm.run(
+					windowManager1.getAppModel().getModel(), 0,
+					windowManager2.getAppModel().getModel(), 0,
+					SpatialRegistrationMethod.DYNAMIC_ROOTS );
+			LineageRegistrationUtils.sortSecondTrackSchemeToMatch( globalRegistration );
 			LineageRegistrationAlgorithm.USE_LOCAL_ANGLES = true;
-			List< Pair< Double, Double > > localAngles = getAngles( windowManager1, windowManager2 );
+			RegisteredGraphs localRegistration = LineageRegistrationAlgorithm.run(
+					windowManager1.getAppModel().getModel(), 0,
+					windowManager2.getAppModel().getModel(), 0,
+					SpatialRegistrationMethod.DYNAMIC_ROOTS );
+			LineageRegistrationUtils.tagCells( localRegistration, true, true );
+			windowManager1.createBranchTrackScheme();
+			windowManager2.createBranchTrackScheme();
+			new ModelCoupling( windowManager1.getAppModel(), windowManager2.getAppModel(), localRegistration, 0 );
+			List< Pair< Double, Double > > globalAngles = getAngles( globalRegistration );
+			List< Pair< Double, Double > > localAngles = getAngles( localRegistration );
 			plotAngles( localAngles, globalAngles );
 			plotAngles( averageBins( localAngles ), averageBins( globalAngles ) );
-			System.out.println( "local mean angle: " + computeMean( localAngles ) );
 			System.out.println( "global mean angle: " + computeMean( globalAngles ) );
+			System.out.println( "local mean angle: " + computeMean( localAngles ) );
+			System.out.println( "global quality: " + MeasureRegistrationQuality.measure( globalRegistration ) );
+			System.out.println( "local quality: " + MeasureRegistrationQuality.measure( localRegistration ) );
+		}
+	}
+
+	private static void compareAllDatasets()
+	{
+		try (Context context = new Context())
+		{
+			List< String > projects = Arrays.asList(
+					LineageRegistrationDemo.Ml_2022_01_27,
+					LineageRegistrationDemo.Ml_2022_05_03,
+					LineageRegistrationDemo.Ml_2020_08_03,
+					LineageRegistrationDemo.Ml_2020_07_23_MIRRORED
+			);
+			List< WindowManager > wms = projects.stream().map( path -> LineageRegistrationDemo.openAppModel( context, path ) ).collect( Collectors.toList() );
+			for ( WindowManager wm : wms )
+				ImproveAnglesDemo.removeBackEdges( wm.getAppModel().getModel().getGraph() );
+			for ( int i = 0; i < wms.size(); i++ )
+				for ( int j = i + 1; j < wms.size(); j++ )
+				{
+					LineageRegistrationAlgorithm.USE_LOCAL_ANGLES = false;
+					RegisteredGraphs rg =
+							LineageRegistrationAlgorithm.run( wms.get( i ).getAppModel().getModel(), 0, wms.get( j ).getAppModel().getModel(), 0, SpatialRegistrationMethod.DYNAMIC_ROOTS );
+					double globalQuality = MeasureRegistrationQuality.measure( rg );
+					double globalAngle = computeMean( getAngles( rg ) );
+					LineageRegistrationAlgorithm.USE_LOCAL_ANGLES = true;
+					rg = LineageRegistrationAlgorithm.run( wms.get( i ).getAppModel().getModel(), 0, wms.get( j ).getAppModel().getModel(), 0, SpatialRegistrationMethod.DYNAMIC_ROOTS );
+					double localQuality = MeasureRegistrationQuality.measure( rg );
+					double localAngle = computeMean( getAngles( rg ) );
+					System.out.println( "quality: " + ( localQuality - globalQuality ) + " global: " + globalQuality + " local: " + localQuality + " " + projects.get( i ) + " " + projects.get( j ) );
+					System.out.println( "angle: " + ( localAngle - globalAngle ) + " global: " + globalAngle + " local: " + localAngle + " " + projects.get( i ) + " " + projects.get( j ) );
+				}
 		}
 	}
 
 	private static double computeMean( List< Pair< Double, Double > > localAngles )
 	{
 		return localAngles.stream().mapToDouble( Pair::getB ).filter( x -> !Double.isNaN( x ) ).average().orElseThrow( NoSuchElementException::new );
-	}
-
-	private static List< Pair< Double, Double > > getAngles( WindowManager windowManager1, WindowManager windowManager2 )
-	{
-		RegisteredGraphs rg = LineageRegistrationAlgorithm.run(
-				windowManager1.getAppModel().getModel(), 0,
-				windowManager2.getAppModel().getModel(), 0,
-				SpatialRegistrationMethod.DYNAMIC_ROOTS );
-		return getGloablAngles( rg );
 	}
 
 	private static List< Pair< Double, Double > > averageBins( List< Pair< Double, Double > > values )
@@ -120,7 +165,7 @@ public class ImproveAnglesDemo
 		return localAngles;
 	}
 
-	private static List< Pair< Double, Double > > getGloablAngles( RegisteredGraphs rg )
+	private static List< Pair< Double, Double > > getAngles( RegisteredGraphs rg )
 	{
 		ModelGraph graphA = rg.graphA;
 		ModelBranchGraph branchGraphA = new ModelBranchGraph( graphA );

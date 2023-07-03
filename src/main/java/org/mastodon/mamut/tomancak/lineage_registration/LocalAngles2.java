@@ -124,10 +124,10 @@ public class LocalAngles2
 					double[] auntsPosition = getDescendantsPosition( graph, auntMap.get( spot, ref ), divisionTime );
 					// NB: The next line is there just to creat a NullPointerException if gen < 2.
 					// Using the new method to compute the angle early on, gives slightly worse angles.
-					//double[] grantAuntsPosition = getDescendantsPosition( graph, grandAuntMap.get( spot, ref ), divisionTime );
+					double[] grantAuntsPosition = getDescendantsPosition( graph, grandAuntMap.get( spot, ref ), divisionTime );
 //					double[] ggAuntsPosition = getDescendantsPosition( graph, ggAuntMap.get( spot, ref ), divisionTime );
 //					double[] gggAuntsPosition = getDescendantsPosition( graph, gggAuntMap.get( spot, ref ), divisionTime );
-					landmarks.put( spot, new double[][] { spotPosition, siblingsPosition, auntsPosition } );
+					landmarks.put( spot, new double[][] { spotPosition, siblingsPosition, auntsPosition, grantAuntsPosition } );
 				}
 				catch ( NullPointerException e )
 				{
