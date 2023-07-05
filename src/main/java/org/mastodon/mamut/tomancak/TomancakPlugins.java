@@ -369,6 +369,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			vertices = model.getGraph().vertices();
 
 		SortTree.sortCellLifetime( model, vertices );
+		appModel.getBranchGraphSync().sync();
 	}
 
 	private void showLineageView() {

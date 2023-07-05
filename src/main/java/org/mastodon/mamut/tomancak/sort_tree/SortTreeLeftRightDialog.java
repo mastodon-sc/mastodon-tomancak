@@ -92,6 +92,7 @@ public class SortTreeLeftRightDialog extends JDialog
 		Collection<Spot> right = rightLandmark.getSelectedSpots();
 		Collection<Spot> selectedSpot = nodesToSort.getSelectedSpots();
 		SortTree.sortLeftRightAnchors( appModel.getModel(), selectedSpot, left, right );
+		appModel.getBranchGraphSync().sync();
 	}
 
 	private static void centerWindow(Window frame) {
