@@ -49,6 +49,10 @@ import java.util.function.Predicate;
  */
 public class SortTree
 {
+	private SortTree()
+	{
+		// prevent from instantiation
+	}
 
 	public static void sortLeftRightAnchors( Model model, Collection< Spot > vertices, Collection< Spot > leftAnchors, Collection< Spot > rightAnchors )
 	{
