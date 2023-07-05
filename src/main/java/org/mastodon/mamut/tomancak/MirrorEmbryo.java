@@ -14,6 +14,10 @@ import org.mastodon.mamut.model.Spot;
  */
 public class MirrorEmbryo
 {
+	private MirrorEmbryo()
+	{
+		// prevent from instantiation
+	}
 
 	/**
 	 * Shows a warning dialog and mirrors all spots along the X axis.
