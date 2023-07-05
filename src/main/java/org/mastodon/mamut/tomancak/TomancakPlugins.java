@@ -124,8 +124,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( EXPORTS_SPOTS_COUNTS, "Export Spots Counts" );
 		menuTexts.put( MERGE_PROJECTS, "Merge Two Projects" );
 		menuTexts.put( TWEAK_DATASET_PATH, "Fix Image Path" );
-		menuTexts.put( ADD_CENTER_SPOTS, "Add center spot" );
-		menuTexts.put( MIRROR_SPOTS, "Mirror spots along X-axis" );
+		menuTexts.put( ADD_CENTER_SPOTS, "Add Center Spot" );
+		menuTexts.put( MIRROR_SPOTS, "Mirror Spots Along X-Axis" );
 	}
 
 	/*

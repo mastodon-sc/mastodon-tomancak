@@ -44,11 +44,11 @@ public class MirrorEmbryo
 	private static boolean showDialog()
 	{
 		String title = "Mirror X coordinate of each spot";
-		String message = "Mirror the X coordinate of each spot.\n"
+		String message = "Mirror the x-coordinate of each spot.\n"
 				+ "\n"
-				+ "The plugin first calculates the mean X coordinate of all spots."
-				+ "Then the X-coordinate of each spot is mirrored around the"
-				+ "plane x = mean X. The ellipsoids are mirrored as well.\n"
+				+ "The plugin first calculates the mean x-coordinate of all spots."
+				+ "Then the x-coordinate of each spot is mirrored on the"
+				+ "plane x = mean x. The ellipsoids are mirrored as well.\n"
 				+ "\n"
 				+ "Please note: The plugin does not support mirroring of the image data.\n"
 				+ "The spots will therefore appear to be in the wrong place.\n"
