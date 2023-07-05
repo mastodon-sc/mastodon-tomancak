@@ -50,12 +50,12 @@ import java.util.function.Predicate;
 public class SortTree
 {
 
-	public static void sortLeftRightAnchors( Model model, Collection<Spot> vertices, Collection<Spot> leftAnchors, Collection<Spot> rightAnchors )
+	public static void sortLeftRightAnchors( Model model, Collection< Spot > vertices, Collection< Spot > leftAnchors, Collection< Spot > rightAnchors )
 	{
 		sort( model, vertices, new LeftRightOrder( model.getGraph(), leftAnchors, rightAnchors ) );
 	}
 
-	public static void sortExternIntern( Model model, Collection<Spot> vertices, Collection<Spot> centerSpots )
+	public static void sortExternIntern( Model model, Collection< Spot > vertices, Collection< Spot > centerSpots )
 	{
 		sort( model, vertices, new ExternInternOrder( model.getGraph(), centerSpots ) );
 	}
@@ -78,14 +78,14 @@ public class SortTree
 		sort( model, vertices, new CellLifetimeOrder( model.getGraph() ) );
 	}
 
-	public static void sort( Model model, Collection<Spot> vertices, Predicate<Spot> order )
+	public static void sort( Model model, Collection< Spot > vertices, Predicate< Spot > order )
 	{
 		ModelGraph graph = model.getGraph();
 		ReentrantReadWriteLock.WriteLock lock = graph.getLock().writeLock();
 		lock.lock();
 		try
 		{
-			RefList<Spot> toBeFlipped = findSpotsToBeFlipped( graph, vertices, order );
+			RefList< Spot > toBeFlipped = findSpotsToBeFlipped( graph, vertices, order );
 			FlipDescendants.flipDescendants( model, toBeFlipped );
 		}
 		finally
@@ -94,10 +94,10 @@ public class SortTree
 		}
 	}
 
-	private static RefList<Spot> findSpotsToBeFlipped( ModelGraph graph, Collection<Spot> vertices, Predicate<Spot> correctOrder )
+	private static RefList< Spot > findSpotsToBeFlipped( ModelGraph graph, Collection< Spot > vertices, Predicate< Spot > correctOrder )
 	{
-		RefList<Spot> toBeFlipped = new RefArrayList<>( graph.vertices().getRefPool() );
-		for(Spot spot : vertices )
+		RefList< Spot > toBeFlipped = new RefArrayList<>( graph.vertices().getRefPool() );
+		for ( Spot spot : vertices )
 		{
 			boolean needsToBeFlipped = spot.outgoingEdges().size() == 2
 					&& !correctOrder.test( spot );
