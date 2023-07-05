@@ -60,7 +60,20 @@ public class SortTree
 		sort( model, vertices, new ExternInternOrder( model.getGraph(), centerSpots ) );
 	}
 
-	public static void sortCellLifetime( Model model, Collection<Spot> vertices )
+	/**
+	 * Sorts the ModelGraph / TrackScheme, longer branches become the left (first) child.
+	 * <pre>
+	 *          ┌─────┘─────┐                ┌─────┘─────┐
+	 *          │2          │3               │3          │2
+	 *          │           │                │           │
+	 *       ┌──┘──┐        │       ==>      │        ┌──┘──┐
+	 *       │1    │2    ┌──┘──┐          ┌──┘──┐     │2    │1
+	 *             │     │2    │1         │2    │1    │
+	 *                   │                │
+	 *</pre>
+	 *
+	 */
+	public static void sortCellLifetime( Model model, Collection< Spot > vertices )
 	{
 		sort( model, vertices, new CellLifetimeOrder( model.getGraph() ) );
 	}
