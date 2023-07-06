@@ -56,6 +56,7 @@ import org.mastodon.mamut.tomancak.sort_tree.SortTreeExternInternDialog;
 import org.mastodon.mamut.tomancak.spots.AddCenterSpots;
 import org.mastodon.mamut.tomancak.spots.FilterOutSolists;
 import org.mastodon.mamut.tomancak.spots.InterpolateMissingSpots;
+import org.mastodon.mamut.tomancak.spots.MirrorEmbryo;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.ui.keymap.CommandDescriptions;
 import org.mastodon.ui.keymap.KeyConfigContexts;

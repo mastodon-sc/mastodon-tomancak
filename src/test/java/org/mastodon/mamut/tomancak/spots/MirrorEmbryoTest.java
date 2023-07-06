@@ -1,4 +1,4 @@
-package org.mastodon.mamut.tomancak;
+package org.mastodon.mamut.tomancak.spots;
 
 import static org.junit.Assert.assertArrayEquals;
 
