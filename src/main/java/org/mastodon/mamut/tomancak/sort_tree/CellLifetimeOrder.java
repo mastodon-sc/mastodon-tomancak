@@ -13,13 +13,15 @@ import org.mastodon.mamut.tomancak.lineage_registration.BranchGraphUtils;
  * Compares the cell lifecycles of the two child cells of a given spot.
  * The child with the longer cell lifecycle is sorted to be the first child.
  * <pre>
- *          ┌─────┘─────┐                ┌─────┘─────┐
+ * {@code
+ *          ┌─────┴─────┐                ┌─────┴─────┐
  *          │2          │3               │3          │2
  *          │           │                │           │
- *       ┌──┘──┐        │       ==>      │        ┌──┘──┐
- *       │1    │2    ┌──┘──┐          ┌──┘──┐     │2    │1
+ *       ┌──┴──┐        │       ==>      │        ┌──┴──┐
+ *       │1    │2    ┌──┴──┐          ┌──┴──┐     │2    │1
  *             │     │2    │1         │2    │1    │
  *                   │                │
+ *}
  * </pre>
  */
 public class CellLifetimeOrder implements Predicate< Spot >
