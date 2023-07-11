@@ -6,6 +6,18 @@ import org.mastodon.mamut.model.Spot;
 
 /**
  * Example data for testing {@link LineageRegistrationAlgorithm} and {@link LineageRegistrationUtils}.
+ * <p>
+ * The graph {@link #graph} is a tree with three lineages, A, B and C. Each
+ * lineage divides once.
+ * <pre>
+ *     A         B         C
+ *     |         |        / \
+ *     A~1       B~1     C1 C2
+ *    / \        |
+ *   A1 A2       B~2
+ *              / \
+ *             B1 B2
+ * </pre>
  */
 class EmbryoA
 {
