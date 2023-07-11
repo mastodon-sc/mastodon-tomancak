@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.LinAlgHelpers;
@@ -20,9 +21,9 @@ import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.lineage_registration.RefMapUtils;
-import org.mastodon.mamut.tomancak.lineage_registration.TagSetUtils;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
 import org.mastodon.model.tag.TagSetStructure;
+import org.mastodon.util.TagSetUtils;
 
 import mpicbg.models.Point;
 import mpicbg.models.PointMatch;
@@ -85,10 +86,10 @@ public class DynamicLandmarkRegistration implements SpatialRegistration
 	public static DynamicLandmarkRegistration forTagSet( Model modelA, Model modelB )
 	{
 		Map< String, TagSetStructure.Tag > tagSetA =
-				TagSetUtils.tagSetAsMap( TagSetUtils.findTagSet( modelA.getTagSetModel(), "landmarks" ) );
+				tagSetAsMap( TagSetUtils.findTagSet( modelA, "landmarks" ) );
 
 		Map< String, TagSetStructure.Tag > tagSetB =
-				TagSetUtils.tagSetAsMap( TagSetUtils.findTagSet( modelB.getTagSetModel(), "landmarks" ) );
+				tagSetAsMap( TagSetUtils.findTagSet( modelB, "landmarks" ) );
 
 		DynamicLandmarkRegistration dynamicLandmarkRegistration = new DynamicLandmarkRegistration( modelA.getGraph(), modelB.getGraph() );
 		for ( String tagLabel : tagSetA.keySet() )
@@ -192,5 +193,14 @@ public class DynamicLandmarkRegistration implements SpatialRegistration
 		if ( j >= list.size() )
 			return list.get( list.size() - 1 );
 		return list.get( j );
+	}
+
+	/**
+	 * Returns a map of all tags in the given tag set, indexed by their label.
+	 */
+	public static Map< String, TagSetStructure.Tag > tagSetAsMap( TagSetStructure.TagSet tagSet )
+	{
+		return tagSet.getTags().stream()
+				.collect( Collectors.toMap( TagSetStructure.Tag::label, tag -> tag ) );
 	}
 }

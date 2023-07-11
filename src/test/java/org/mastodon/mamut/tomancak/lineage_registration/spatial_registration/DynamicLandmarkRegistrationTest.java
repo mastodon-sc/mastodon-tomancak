@@ -15,14 +15,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.ref.RefRefHashMap;
-import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.lineage_registration.LineageRegistrationAlgorithm;
 import org.mastodon.mamut.tomancak.lineage_registration.RegisteredGraphs;
-import org.mastodon.mamut.tomancak.lineage_registration.TagSetUtils;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
 import org.mastodon.model.tag.TagSetStructure;
+import org.mastodon.util.TagHelper;
+import org.mastodon.util.TagSetUtils;
 
 /**
  * Tests {@link DynamicLandmarkRegistration} and it's integration in the
@@ -89,15 +89,20 @@ public class DynamicLandmarkRegistrationTest
 				Pair.of( "B", Color.green.getRGB() ),
 				Pair.of( "C", Color.blue.getRGB() ) );
 		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( embryo.model, "landmarks", colors );
-		tagBranches( tagSet, embryo.model, tagSet.getTags().get( 0 ), embryo.a, embryo.a1, embryo.a2 );
-		tagBranches( tagSet, embryo.model, tagSet.getTags().get( 1 ), embryo.b, embryo.b1, embryo.b2 );
-		tagBranches( tagSet, embryo.model, tagSet.getTags().get( 2 ), embryo.c, embryo.c1, embryo.c2, embryo.c21, embryo.c21 );
-	}
-
-	private static void tagBranches( TagSetStructure.TagSet tagSet, Model model, TagSetStructure.Tag tag, Spot... spots )
-	{
-		for ( Spot spot : spots )
-			TagSetUtils.tagBranch( model, tagSet, tag, spot );
+		TagHelper tagA = new TagHelper( embryo.model, tagSet, "A" );
+		tagA.tagBranch( embryo.a );
+		tagA.tagBranch( embryo.a1 );
+		tagA.tagBranch( embryo.a2 );
+		TagHelper tagB = new TagHelper( embryo.model, tagSet, "B" );
+		tagB.tagBranch( embryo.b );
+		tagB.tagBranch( embryo.b1 );
+		tagB.tagBranch( embryo.b2 );
+		TagHelper tagC = new TagHelper( embryo.model, tagSet, "C" );
+		tagC.tagBranch( embryo.c );
+		tagC.tagBranch( embryo.c1 );
+		tagC.tagBranch( embryo.c2 );
+		tagC.tagBranch( embryo.c21 );
+		tagC.tagBranch( embryo.c22 );
 	}
 
 	@Test

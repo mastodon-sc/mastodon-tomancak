@@ -3,23 +3,21 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
-import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationMethod;
-import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
+import org.mastodon.util.TagHelper;
+import org.mastodon.util.TagSetUtils;
 
 public class LineageRegistrationUtilsTest
 {
@@ -73,19 +71,21 @@ public class LineageRegistrationUtilsTest
 				Pair.of( "foo", 0xffff0000 ),
 				Pair.of( "bar", 0xff00ff00 )
 		) );
-		TagSetStructure.Tag foo = tagSet.getTags().get( 0 );
-		TagSetStructure.Tag bar = tagSet.getTags().get( 1 );
-		TagSetUtils.tagBranch( embryoA.model, tagSet, foo, embryoA.a );
-		TagSetUtils.tagBranch( embryoA.model, tagSet, foo, embryoA.a1 );
-		TagSetUtils.tagBranch( embryoA.model, tagSet, foo, embryoA.a2 );
-		TagSetUtils.tagBranch( embryoA.model, tagSet, bar, embryoA.b1 );
-		embryoA.model.getTagSetModel().getEdgeTags().set( embryoA.model.getGraph().getEdge( embryoA.bEnd, embryoA.b1 ), bar );
+		TagHelper foo = new TagHelper( embryoA.model, tagSet, "foo" );
+		TagHelper bar = new TagHelper( embryoA.model, tagSet, "bar" );
+		foo.tagBranch( embryoA.a );
+		foo.tagBranch( embryoA.a1 );
+		foo.tagBranch( embryoA.a2 );
+		bar.tagBranch( embryoA.b1 );
+		bar.tagLink( embryoA.model.getGraph().getEdge( embryoA.bEnd, embryoA.b1 ) );
 		// process
-		LineageRegistrationUtils.copyTagSetToSecondModel( registration, tagSet, "test" );
+		LineageRegistrationUtils.copyTagSetToSecondModel( registration, tagSet, "new-tag-set" );
 		// test: tag set for embryoB
-		assertEquals( set( "A", "A~1", "A1", "A2" ), getTaggedSpots( embryoB.model, "test", "foo" ) );
-		assertEquals( set( "B2" ), getTaggedSpots( embryoB.model, "test", "bar" ) );
-		assertEquals( set( "B~2 -> B2" ), getTaggedEdges( embryoB.model, "test", "bar" ) );
+		TagHelper fooB = new TagHelper( embryoB.model, "new-tag-set", "foo" );
+		TagHelper barB = new TagHelper( embryoB.model, "new-tag-set", "bar" );
+		assertEquals( set( "A", "A~1", "A1", "A2" ), getTaggedSpots( fooB ) );
+		assertEquals( set( "B2" ), getTaggedSpots( barB ) );
+		assertEquals( set( "B~2 -> B2" ), getTaggedEdges( barB ) );
 	}
 
 	private static < T > Set< T > set( T... values )
@@ -95,30 +95,21 @@ public class LineageRegistrationUtilsTest
 
 	private static Set< String > getTaggedSpots( Model model, String tagSetName, String tagLabel )
 	{
-		TagSetModel< Spot, Link > tagsModel = model.getTagSetModel();
-		TagSetStructure.TagSet tagSet = TagSetUtils.findTagSet( tagsModel, tagSetName );
-		TagSetStructure.Tag tag = findTag( tagSet, tagLabel );
-		return tagsModel.getVertexTags().getTaggedWith( tag ).stream().map( Spot::getLabel ).collect( Collectors.toSet() );
+		return getTaggedSpots( new TagHelper( model, tagSetName, tagLabel ) );
 	}
 
-	private static Set< String > getTaggedEdges( Model model, String tagSetName, String tagLabel )
+	private static Set< String > getTaggedSpots( TagHelper tag )
 	{
-		TagSetModel< Spot, Link > tagsModel = model.getTagSetModel();
-		TagSetStructure.TagSet tagSet = TagSetUtils.findTagSet( tagsModel, tagSetName );
-		TagSetStructure.Tag tag = findTag( tagSet, tagLabel );
-		Collection< Link > edges = tagsModel.getEdgeTags().getTaggedWith( tag );
-		HashSet< String > strings = new HashSet<>();
-		for ( Link edge : edges )
-			strings.add( edge.getSource().getLabel() + " -> " + edge.getTarget().getLabel() );
-		return strings;
+		return tag.getTaggedSpots().stream()
+				.map( Spot::getLabel )
+				.collect( Collectors.toSet() );
 	}
 
-	private static TagSetStructure.Tag findTag( TagSetStructure.TagSet tagSet, String label )
+	private static Set< String > getTaggedEdges( TagHelper tag )
 	{
-		for ( TagSetStructure.Tag tag : tagSet.getTags() )
-			if ( label.equals( tag.label() ) )
-				return tag;
-		throw new NoSuchElementException();
+		return tag.getTaggedLinks().stream()
+				.map( edge -> edge.getSource().getLabel() + " -> " + edge.getTarget().getLabel() )
+				.collect( Collectors.toSet() );
 	}
 
 	private Spot firstChild( ModelGraph graph, Spot tA )

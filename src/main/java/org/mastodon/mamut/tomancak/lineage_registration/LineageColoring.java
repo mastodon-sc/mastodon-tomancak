@@ -14,6 +14,7 @@ import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.model.tag.ObjTagMap;
 import org.mastodon.model.tag.TagSetStructure;
+import org.mastodon.util.TagSetUtils;
 
 public class LineageColoring
 {
@@ -39,7 +40,8 @@ public class LineageColoring
 	private static void tagLineages( Map< String, Integer > colorMap, RefCollection< Spot > roots, Model model )
 	{
 		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( model, "lineages", colorMap.entrySet() );
-		Map< String, TagSetStructure.Tag > tags = TagSetUtils.tagSetAsMap( tagSet );
+		Map< String, TagSetStructure.Tag > tags = tagSet.getTags().stream()
+				.collect( Collectors.toMap( TagSetStructure.Tag::label, tag -> tag ) );
 		for ( Spot root : roots )
 			tagLineage( model, root, tagSet, tags.get( root.getLabel() ) );
 	}

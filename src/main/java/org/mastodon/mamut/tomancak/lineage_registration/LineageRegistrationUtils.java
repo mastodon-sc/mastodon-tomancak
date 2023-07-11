@@ -25,6 +25,8 @@ import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
 import org.mastodon.model.tag.ObjTagMap;
 import org.mastodon.model.tag.TagSetStructure;
+import org.mastodon.util.TagHelper;
+import org.mastodon.util.TagSetUtils;
 
 /**
  * Utility class that implements most of the functionality
@@ -156,22 +158,23 @@ public class LineageRegistrationUtils
 				Pair.of( "not mapped", 0xff00ccff ),
 				Pair.of( "flipped", 0xffeeaa00 )
 		) );
-		tagUnmatchedSpotsInModelA( result, tagSet, tagSet.getTags().get( 0 ) );
-		tagFlippedSpotsInModelA( result, tagSet, tagSet.getTags().get( 1 ) );
+		TagHelper notMapped = new TagHelper( result.modelA, tagSet, tagSet.getTags().get( 0 ) );
+		TagHelper flipped = new TagHelper( result.modelA, tagSet, tagSet.getTags().get( 1 ) );
+		tagUnmatchedSpotsInModelA( result, notMapped );
+		tagFlippedSpotsInModelA( result, flipped );
 	}
 
-	private static void tagFlippedSpotsInModelA( RegisteredGraphs result, TagSetStructure.TagSet tagSet, TagSetStructure.Tag tag )
+	private static void tagFlippedSpotsInModelA( RegisteredGraphs result, TagHelper tag )
 	{
 		Model modelA = result.modelA;
-		ObjTagMap< Link, TagSetStructure.Tag > edgeTags = modelA.getTagSetModel().getEdgeTags().tags( tagSet );
 		Spot ref = modelA.getGraph().vertexRef();
 		try
 		{
 			for ( Spot spot : getSpotsToFlipA( result ) )
 				for ( Link link : spot.outgoingEdges() )
 				{
-					edgeTags.set( link, tag );
-					TagSetUtils.tagBranch( modelA, tagSet, tag, link.getTarget( ref ) );
+					tag.tagLink( link );
+					tag.tagBranch( link.getTarget( ref ) );
 				}
 		}
 		finally
@@ -180,15 +183,13 @@ public class LineageRegistrationUtils
 		}
 	}
 
-	private static void tagUnmatchedSpotsInModelA( RegisteredGraphs result, TagSetStructure.TagSet tagSet, TagSetStructure.Tag tag )
+	private static void tagUnmatchedSpotsInModelA( RegisteredGraphs result, TagHelper tag )
 	{
-		Model modelA = result.modelA;
-		ObjTagMap< Link, TagSetStructure.Tag > edgeTags = modelA.getTagSetModel().getEdgeTags().tags( tagSet );
 		for ( Spot spot : getUnmatchSpotsA( result ) )
 		{
-			TagSetUtils.tagBranch( modelA, tagSet, tag, spot );
+			tag.tagBranch( spot );
 			for ( Link link : spot.incomingEdges() )
-				edgeTags.set( link, tag );
+				tag.tagLink( link );
 		}
 	}
 
