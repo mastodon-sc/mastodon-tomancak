@@ -40,6 +40,13 @@ public class LineageRegistrationControlService extends AbstractService implement
 	public void registerMastodonInstance( WindowManager windowManager )
 	{
 		windowManagers.add( windowManager );
+		dialog.setMastodonInstances( windowManagers );
+	}
+
+	public void unregisterMastodonInstance( WindowManager windowManager )
+	{
+		windowManagers.remove( windowManager );
+		dialog.setMastodonInstances( windowManagers );
 	}
 
 	public void showDialog()

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.mastodon.app.ui.ViewMenuBuilder;
 import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
@@ -21,10 +22,11 @@ import org.scijava.ui.behaviour.util.Actions;
 import org.scijava.ui.behaviour.util.RunnableAction;
 
 /**
- * A plugin that registers the cell lineages of two stereotypically developing.
+ * A plugin that registers the cell lineages of two stereotypically developing embryos.
  * <p>
  * The plugin interacts with the {@link LineageRegistrationControlService} to
- * register the {@link MamutPluginAppModel} and tho show the {@link LineageRegistrationFrame}.
+ * register and unregister the {@link MamutAppModel}
+ * and to show the {@link LineageRegistrationFrame}.
  */
 @Plugin( type = MamutPlugin.class )
 public class LineageRegistrationPlugin implements MamutPlugin
@@ -69,7 +71,9 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	@Override
 	public void setAppPluginModel( MamutPluginAppModel model )
 	{
-		lineageRegistrationControlService.registerMastodonInstance( model.getWindowManager() );
+		WindowManager windowManager = model.getWindowManager();
+		lineageRegistrationControlService.registerMastodonInstance( windowManager );
+		model.getAppModel().projectClosedListeners().add( () -> lineageRegistrationControlService.unregisterMastodonInstance( windowManager ) );
 		this.pluginAppModel = model;
 		updateEnabledActions();
 	}
