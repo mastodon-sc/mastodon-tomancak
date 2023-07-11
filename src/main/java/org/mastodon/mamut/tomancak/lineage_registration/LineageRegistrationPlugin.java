@@ -42,8 +42,6 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	private static final Map< String, String > menuTexts =
 			Collections.singletonMap( MATCH_TREE, "Lineage Registration" );
 
-	private MamutPluginAppModel pluginAppModel = null;
-
 	@Plugin( type = CommandDescriptionProvider.class )
 	public static class Descriptions extends CommandDescriptionProvider
 	{
@@ -65,7 +63,6 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	public LineageRegistrationPlugin()
 	{
 		matchTreeAction = new RunnableAction( MATCH_TREE, this::matchTree );
-		updateEnabledActions();
 	}
 
 	@Override
@@ -74,14 +71,6 @@ public class LineageRegistrationPlugin implements MamutPlugin
 		WindowManager windowManager = model.getWindowManager();
 		lineageRegistrationControlService.registerMastodonInstance( windowManager );
 		model.getAppModel().projectClosedListeners().add( () -> lineageRegistrationControlService.unregisterMastodonInstance( windowManager ) );
-		this.pluginAppModel = model;
-		updateEnabledActions();
-	}
-
-	private void updateEnabledActions()
-	{
-		final MamutAppModel appModel = ( pluginAppModel == null ) ? null : pluginAppModel.getAppModel();
-		matchTreeAction.setEnabled( appModel != null );
 	}
 
 	@Override
@@ -104,7 +93,6 @@ public class LineageRegistrationPlugin implements MamutPlugin
 
 	private void matchTree()
 	{
-		if ( pluginAppModel != null )
-			lineageRegistrationControlService.showDialog();
+		lineageRegistrationControlService.showDialog();
 	}
 }
