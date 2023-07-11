@@ -60,6 +60,7 @@ import org.mastodon.mamut.tomancak.sort_tree.SortTreeExternInternDialog;
 import org.mastodon.mamut.tomancak.spots.AddCenterSpots;
 import org.mastodon.mamut.tomancak.spots.FilterOutSolists;
 import org.mastodon.mamut.tomancak.spots.InterpolateMissingSpots;
+import org.mastodon.mamut.tomancak.spots.MirrorEmbryo;
 import org.mastodon.model.SelectionModel;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.ui.keymap.CommandDescriptions;
@@ -91,6 +92,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String MERGE_PROJECTS = "[tomancak] merge projects";
 	private static final String TWEAK_DATASET_PATH = "[tomancak] fix project image path";
 	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spot";
+	private static final String MIRROR_SPOTS = "[tomancak] mirror spots";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "ctrl E" };
@@ -109,6 +111,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] MERGE_PROJECTS_KEYS = { "not mapped" };
 	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
+	private static final String[] MIRROR_SPOTS_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -130,7 +133,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( EXPORTS_SPOTS_COUNTS, "Export Spots Counts" );
 		menuTexts.put( MERGE_PROJECTS, "Merge Two Projects" );
 		menuTexts.put( TWEAK_DATASET_PATH, "Fix Image Path" );
-		menuTexts.put( ADD_CENTER_SPOTS, "Add center spot" );
+		menuTexts.put( ADD_CENTER_SPOTS, "Add Center Spot" );
+		menuTexts.put( MIRROR_SPOTS, "Mirror Spots Along X-Axis" );
 	}
 
 	/*
@@ -163,8 +167,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( EXPORTS_SPOTS_COUNTS, EXPORTS_SPOTS_COUNTS_KEYS, "Exports counts of spots into CSV-like files to be imported in data processors." );
 			descriptions.add( MERGE_PROJECTS, MERGE_PROJECTS_KEYS, "Merge two Mastodon projects into one." );
 			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Allows to insert new path to the BDV data and whether it is relative or absolute." );
-			descriptions.add( ADD_CENTER_SPOTS, ADD_CENTER_SPOTS_KEYS,
-					"On each timepoint with selected spots, add a new spot that is in the center (average position)." );
+			descriptions.add( ADD_CENTER_SPOTS, ADD_CENTER_SPOTS_KEYS, "On each timepoint with selected spots, add a new spot that is in the center (average position)." );
+			descriptions.add( MIRROR_SPOTS, MIRROR_SPOTS_KEYS, "Mirror spots along x-axis." );
 		}
 	}
 
@@ -202,6 +206,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction addCenterSpots;
 
+	private final AbstractNamedAction mirrorSpots;
+
 	private MamutPluginAppModel pluginAppModel;
 
 	public TomancakPlugins()
@@ -223,6 +229,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		mergeProjectsAction = new RunnableAction( MERGE_PROJECTS, this::mergeProjects );
 		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		addCenterSpots = new RunnableAction( ADD_CENTER_SPOTS, this::addCenterSpots );
+		mirrorSpots = new RunnableAction( MIRROR_SPOTS, this::mirrorSpots );
 		updateEnabledActions();
 	}
 
@@ -239,8 +246,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		return Arrays.asList(
 				menu( "Plugins",
 						item( COPY_TAG ),
+						item( MIRROR_SPOTS ),
 						menu( "Auxiliary Displays",
-								item( COMPACT_LINEAGE_VIEW )),
+								item( COMPACT_LINEAGE_VIEW ) ),
 						menu( "Trees Management",
 								item( LABEL_SELECTED_SPOTS ),
 								item( CHANGE_BRANCH_LABELS ),
@@ -252,10 +260,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 								item( SORT_TREE_EXTERN_INTERN ),
 								item( SORT_TREE_LIFETIME ),
 								item( LABEL_SPOTS_SYSTEMATICALLY ) ),
-				menu( "Exports",
+						menu( "Exports",
 								item( EXPORTS_LINEAGE_LENGTHS ),
 								item( EXPORTS_SPOTS_COUNTS ),
-								item( EXPORT_PHYLOXML )) ),
+								item( EXPORT_PHYLOXML ) ) ),
 				menu( "File",
 						item( TWEAK_DATASET_PATH ),
 						item( MERGE_PROJECTS )) );
@@ -287,6 +295,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( mergeProjectsAction, MERGE_PROJECTS_KEYS );
 		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 		actions.namedAction( addCenterSpots, ADD_CENTER_SPOTS_KEYS );
+		actions.namedAction( mirrorSpots, MIRROR_SPOTS_KEYS );
 	}
 
 	private void updateEnabledActions()
@@ -458,6 +467,14 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		if ( pluginAppModel != null )
 		{
 			AddCenterSpots.addSpots( pluginAppModel.getAppModel() );
+		}
+	}
+
+	private void mirrorSpots()
+	{
+		if ( pluginAppModel != null )
+		{
+			MirrorEmbryo.run( pluginAppModel.getAppModel() );
 		}
 	}
 }
