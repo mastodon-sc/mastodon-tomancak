@@ -106,7 +106,7 @@ public class LineageRegistrationFrame extends JFrame
 
 	private final List< JToggleButton > syncGroupButtons;
 
-	private final List< JComponent > buttons = new ArrayList<>();
+	private final List< JComponent > enableDisable = new ArrayList<>();
 
 	private final JTextArea logArea;
 
@@ -121,23 +121,26 @@ public class LineageRegistrationFrame extends JFrame
 		add( introductionTextPane(), "span, grow, wrap, width 0:0:" );
 		add( new JLabel( "Select Mastodon projects to match:" ), "span, wrap" );
 		add( new JLabel( "project A:" ) );
-		comboBoxA.addActionListener( ignore -> updateEnableButtons() );
+		comboBoxA.addActionListener( ignore -> updateEnableComponents() );
 		add( comboBoxA, "grow, wrap" );
 		add( new JLabel( "project B:" ) );
-		comboBoxB.addActionListener( ignore -> updateEnableButtons() );
+		comboBoxB.addActionListener( ignore -> updateEnableComponents() );
 		add( comboBoxB, "grow, wrap" );
 
 		add( new JLabel( "First time point for registration:" ), "gaptop unrelated" );
 		add( new JLabel( "project A: " ), "split 4" );
 		add( firstTimepointA );
 		firstTimepointA.setToolTipText( FIRST_TIMEPOINT_TOOLTIP );
+		enableDisable.add( firstTimepointA );
 		add( new JLabel( "project B: " ), "gapbefore unrelated" );
 		add( firstTimepointB, "wrap" );
 		firstTimepointB.setToolTipText( FIRST_TIMEPOINT_TOOLTIP );
+		enableDisable.add( firstTimepointB );
 
 		add( new JLabel( "Spatial registration method:" ) );
 		spatialRegistrationComboBox.setSelectedItem( SpatialRegistrationMethod.DYNAMIC_ROOTS );
 		add( spatialRegistrationComboBox, "wrap" );
+		enableDisable.add( spatialRegistrationComboBox );
 
 		add( new JLabel( "Tag unmatched & flipped cells:" ), "gaptop unrelated" );
 		add( newOperationButton( "in both projects", TAG_CELLS_TOOLTIP, listener::onTagBothClicked ), "split 3" );
@@ -163,7 +166,7 @@ public class LineageRegistrationFrame extends JFrame
 		logArea.setEditable( false );
 		add( logArea, "gaptop unrelated, span, grow" );
 		add( newSimpleButton( "Close", this::onCloseClicked ), "gaptop unrelated, span, align right" );
-		updateEnableButtons();
+		updateEnableComponents();
 	}
 
 	public void clearLog()
@@ -193,12 +196,12 @@ public class LineageRegistrationFrame extends JFrame
 		return textField;
 	}
 
-	private void updateEnableButtons()
+	private void updateEnableComponents()
 	{
 		SelectedProject projectA = getProjectA();
 		SelectedProject projectB = getProjectB();
 		final boolean enabled = projectA != null && projectB != null && projectA.getWindowManager() != projectB.getWindowManager();
-		for ( JComponent b : buttons )
+		for ( JComponent b : enableDisable )
 			b.setEnabled( enabled );
 	}
 
@@ -214,7 +217,7 @@ public class LineageRegistrationFrame extends JFrame
 		JButton button = new JButton( title );
 		button.addActionListener( ignored -> action.run() );
 		button.setToolTipText( hint );
-		buttons.add( button );
+		enableDisable.add( button );
 		return button;
 	}
 
@@ -252,7 +255,7 @@ public class LineageRegistrationFrame extends JFrame
 		{
 			JToggleButton e = initToggleButton( i );
 			buttons.add( e );
-			this.buttons.add( e );
+			this.enableDisable.add( e );
 		}
 		return buttons;
 	}
@@ -296,7 +299,7 @@ public class LineageRegistrationFrame extends JFrame
 		setSelected( comboBoxA, a, 0 );
 		boolean sameProject = a != null && b != null && a.getWindowManager() == b.getWindowManager();
 		setSelected( comboBoxB, sameProject ? null : b, 1 );
-		updateEnableButtons();
+		updateEnableComponents();
 	}
 
 	private void setSelected( JComboBox< MastodonInstance > comboBox, SelectedProject selectedProject, int defaultIndex )
