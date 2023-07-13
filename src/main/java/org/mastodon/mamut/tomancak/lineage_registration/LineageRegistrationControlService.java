@@ -82,12 +82,6 @@ public class LineageRegistrationControlService extends AbstractService implement
 		private ModelCoupling coupling = null;
 
 		@Override
-		public void onUpdateClicked()
-		{
-			dialog.setMastodonInstances( windowManagers );
-		}
-
-		@Override
 		public void onSortTrackSchemeAClicked()
 		{
 			sortSecondTrackScheme( dialog.getProjectB(), dialog.getProjectA() );

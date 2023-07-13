@@ -126,7 +126,6 @@ public class LineageRegistrationFrame extends JFrame
 		add( new JLabel( "project B:" ) );
 		comboBoxB.addActionListener( ignore -> updateEnableButtons() );
 		add( comboBoxB, "grow, wrap" );
-		add( newSimpleButton( "update list of projects", listener::onUpdateClicked ), "skip, wrap" );
 
 		add( new JLabel( "First time point for registration:" ), "gaptop unrelated" );
 		add( new JLabel( "project A: " ), "split 4" );
@@ -368,8 +367,6 @@ public class LineageRegistrationFrame extends JFrame
 	public interface Listener
 	{
 
-		void onUpdateClicked();
-
 		void onSortTrackSchemeAClicked();
 
 		void onSortTrackSchemeBClicked();
@@ -395,12 +392,6 @@ public class LineageRegistrationFrame extends JFrame
 
 	private static class DummyListener implements Listener
 	{
-
-		@Override
-		public void onUpdateClicked()
-		{
-
-		}
 
 		@Override
 		public void onSortTrackSchemeAClicked()
