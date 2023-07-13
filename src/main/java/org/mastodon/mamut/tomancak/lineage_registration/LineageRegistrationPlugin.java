@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.mastodon.app.ui.ViewMenuBuilder;
 import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
@@ -21,10 +22,11 @@ import org.scijava.ui.behaviour.util.Actions;
 import org.scijava.ui.behaviour.util.RunnableAction;
 
 /**
- * A plugin that registers the cell lineages of two stereotypically developing.
+ * A plugin that registers the cell lineages of two stereotypically developing embryos.
  * <p>
  * The plugin interacts with the {@link LineageRegistrationControlService} to
- * register the {@link MamutPluginAppModel} and tho show the {@link LineageRegistrationFrame}.
+ * register and unregister the {@link MamutAppModel}
+ * and to show the {@link LineageRegistrationFrame}.
  */
 @Plugin( type = MamutPlugin.class )
 public class LineageRegistrationPlugin implements MamutPlugin
@@ -39,8 +41,6 @@ public class LineageRegistrationPlugin implements MamutPlugin
 
 	private static final Map< String, String > menuTexts =
 			Collections.singletonMap( MATCH_TREE, "Lineage Registration" );
-
-	private MamutPluginAppModel pluginAppModel = null;
 
 	@Plugin( type = CommandDescriptionProvider.class )
 	public static class Descriptions extends CommandDescriptionProvider
@@ -63,21 +63,14 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	public LineageRegistrationPlugin()
 	{
 		matchTreeAction = new RunnableAction( MATCH_TREE, this::matchTree );
-		updateEnabledActions();
 	}
 
 	@Override
 	public void setAppPluginModel( MamutPluginAppModel model )
 	{
-		lineageRegistrationControlService.registerMastodonInstance( model.getWindowManager() );
-		this.pluginAppModel = model;
-		updateEnabledActions();
-	}
-
-	private void updateEnabledActions()
-	{
-		final MamutAppModel appModel = ( pluginAppModel == null ) ? null : pluginAppModel.getAppModel();
-		matchTreeAction.setEnabled( appModel != null );
+		WindowManager windowManager = model.getWindowManager();
+		lineageRegistrationControlService.registerMastodonInstance( windowManager );
+		model.getAppModel().projectClosedListeners().add( () -> lineageRegistrationControlService.unregisterMastodonInstance( windowManager ) );
 	}
 
 	@Override
@@ -100,7 +93,6 @@ public class LineageRegistrationPlugin implements MamutPlugin
 
 	private void matchTree()
 	{
-		if ( pluginAppModel != null )
-			lineageRegistrationControlService.showDialog();
+		lineageRegistrationControlService.showDialog();
 	}
 }
