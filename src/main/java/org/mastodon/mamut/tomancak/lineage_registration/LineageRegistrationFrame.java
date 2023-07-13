@@ -294,7 +294,8 @@ public class LineageRegistrationFrame extends JFrame
 			comboBoxB.addItem( mastodonInstance );
 		}
 		setSelected( comboBoxA, a, 0 );
-		setSelected( comboBoxB, b, 1 );
+		boolean sameProject = a != null && b != null && a.getWindowManager() == b.getWindowManager();
+		setSelected( comboBoxB, sameProject ? null : b, 1 );
 		updateEnableButtons();
 	}
 
