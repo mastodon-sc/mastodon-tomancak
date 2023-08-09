@@ -361,11 +361,14 @@ public class LineageRegistrationFrame extends JFrame
 
 	public static String getProjectName( WindowManager windowManager )
 	{
-		MamutProject project = windowManager.getProjectManager().getProject();
-		if ( project == null )
+		try
+		{
+			return FilenameUtils.getBaseName( windowManager.getProjectManager().getProject().getProjectRoot().getName() );
+		}
+		catch ( NullPointerException e )
+		{
 			return windowManager.toString();
-		File projectRoot = project.getProjectRoot();
-		return FilenameUtils.getBaseName( projectRoot.getName() );
+		}
 	}
 
 	public interface Listener
