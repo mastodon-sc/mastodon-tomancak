@@ -61,8 +61,8 @@ import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 
-import org.mastodon.mamut.plugin.MamutPluginAppModel;
-import org.mastodon.mamut.project.MamutProject;
+import org.mastodon.mamut.ProjectModel;
+import org.mastodon.mamut.io.project.MamutProject;
 import org.mastodon.ui.util.ExtensionFileFilter;
 import org.mastodon.ui.util.FileChooser;
 
@@ -94,11 +94,11 @@ public class DatasetPathDialog extends JDialog
 		return tellAsAbsolutePath ? "(this path is not considered now)" : projectRootWoMastodonFile.toString();
 	}
 
-	public DatasetPathDialog( final Frame owner, final MamutPluginAppModel appModel ) {
-		this( owner, appModel.getWindowManager().getProjectManager().getProject() );
+	public DatasetPathDialog( final Frame owner, final ProjectModel appModel ) {
+		this( owner, appModel.getProject() );
 		this.appModel = appModel;
 	}
-	private MamutPluginAppModel appModel = null;
+	private ProjectModel appModel = null;
 
 	public DatasetPathDialog( final Frame owner, final MamutProject project )
 	{
@@ -288,7 +288,7 @@ public class DatasetPathDialog extends JDialog
 
 
 	static class DummyImageDataParams extends JDialog {
-		public DummyImageDataParams( final Frame owner, final MamutPluginAppModel appModel ) {
+		public DummyImageDataParams( final Frame owner, final ProjectModel appModel ) {
 			super( owner, "Adjust Dummy Dataset Parameters", true );
 
 			final JPanel content = new JPanel();
@@ -337,8 +337,7 @@ public class DatasetPathDialog extends JDialog
 				fromSpots.addActionListener( l -> {
 					final double[] max = new double[3];
 					final double[] pos = new double[3];
-					appModel.getAppModel()
-							.getModel()
+					appModel.getModel()
 							.getSpatioTemporalIndex()
 							.forEach(s -> {
 								s.localize(pos);
@@ -349,7 +348,7 @@ public class DatasetPathDialog extends JDialog
 					xSpinner.setValue( (int)Math.floor(1.1*max[0]) );
 					ySpinner.setValue( (int)Math.floor(1.1*max[1]) );
 					zSpinner.setValue( (int)Math.floor(1.1*max[2]) );
-					tpSpinner.setValue(appModel.getAppModel().getMaxTimepoint()+1);
+					tpSpinner.setValue(appModel.getMaxTimepoint()+1);
 				} );
 			}
 			content.add( fromSpots, c );

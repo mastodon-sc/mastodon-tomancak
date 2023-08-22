@@ -29,19 +29,17 @@
 package org.mastodon.mamut.tomancak;
 
 import javax.swing.JOptionPane;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.model.FocusModel;
 
 public class RenameBranchLabels
 {
-	public static void run( MamutPluginAppModel pluginAppModel )
+	public static void run( ProjectModel appModel )
 	{
-		MamutAppModel appModel = pluginAppModel.getAppModel();
 		FocusModel<Spot, Link> focusModel = appModel.getFocusModel();
 		Model model = appModel.getModel();
 		ModelGraph graph = model.getGraph();

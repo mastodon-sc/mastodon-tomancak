@@ -38,13 +38,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.mastodon.app.ui.ViewMenuBuilder;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.KeyConfigScopes;
+import org.mastodon.mamut.ProjectModel;
+import org.mastodon.mamut.io.ProjectCreator;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.plugin.MamutPlugin;
-import org.mastodon.mamut.plugin.MamutPluginAppModel;
-import org.mastodon.mamut.project.MamutProject;
 import org.mastodon.mamut.tomancak.label_systematically.LabelSpotsSystematicallyDialog;
 import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
 import org.mastodon.mamut.tomancak.export.ExportCounts;
@@ -62,12 +62,12 @@ import org.mastodon.mamut.tomancak.spots.FilterOutSolists;
 import org.mastodon.mamut.tomancak.spots.InterpolateMissingSpots;
 import org.mastodon.mamut.tomancak.spots.MirrorEmbryo;
 import org.mastodon.model.SelectionModel;
-import org.mastodon.ui.keymap.CommandDescriptionProvider;
-import org.mastodon.ui.keymap.CommandDescriptions;
 import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.AbstractContextual;
 import org.scijava.command.CommandService;
 import org.scijava.plugin.Plugin;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptionProvider;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptions;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 import org.scijava.ui.behaviour.util.RunnableAction;
@@ -145,7 +145,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	{
 		public Descriptions()
 		{
-			super( KeyConfigContexts.TRACKSCHEME, KeyConfigContexts.BIGDATAVIEWER );
+			super( KeyConfigScopes.MAMUT, KeyConfigContexts.TRACKSCHEME, KeyConfigContexts.BIGDATAVIEWER );
 		}
 
 		@Override
@@ -208,7 +208,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction mirrorSpots;
 
-	private MamutPluginAppModel pluginAppModel;
+	private ProjectModel pluginAppModel;
 
 	public TomancakPlugins()
 	{
@@ -230,14 +230,12 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		addCenterSpots = new RunnableAction( ADD_CENTER_SPOTS, this::addCenterSpots );
 		mirrorSpots = new RunnableAction( MIRROR_SPOTS, this::mirrorSpots );
-		updateEnabledActions();
 	}
 
 	@Override
-	public void setAppPluginModel( final MamutPluginAppModel model )
+	public void setAppPluginModel( final ProjectModel model )
 	{
 		this.pluginAppModel = model;
-		updateEnabledActions();
 	}
 
 	@Override
@@ -298,78 +296,45 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( mirrorSpots, MIRROR_SPOTS_KEYS );
 	}
 
-	private void updateEnabledActions()
-	{
-		final MamutAppModel appModel = ( pluginAppModel == null ) ? null : pluginAppModel.getAppModel();
-		exportPhyloXmlAction.setEnabled( appModel != null );
-		flipDescendantsAction.setEnabled( appModel != null );
-		copyTagAction.setEnabled( appModel != null );
-		interpolateSpotsAction.setEnabled( appModel != null );
-		labelSelectedSpotsAction.setEnabled( appModel != null );
-		lineageTreeViewAction.setEnabled( appModel != null );
-		sortTreeAction.setEnabled( appModel != null );
-		sortTreeExternInternAction.setEnabled( appModel != null );
-		sortTreeLifetimeAction.setEnabled( appModel != null );
-		labelSpotsSystematicallyAction.setEnabled( appModel != null );
-		removeSolistsAction.setEnabled( appModel != null );
-		exportLineageLengthsAction.setEnabled( appModel != null );
-		exportSpotsCountsAction.setEnabled( appModel != null );
-		mergeProjectsAction.setEnabled( appModel != null );
-		tweakDatasetPathAction.setEnabled( appModel != null );
-		addCenterSpots.setEnabled( appModel != null );
-	}
-
 	private void exportPhyloXml()
 	{
-		if ( pluginAppModel != null )
-			MakePhyloXml.exportSelectedSubtreeToPhyloXmlFile( pluginAppModel.getAppModel() );
+		MakePhyloXml.exportSelectedSubtreeToPhyloXmlFile( pluginAppModel );
 	}
 
 	private void flipDescendants()
 	{
-		if ( pluginAppModel != null )
-			FlipDescendants.flipDescendants( pluginAppModel.getAppModel() );
+		FlipDescendants.flipDescendants( pluginAppModel );
 	}
 
 	private void copyTag()
 	{
-		if ( pluginAppModel != null )
-		{
-			final Model model = pluginAppModel.getAppModel().getModel();
-			new CopyTagDialog( null, model ).setVisible( true );
-		}
+		final Model model = pluginAppModel.getModel();
+		new CopyTagDialog( null, model ).setVisible( true );
 	}
 
 	private void interpolateSpots()
 	{
-		if ( pluginAppModel != null )
-		{
-			final Model model = pluginAppModel.getAppModel().getModel();
-			InterpolateMissingSpots.interpolate( model );
-		}
+		final Model model = pluginAppModel.getModel();
+		InterpolateMissingSpots.interpolate( model );
 	}
 
 	private void labelSelectedSpots()
 	{
-		if ( pluginAppModel != null )
-		{
-			final MamutAppModel appModel = pluginAppModel.getAppModel();
-			LabelSelectedSpots.labelSelectedSpot( appModel );
-		}
+		LabelSelectedSpots.labelSelectedSpot( pluginAppModel );
 	}
 
 	private void sortTree() {
-		SortTreeLeftRightDialog.showDialog( pluginAppModel.getAppModel() );
+		SortTreeLeftRightDialog.showDialog( pluginAppModel );
 	}
 
 	private void sortTreeExternIntern()
 	{
-		SortTreeExternInternDialog.showDialog( pluginAppModel.getAppModel() );
+		SortTreeExternInternDialog.showDialog( pluginAppModel );
 	}
 
 	private void sortTreeCellLifetime()
 	{
-		MamutAppModel appModel = pluginAppModel.getAppModel();
+		ProjectModel appModel = pluginAppModel;
 		Model model = appModel.getModel();
 		SelectionModel< Spot, Link > selectionModel = appModel.getSelectionModel();
 
@@ -385,7 +350,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		if( pluginAppModel == null )
 			return;
 		CompactLineageFrame frame =
-			new CompactLineageFrame(pluginAppModel.getAppModel());
+			new CompactLineageFrame(pluginAppModel);
 		frame.setVisible(true);
 	}
 
@@ -393,21 +358,21 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	{
 		this.getContext().getService(CommandService.class).run(
 				FilterOutSolists.class, true,
-				"appModel", pluginAppModel.getAppModel());
+				"appModel", pluginAppModel);
 	}
 
 	private void exportLengths()
 	{
 		this.getContext().getService(CommandService.class).run(
 				LineageLengthExporter.class, true,
-				"appModel", pluginAppModel.getAppModel());
+				"appModel", pluginAppModel);
 	}
 
 	private void exportCounts()
 	{
 		this.getContext().getService(CommandService.class).run(
 				ExportCounts.class, true,
-				"appModel", pluginAppModel.getAppModel());
+				"appModel", pluginAppModel);
 	}
 
 	private MergingDialog mergingDialog;
@@ -428,8 +393,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 				final Dataset dsA = new Dataset( pathA );
 				final Dataset dsB = new Dataset( pathB );
-				pluginAppModel.getWindowManager().getProjectManager().open( new MamutProject( null, dsA.project().getDatasetXmlFile() ) );
-				final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( pluginAppModel.getAppModel().getModel() );
+				
+				ProjectModel projectMerged = ProjectCreator.createProjectFromBdvFile( dsA.project().getDatasetXmlFile(), pluginAppModel.getContext() );
+				final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( projectMerged );
 				MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
 			}
 			catch( final Exception e )
@@ -442,39 +408,26 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private void tweakDatasetPath()
 	{
-		if ( pluginAppModel != null )
-		{
-			new DatasetPathDialog( null, pluginAppModel ).setVisible( true );
-		}
+		new DatasetPathDialog( null, pluginAppModel ).setVisible( true );
 	}
 
 	private void changeBranchLabels()
 	{
-		if ( pluginAppModel != null ) {
-			RenameBranchLabels.run(pluginAppModel);
-		}
+		RenameBranchLabels.run( pluginAppModel );
 	}
 
 	private void labelSpotsSystematically()
 	{
-		if ( pluginAppModel != null ) {
-			LabelSpotsSystematicallyDialog.showDialog( pluginAppModel.getAppModel() );
-		}
+		LabelSpotsSystematicallyDialog.showDialog( pluginAppModel );
 	}
 
 	private void addCenterSpots()
 	{
-		if ( pluginAppModel != null )
-		{
-			AddCenterSpots.addSpots( pluginAppModel.getAppModel() );
-		}
+		AddCenterSpots.addSpots( pluginAppModel );
 	}
 
 	private void mirrorSpots()
 	{
-		if ( pluginAppModel != null )
-		{
-			MirrorEmbryo.run( pluginAppModel.getAppModel() );
-		}
+		MirrorEmbryo.run( pluginAppModel );
 	}
 }

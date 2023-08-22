@@ -61,7 +61,7 @@ import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.mamut.tomancak.util.SpotsIterator;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
 import org.scijava.log.Logger;
@@ -86,7 +86,7 @@ public class FilterOutSolists implements Command
 	private boolean hasLabelMadeOfNumbersOnly = true;
 
 	@Parameter(persist = false)
-	private MamutAppModel appModel;
+	private ProjectModel appModel;
 
 	@Parameter
 	private LogService logService;

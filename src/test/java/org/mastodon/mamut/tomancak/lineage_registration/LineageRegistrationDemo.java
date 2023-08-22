@@ -6,9 +6,10 @@ import mpicbg.spim.data.SpimDataException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.mastodon.mamut.MainWindow;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.WindowManager;
-import org.mastodon.mamut.project.MamutProject;
-import org.mastodon.mamut.project.MamutProjectIO;
+import org.mastodon.mamut.io.ProjectLoader;
+import org.mastodon.mamut.views.trackscheme.MamutViewTrackScheme;
 import org.mastodon.views.trackscheme.display.TrackSchemeFrame;
 import org.scijava.Context;
 
@@ -30,13 +31,12 @@ public class LineageRegistrationDemo
 	{
 		try
 		{
-			MamutProject project = new MamutProjectIO().load( projectPath );
-			WindowManager wm = new WindowManager( context );
-			wm.getProjectManager().open( project );
-			TrackSchemeFrame frame = wm.createBranchTrackScheme().getFrame();
+			ProjectModel projectModel = ProjectLoader.open( projectPath, context );
+			WindowManager wm = projectModel.getWindowManager();
+			TrackSchemeFrame frame = wm.createView( MamutViewTrackScheme.class ).getFrame();
 			String baseName = FilenameUtils.getBaseName( projectPath );
 			frame.setTitle( frame.getTitle() + " " + baseName );
-			MainWindow mainWindow = new MainWindow( wm );
+			MainWindow mainWindow = new MainWindow( projectModel );
 			mainWindow.setVisible( true );
 			mainWindow.setTitle( mainWindow.getTitle() + " " + baseName );
 			return wm;

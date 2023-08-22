@@ -23,8 +23,9 @@ import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.io.FilenameUtils;
 import org.mastodon.app.ui.GroupLocksPanel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.WindowManager;
-import org.mastodon.mamut.project.MamutProject;
+import org.mastodon.mamut.io.project.MamutProject;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationMethod;
 
 /**
@@ -284,15 +285,15 @@ public class LineageRegistrationFrame extends JFrame
 		dispose();
 	}
 
-	public void setMastodonInstances( List< WindowManager > instances )
+	public void setMastodonInstances( List< ProjectModel > instances )
 	{
 		SelectedProject a = getProjectA();
 		SelectedProject b = getProjectB();
 		comboBoxA.removeAllItems();
 		comboBoxB.removeAllItems();
-		for ( WindowManager windowManager : instances )
+		for ( ProjectModel projectModel : instances )
 		{
-			MastodonInstance mastodonInstance = new MastodonInstance( windowManager );
+			MastodonInstance mastodonInstance = new MastodonInstance( projectModel );
 			comboBoxA.addItem( mastodonInstance );
 			comboBoxB.addItem( mastodonInstance );
 		}
@@ -307,7 +308,7 @@ public class LineageRegistrationFrame extends JFrame
 		if ( selectedProject != null )
 		{
 			for ( int i = 0; i < comboBox.getItemCount(); i++ )
-				if ( comboBox.getItemAt( i ).windowManager == selectedProject.getWindowManager() )
+				if ( comboBox.getItemAt( i ).projectModel == selectedProject.getAppModel() )
 				{
 					comboBox.setSelectedIndex( i );
 					return;
@@ -337,37 +338,38 @@ public class LineageRegistrationFrame extends JFrame
 		Object selectedItem = comboBoxA.getSelectedItem();
 		if ( selectedItem == null )
 			return null;
-		WindowManager windowManager = ( ( MastodonInstance ) selectedItem ).windowManager;
+		ProjectModel projectModel = ( ( MastodonInstance ) selectedItem ).projectModel;
 		Object value = firstTimepointTextField.getValue();
 		int firstTimepoint = value == null ? 0 : ( int ) value;
-		return new SelectedProject( windowManager, getProjectName( windowManager ), firstTimepoint );
+		return new SelectedProject( projectModel, getProjectName( projectModel.getProject() ), firstTimepoint );
 	}
 
 	private static class MastodonInstance
 	{
-		private final WindowManager windowManager;
 
-		private MastodonInstance( WindowManager windowManager )
+		private final ProjectModel projectModel;
+
+		private MastodonInstance( ProjectModel projectModel )
 		{
-			this.windowManager = windowManager;
+			this.projectModel = projectModel;
 		}
 
 		@Override
 		public String toString()
 		{
-			return getProjectName( windowManager );
+			return getProjectName( projectModel.getProject() );
 		}
 	}
 
-	public static String getProjectName( WindowManager windowManager )
+	public static String getProjectName( MamutProject mamutProject )
 	{
 		try
 		{
-			return FilenameUtils.getBaseName( windowManager.getProjectManager().getProject().getProjectRoot().getName() );
+			return FilenameUtils.getBaseName( mamutProject.getProjectRoot().getName() );
 		}
 		catch ( NullPointerException e )
 		{
-			return windowManager.toString();
+			return mamutProject.toString();
 		}
 	}
 

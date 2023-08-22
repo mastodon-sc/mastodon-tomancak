@@ -58,7 +58,7 @@ package org.mastodon.mamut.tomancak.util;
 import org.mastodon.collection.RefList;
 import org.mastodon.spatial.SpatioTemporalIndex;
 import org.mastodon.model.SelectionModel;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.model.Link;
@@ -73,14 +73,14 @@ public class SpotsIterator
 {
 	// ========= init =========
 	final Logger ownLogger;
-	final MamutAppModel appModel;
+	final ProjectModel appModel;
 	final ModelGraph modelGraph;
 	final SelectionModel<Spot, Link> selectionModel;
 
 	//cache...
 	public boolean isSelectionEmpty;
 
-	public SpotsIterator(final MamutAppModel appModel,
+	public SpotsIterator(final ProjectModel appModel,
 	                     final Logger reporter)
 	{
 		this.ownLogger = reporter;

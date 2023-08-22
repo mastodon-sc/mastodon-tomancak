@@ -4,7 +4,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.JOptionPane;
 
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
@@ -22,7 +22,7 @@ public class MirrorEmbryo
 	/**
 	 * Shows a warning dialog and mirrors all spots along the X axis.
 	 */
-	public static void run( MamutAppModel appModel )
+	public static void run( ProjectModel appModel )
 	{
 		if ( !showDialog() )
 			return;

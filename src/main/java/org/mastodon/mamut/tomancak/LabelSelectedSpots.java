@@ -29,7 +29,7 @@
 package org.mastodon.mamut.tomancak;
 
 import javax.swing.JOptionPane;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
@@ -41,7 +41,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class LabelSelectedSpots
 {
 
-	static void labelSelectedSpot( MamutAppModel appModel )
+	static void labelSelectedSpot( ProjectModel appModel )
 	{
 		final SelectionModel<Spot, Link> selection = appModel.getSelectionModel();
 		final Model model = appModel.getModel();

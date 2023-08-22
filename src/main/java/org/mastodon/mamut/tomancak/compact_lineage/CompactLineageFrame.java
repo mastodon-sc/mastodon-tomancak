@@ -28,14 +28,14 @@
  */
 package org.mastodon.mamut.tomancak.compact_lineage;
 
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 
 import javax.swing.*;
 
 public class CompactLineageFrame extends JFrame
 {
 
-	public CompactLineageFrame(MamutAppModel appModel) {
+	public CompactLineageFrame(ProjectModel appModel) {
 		super("Compact Lineage");
 		add(new CompactLineagePanel(appModel));
 		pack();

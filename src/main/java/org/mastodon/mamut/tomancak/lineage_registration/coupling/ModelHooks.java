@@ -1,13 +1,13 @@
 package org.mastodon.mamut.tomancak.lineage_registration.coupling;
 
 import org.mastodon.grouping.GroupHandle;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 
 /**
  * This class provides {@link SpotHook}s to access the focused spot,
- * highlighted spot and to navigate to a spot in a {@link MamutAppModel}.
+ * highlighted spot and to navigate to a spot in a {@link ProjectModel}.
  * It also provides a {@link #close()} method as an easy way to  detach
- * the hooks from the {@link MamutAppModel}.
+ * the hooks from the {@link ProjectModel}.
  */
 class ModelHooks implements AutoCloseable
 {
@@ -18,7 +18,7 @@ class ModelHooks implements AutoCloseable
 
 	private final NavigationHandlerHook navigationHandlerHook;
 
-	public ModelHooks( MamutAppModel model, int groupId )
+	public ModelHooks( ProjectModel model, int groupId )
 	{
 		this.focusModelHook = new FocusModelHook( model );
 		this.highlightModelHook = new HighlightModelHook( model );

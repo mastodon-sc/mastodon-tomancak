@@ -29,7 +29,7 @@
 package org.mastodon.mamut.tomancak.sort_tree;
 
 import net.miginfocom.swing.MigLayout;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Spot;
 
 import javax.swing.*;
@@ -43,13 +43,13 @@ public class SortTreeLeftRightDialog extends JDialog
 			+ "Cells closer to the left landmark, are put to the left side.<br>"
 			+ "Cells closer to the right landmark are put to the right side."
 			+ "</html>";
-	private final MamutAppModel appModel;
+	private final ProjectModel appModel;
 
 	private final SelectSpotsComponent leftLandmark;
 	private final SelectSpotsComponent rightLandmark;
 	private final SelectSpotsComponent nodesToSort;
 
-	private SortTreeLeftRightDialog( MamutAppModel appModel ) {
+	private SortTreeLeftRightDialog( ProjectModel appModel ) {
 		super(( Frame ) null, "Sort Lineage Tree", false);
 		setResizable( false );
 		this.appModel = appModel;
@@ -79,7 +79,7 @@ public class SortTreeLeftRightDialog extends JDialog
 		centerWindow( this );
 	}
 
-	public static void showDialog(MamutAppModel model)
+	public static void showDialog(ProjectModel model)
 	{
 		SortTreeLeftRightDialog dialog = new SortTreeLeftRightDialog(model);
 		dialog.setDefaultCloseOperation( DISPOSE_ON_CLOSE );

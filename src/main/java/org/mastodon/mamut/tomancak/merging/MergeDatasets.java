@@ -31,9 +31,10 @@ package org.mastodon.mamut.tomancak.merging;
 import java.io.File;
 import java.io.IOException;
 
+import org.mastodon.mamut.ProjectModel;
+import org.mastodon.mamut.io.ProjectSaver;
+import org.mastodon.mamut.io.project.MamutProject;
 import org.mastodon.mamut.model.Model;
-import org.mastodon.mamut.project.MamutProject;
-import org.mastodon.mamut.project.MamutProjectIO;
 import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.model.tag.TagSetStructure.Tag;
 import org.mastodon.model.tag.TagSetStructure.TagSet;
@@ -44,7 +45,7 @@ public class MergeDatasets
 	{
 		private File datasetXmlFile;
 
-		private final Model model;
+		private final ProjectModel model;
 
 		private final TagSetStructure tagSetStructure;
 
@@ -54,14 +55,9 @@ public class MergeDatasets
 
 		private final TagSet labelConflictTagSet;
 
-		public OutputDataSet()
+		public OutputDataSet( final ProjectModel projectMerged )
 		{
-			this( new Model() );
-		}
-
-		public OutputDataSet( final Model model )
-		{
-			this.model = model;
+			this.model = projectMerged;
 			tagSetStructure = new TagSetStructure();
 			conflictTagSet = tagSetStructure.createTagSet( "Merge Conflict" );
 			tagConflictTagSet = tagSetStructure.createTagSet( "Merge Conflict (Tags)" );
@@ -84,45 +80,43 @@ public class MergeDatasets
 			if ( datasetXmlFile == null )
 				throw new IllegalStateException();
 
+			// Make a new project model with the merged project, but pointing to the specified datasetXmlFile. 
 			final MamutProject project = new MamutProject( projectRoot, datasetXmlFile );
-			try ( final MamutProject.ProjectWriter writer = project.openForWriting() )
-			{
-				new MamutProjectIO().save( project, writer );
-				model.saveRaw( writer );
-			}
+			ProjectModel projectToSave = ProjectModel.create( model.getContext(), getModel(), model.getSharedBdvData(), project );
+			ProjectSaver.saveProject( projectRoot, projectToSave );
 		}
 
 		public Model getModel()
 		{
-			return model;
+			return model.getModel();
 		}
 
 		public Tag addSourceTag( final String name, final int color )
 		{
 			final TagSet ts = tagSetStructure.createTagSet( "Merge Source " + name );
 			final Tag tag = ts.createTag( name, color );
-			model.getTagSetModel().setTagSetStructure( tagSetStructure );
+			model.getModel().getTagSetModel().setTagSetStructure( tagSetStructure );
 			return tag;
 		}
 
 		public Tag addConflictTag( final String name, final int color )
 		{
 			final Tag tag = conflictTagSet.createTag( name, color );
-			model.getTagSetModel().setTagSetStructure( tagSetStructure );
+			model.getModel().getTagSetModel().setTagSetStructure( tagSetStructure );
 			return tag;
 		}
 
 		public Tag addTagConflictTag( final String name, final int color )
 		{
 			final Tag tag = tagConflictTagSet.createTag( name, color );
-			model.getTagSetModel().setTagSetStructure( tagSetStructure );
+			model.getModel().getTagSetModel().setTagSetStructure( tagSetStructure );
 			return tag;
 		}
 
 		public Tag addLabelConflictTag( final String name, final int color )
 		{
 			final Tag tag = labelConflictTagSet.createTag( name, color );
-			model.getTagSetModel().setTagSetStructure( tagSetStructure );
+			model.getModel().getTagSetModel().setTagSetStructure( tagSetStructure );
 			return tag;
 		}
 
@@ -133,7 +127,7 @@ public class MergeDatasets
 
 		public void updateTagSetModel()
 		{
-			model.getTagSetModel().setTagSetStructure( tagSetStructure );
+			model.getModel().getTagSetModel().setTagSetStructure( tagSetStructure );
 		}
 	}
 

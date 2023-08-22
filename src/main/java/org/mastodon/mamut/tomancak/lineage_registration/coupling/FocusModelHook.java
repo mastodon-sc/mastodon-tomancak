@@ -2,7 +2,7 @@ package org.mastodon.mamut.tomancak.lineage_registration.coupling;
 
 import java.util.function.Consumer;
 
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
@@ -31,7 +31,7 @@ class FocusModelHook implements SpotHook, FocusListener
 
 	private Consumer< Spot > listener;
 
-	public FocusModelHook( MamutAppModel model )
+	public FocusModelHook( ProjectModel model )
 	{
 		this.graph = model.getModel().getGraph();
 		this.focusModel = model.getFocusModel();

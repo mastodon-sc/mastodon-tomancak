@@ -1,6 +1,6 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
@@ -14,13 +14,13 @@ public class SelectedProject
 
 	private final String name;
 
-	private final WindowManager windowManager;
-
 	private final int firstTimepoint;
 
-	public SelectedProject( WindowManager windowManager, String name, int firstTimepoint )
+	private final ProjectModel projectModel;
+
+	public SelectedProject( ProjectModel projectModel, String name, int firstTimepoint )
 	{
-		this.windowManager = windowManager;
+		this.projectModel = projectModel;
 		this.name = name;
 		this.firstTimepoint = firstTimepoint;
 	}
@@ -32,7 +32,7 @@ public class SelectedProject
 
 	public WindowManager getWindowManager()
 	{
-		return windowManager;
+		return projectModel.getWindowManager();
 	}
 
 	public int getFirstTimepoint()
@@ -40,9 +40,9 @@ public class SelectedProject
 		return firstTimepoint;
 	}
 
-	public MamutAppModel getAppModel()
+	public ProjectModel getAppModel()
 	{
-		return windowManager.getAppModel();
+		return projectModel;
 	}
 
 	public Model getModel()

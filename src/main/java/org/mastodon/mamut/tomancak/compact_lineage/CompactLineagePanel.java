@@ -31,7 +31,7 @@ package org.mastodon.mamut.tomancak.compact_lineage;
 import bdv.viewer.InteractiveDisplayCanvas;
 import net.miginfocom.swing.MigLayout;
 import org.mastodon.graph.ref.IncomingEdges;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
@@ -51,7 +51,7 @@ public class CompactLineagePanel extends JPanel {
 	private final FocusModel<Spot, Link> focusModel;
 	private final ModelGraph graph;
 
-	CompactLineagePanel(MamutAppModel appModel) {
+	CompactLineagePanel(ProjectModel appModel) {
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(300, 300));
 		Model model = appModel.getModel();

@@ -28,10 +28,10 @@
  */
 package org.mastodon.mamut.tomancak.merging;
 
+import org.mastodon.mamut.io.project.MamutProject;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.model.SpotPool;
-import org.mastodon.mamut.project.MamutProject;
 import org.mastodon.properties.ObjPropertyMap;
 import org.mastodon.spatial.SpatialIndex;
 import org.mastodon.spatial.SpatioTemporalIndex;

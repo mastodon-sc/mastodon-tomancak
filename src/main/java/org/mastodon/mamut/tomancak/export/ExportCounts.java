@@ -55,8 +55,8 @@
  */
 package org.mastodon.mamut.tomancak.export;
 
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.MamutAppModel;
 import org.mastodon.mamut.tomancak.util.SpotsIterator;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
@@ -96,7 +96,7 @@ public class ExportCounts implements Command
 	File outputDirectory;
 
 	@Parameter(persist = false)
-	private MamutAppModel appModel;
+	private ProjectModel appModel;
 
 	@Parameter
 	private LogService logService;

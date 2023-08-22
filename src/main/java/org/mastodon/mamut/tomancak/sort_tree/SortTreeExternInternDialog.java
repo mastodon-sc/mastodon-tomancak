@@ -32,7 +32,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import net.miginfocom.swing.MigLayout;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Spot;
 
 import java.awt.Dimension;
@@ -49,12 +49,12 @@ public class SortTreeExternInternDialog extends JDialog
 			+ "Cells closer to the center landmark, are put to the right side."
 			+ "</html>";
 
-	private final MamutAppModel appModel;
+	private final ProjectModel appModel;
 
 	private final SelectSpotsComponent centerLandmark;
 	private final SelectSpotsComponent nodesToSort;
 
-	private SortTreeExternInternDialog( MamutAppModel appModel ) {
+	private SortTreeExternInternDialog( ProjectModel appModel ) {
 		super(( Frame ) null, "Sort Lineage Tree", false);
 		setResizable( false );
 		this.appModel = appModel;
@@ -81,7 +81,7 @@ public class SortTreeExternInternDialog extends JDialog
 		centerWindow( this );
 	}
 
-	public static void showDialog(MamutAppModel model)
+	public static void showDialog(ProjectModel model)
 	{
 		SortTreeExternInternDialog dialog = new SortTreeExternInternDialog(model);
 		dialog.setDefaultCloseOperation( DISPOSE_ON_CLOSE );

@@ -1,6 +1,6 @@
 package org.mastodon.mamut.tomancak.lineage_registration.coupling;
 
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.tomancak.lineage_registration.RegisteredGraphs;
 import org.mastodon.model.FocusModel;
 import org.mastodon.model.HighlightModel;
@@ -8,7 +8,7 @@ import org.mastodon.model.NavigationHandler;
 
 /**
  * <p>
- * This class couples two {@link MamutAppModel}s together by connecting their
+ * This class couples two {@link ProjectModel}s together by connecting their
  * {@link FocusModel}, {@link HighlightModel} and {@link NavigationHandler}.
  * </p>
  * <p>
@@ -27,7 +27,7 @@ public class ModelCoupling implements AutoCloseable
 
 	private final ModelHooks hooksB;
 
-	public ModelCoupling( final MamutAppModel modelA, final MamutAppModel modelB, final RegisteredGraphs registeredGraphs, int groupId )
+	public ModelCoupling( final ProjectModel modelA, final ProjectModel modelB, final RegisteredGraphs registeredGraphs, int groupId )
 	{
 		this.hooksA = new ModelHooks( modelA, groupId );
 		this.hooksB = new ModelHooks( modelB, groupId );

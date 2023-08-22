@@ -52,7 +52,7 @@ import org.mastodon.graph.ref.AbstractListenableEdge;
 import org.mastodon.graph.ref.AbstractListenableEdgePool;
 import org.mastodon.graph.ref.AbstractListenableVertex;
 import org.mastodon.graph.ref.AbstractListenableVertexPool;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
@@ -72,7 +72,7 @@ import mpicbg.spim.data.XmlHelpers;
 // http://www.phyloxml.org/
 public class MakePhyloXml
 {
-	public static void exportSelectedSubtreeToPhyloXmlFile( final MamutAppModel appModel )
+	public static void exportSelectedSubtreeToPhyloXmlFile( final ProjectModel appModel )
 	{
 		final ModelGraph graph = appModel.getModel().getGraph();
 

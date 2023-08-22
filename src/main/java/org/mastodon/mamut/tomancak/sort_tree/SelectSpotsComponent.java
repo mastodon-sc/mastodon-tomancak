@@ -30,7 +30,7 @@ package org.mastodon.mamut.tomancak.sort_tree;
 
 import org.mastodon.collection.RefSet;
 import org.mastodon.collection.ref.RefSetImp;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
@@ -61,7 +61,7 @@ public class SelectSpotsComponent extends JButton
 
 	private static final String SELECTED_NODES = "selected nodes";
 
-	private final MamutAppModel appModel;
+	private final ProjectModel appModel;
 
 	private final Model mastodonModel;
 
@@ -71,7 +71,7 @@ public class SelectSpotsComponent extends JButton
 
 	private boolean hasSelectedNodesItem = false;
 
-	public SelectSpotsComponent( MamutAppModel appModel )
+	public SelectSpotsComponent( ProjectModel appModel )
 	{
 		super( "<please select>" );
 		this.appModel = appModel;

@@ -9,7 +9,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefSet;
 import org.mastodon.collection.ref.RefArrayList;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
@@ -24,7 +24,7 @@ public class AddCenterSpots
 		// prevent from instantiation
 	}
 
-	public static void addSpots( MamutAppModel appModel )
+	public static void addSpots( ProjectModel appModel )
 	{
 		RefSet< Spot > selectedSpots = appModel.getSelectionModel().getSelectedVertices();
 		if ( selectedSpots.isEmpty() )
@@ -87,7 +87,7 @@ public class AddCenterSpots
 		return Pair.of( newSpots, newLinks );
 	}
 
-	private static void selectSpotsAndLinks( MamutAppModel appModel, RefList< Spot> spots, RefList< Link> links )
+	private static void selectSpotsAndLinks( ProjectModel appModel, RefList< Spot> spots, RefList< Link> links )
 	{
 		SelectionModel< Spot, Link > selectionModel = appModel.getSelectionModel();
 		selectionModel.pauseListeners();

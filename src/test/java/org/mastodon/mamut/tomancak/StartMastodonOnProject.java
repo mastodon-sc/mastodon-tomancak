@@ -29,8 +29,8 @@
 package org.mastodon.mamut.tomancak;
 
 import org.mastodon.mamut.MainWindow;
-import org.mastodon.mamut.WindowManager;
-import org.mastodon.mamut.project.MamutProjectIO;
+import org.mastodon.mamut.ProjectModel;
+import org.mastodon.mamut.io.ProjectLoader;
 import org.scijava.Context;
 import javax.swing.JFileChooser;
 import javax.swing.WindowConstants;
@@ -53,11 +53,10 @@ public class StartMastodonOnProject {
 			System.setProperty( "apple.laf.useScreenMenuBar", "true" );
 
 			//the central hub, a container to hold all
-			final WindowManager windowManager = new WindowManager( new Context() );
-			windowManager.getProjectManager().open( new MamutProjectIO().load( projectPath ) );
+			ProjectModel projectModel = ProjectLoader.open( projectPath, new Context() );
 
 			//a GUI element wrapping around the hub
-			final MainWindow win = new MainWindow(windowManager);
+			final MainWindow win = new MainWindow(projectModel);
 
 			//this makes the true Mastodon window visible
 			//note: you can open project that restores/reopen e.g. TrackScheme window,

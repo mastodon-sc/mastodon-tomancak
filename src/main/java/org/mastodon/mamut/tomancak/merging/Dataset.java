@@ -33,10 +33,10 @@ import static org.mastodon.mamut.tomancak.merging.MergingUtil.getNumTimepoints;
 
 import java.io.IOException;
 
+import org.mastodon.mamut.io.project.MamutProject;
+import org.mastodon.mamut.io.project.MamutProjectIO;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.project.MamutProject;
-import org.mastodon.mamut.project.MamutProjectIO;
 
 /**
  * Reads model from a mastodon project file.
@@ -55,7 +55,7 @@ public class Dataset
 
 	public Dataset( final String path ) throws IOException
 	{
-		project = new MamutProjectIO().load( path );
+		project = MamutProjectIO.load( path );
 		numTimepoints = getNumTimepoints( project );
 		model = new Model();
 		try (final MamutProject.ProjectReader reader = project.openForReading())

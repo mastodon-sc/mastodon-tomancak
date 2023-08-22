@@ -57,8 +57,8 @@ package org.mastodon.mamut.tomancak.export;
 
 import org.mastodon.collection.*;
 import org.mastodon.ui.util.FileChooser;
-import org.mastodon.mamut.MamutAppModel;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 
 import org.scijava.ItemVisibility;
@@ -77,7 +77,7 @@ import java.io.IOException;
 public class LineageLengthExporter extends DynamicCommand
 {
 	@Parameter(persist = false)
-	private MamutAppModel appModel;
+	private ProjectModel appModel;
 
 	@Parameter(label = "Do not report anything before this time point:",
 	           min = "0")

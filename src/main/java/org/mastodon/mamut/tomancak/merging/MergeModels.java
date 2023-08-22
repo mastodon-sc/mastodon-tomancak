@@ -31,7 +31,7 @@ package org.mastodon.mamut.tomancak.merging;
 import org.mastodon.collection.RefMaps;
 import org.mastodon.collection.RefRefMap;
 import org.mastodon.graph.algorithm.traversal.UndirectedDepthFirstIterator;
-import org.mastodon.mamut.importer.ModelImporter;
+import org.mastodon.mamut.io.importer.ModelImporter;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;

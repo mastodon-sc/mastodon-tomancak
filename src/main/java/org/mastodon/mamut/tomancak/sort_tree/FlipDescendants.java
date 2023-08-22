@@ -29,7 +29,7 @@
 package org.mastodon.mamut.tomancak.sort_tree;
 
 import org.mastodon.graph.ref.OutgoingEdges;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
@@ -43,7 +43,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class FlipDescendants
 {
-	public static void flipDescendants( final MamutAppModel appModel )
+	public static void flipDescendants( final ProjectModel appModel )
 	{
 		final Spot spot = appModel.getFocusModel().getFocusedVertex( appModel.getModel().getGraph().vertexRef() );
 		if(spot == null)

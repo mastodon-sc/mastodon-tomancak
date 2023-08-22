@@ -8,15 +8,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.mastodon.app.ui.ViewMenuBuilder;
-import org.mastodon.mamut.MamutAppModel;
-import org.mastodon.mamut.WindowManager;
+import org.mastodon.mamut.KeyConfigScopes;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.plugin.MamutPlugin;
-import org.mastodon.mamut.plugin.MamutPluginAppModel;
-import org.mastodon.ui.keymap.CommandDescriptionProvider;
-import org.mastodon.ui.keymap.CommandDescriptions;
 import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptionProvider;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptions;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 import org.scijava.ui.behaviour.util.RunnableAction;
@@ -47,7 +46,7 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	{
 		public Descriptions()
 		{
-			super( KeyConfigContexts.TRACKSCHEME, KeyConfigContexts.BIGDATAVIEWER );
+			super( KeyConfigScopes.MAMUT, KeyConfigContexts.TRACKSCHEME, KeyConfigContexts.BIGDATAVIEWER );
 		}
 
 		@Override
@@ -66,11 +65,10 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	}
 
 	@Override
-	public void setAppPluginModel( MamutPluginAppModel model )
+	public void setAppPluginModel( ProjectModel model )
 	{
-		WindowManager windowManager = model.getWindowManager();
-		lineageRegistrationControlService.registerMastodonInstance( windowManager );
-		model.getAppModel().projectClosedListeners().add( () -> lineageRegistrationControlService.unregisterMastodonInstance( windowManager ) );
+		lineageRegistrationControlService.registerMastodonInstance( model );
+		model.projectClosedListeners().add( () -> lineageRegistrationControlService.unregisterMastodonInstance( model ) );
 	}
 
 	@Override

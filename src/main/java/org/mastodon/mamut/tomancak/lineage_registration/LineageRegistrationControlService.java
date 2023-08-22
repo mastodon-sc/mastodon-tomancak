@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import net.imagej.ImageJService;
 
 import org.mastodon.collection.RefDoubleMap;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
@@ -35,18 +36,18 @@ public class LineageRegistrationControlService extends AbstractService implement
 {
 	private final LineageRegistrationFrame dialog = new LineageRegistrationFrame( new Listener() );
 
-	private final List< WindowManager > windowManagers = new ArrayList<>();
+	private final List< ProjectModel > projectModels = new ArrayList<>();
 
-	public void registerMastodonInstance( WindowManager windowManager )
+	public void registerMastodonInstance( ProjectModel projectModel )
 	{
-		windowManagers.add( windowManager );
-		dialog.setMastodonInstances( windowManagers );
+		projectModels.add( projectModel );
+		dialog.setMastodonInstances( projectModels );
 	}
 
-	public void unregisterMastodonInstance( WindowManager windowManager )
+	public void unregisterMastodonInstance( ProjectModel projectModel )
 	{
-		windowManagers.remove( windowManager );
-		dialog.setMastodonInstances( windowManagers );
+		projectModels.remove( projectModel );
+		dialog.setMastodonInstances( projectModels );
 	}
 
 	public void showDialog()
@@ -56,7 +57,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 			dialog.toFront();
 			return;
 		}
-		dialog.setMastodonInstances( windowManagers );
+		dialog.setMastodonInstances( projectModels );
 		dialog.pack();
 		dialog.setVisible( true );
 	}

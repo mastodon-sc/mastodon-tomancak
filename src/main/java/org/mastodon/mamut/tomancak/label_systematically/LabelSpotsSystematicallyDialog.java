@@ -33,7 +33,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import net.miginfocom.swing.MigLayout;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
@@ -56,7 +56,7 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 			+ "The child cell closer to the center landmark gets \"2\" appended."
 			+ "</html>";
 
-	private final MamutAppModel appModel;
+	private final ProjectModel appModel;
 
 	private final SelectSpotsComponent centerLandmark;
 
@@ -68,7 +68,7 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 
 	private final JButton actionButton;
 
-	private LabelSpotsSystematicallyDialog( MamutAppModel appModel ) {
+	private LabelSpotsSystematicallyDialog( ProjectModel appModel ) {
 		super(( Frame ) null, "Sort Lineage Tree", false);
 		setResizable( false );
 		this.appModel = appModel;
@@ -103,7 +103,7 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 		centerWindow( this );
 	}
 
-	public static void showDialog(MamutAppModel model)
+	public static void showDialog(ProjectModel model)
 	{
 		LabelSpotsSystematicallyDialog dialog = new LabelSpotsSystematicallyDialog(model);
 		dialog.setDefaultCloseOperation( DISPOSE_ON_CLOSE );
