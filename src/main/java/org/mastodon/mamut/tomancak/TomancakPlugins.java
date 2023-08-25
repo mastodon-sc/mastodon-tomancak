@@ -37,26 +37,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
+
+import org.mastodon.app.MastodonIcons;
 import org.mastodon.app.ui.ViewMenuBuilder;
 import org.mastodon.mamut.KeyConfigScopes;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.io.ProjectCreator;
+import org.mastodon.mamut.io.project.MamutImagePlusProject;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.plugin.MamutPlugin;
-import org.mastodon.mamut.tomancak.label_systematically.LabelSpotsSystematicallyDialog;
 import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
 import org.mastodon.mamut.tomancak.export.ExportCounts;
 import org.mastodon.mamut.tomancak.export.LineageLengthExporter;
 import org.mastodon.mamut.tomancak.export.MakePhyloXml;
+import org.mastodon.mamut.tomancak.label_systematically.LabelSpotsSystematicallyDialog;
 import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
 import org.mastodon.mamut.tomancak.merging.MergingDialog;
 import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
 import org.mastodon.mamut.tomancak.sort_tree.SortTree;
-import org.mastodon.mamut.tomancak.sort_tree.SortTreeLeftRightDialog;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeExternInternDialog;
+import org.mastodon.mamut.tomancak.sort_tree.SortTreeLeftRightDialog;
 import org.mastodon.mamut.tomancak.spots.AddCenterSpots;
 import org.mastodon.mamut.tomancak.spots.FilterOutSolists;
 import org.mastodon.mamut.tomancak.spots.InterpolateMissingSpots;
@@ -334,9 +338,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private void sortTreeCellLifetime()
 	{
-		ProjectModel appModel = pluginAppModel;
-		Model model = appModel.getModel();
-		SelectionModel< Spot, Link > selectionModel = appModel.getSelectionModel();
+		final ProjectModel appModel = pluginAppModel;
+		final Model model = appModel.getModel();
+		final SelectionModel< Spot, Link > selectionModel = appModel.getSelectionModel();
 
 		Collection< Spot > vertices = selectionModel.getSelectedVertices();
 		if ( vertices.isEmpty() )
@@ -349,7 +353,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private void showLineageView() {
 		if( pluginAppModel == null )
 			return;
-		CompactLineageFrame frame =
+		final CompactLineageFrame frame =
 			new CompactLineageFrame(pluginAppModel);
 		frame.setVisible(true);
 	}
@@ -394,7 +398,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 				final Dataset dsA = new Dataset( pathA );
 				final Dataset dsB = new Dataset( pathB );
 				
-				ProjectModel projectMerged = ProjectCreator.createProjectFromBdvFile( dsA.project().getDatasetXmlFile(), pluginAppModel.getContext() );
+				final ProjectModel projectMerged = ProjectCreator.createProjectFromBdvFile( dsA.project().getDatasetXmlFile(), pluginAppModel.getContext() );
 				final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( projectMerged );
 				MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
 			}
@@ -408,6 +412,18 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private void tweakDatasetPath()
 	{
+		if ( pluginAppModel.getProject() instanceof MamutImagePlusProject )
+		{
+			JOptionPane.showMessageDialog(
+					null,
+					"The current project is based on an \n"
+							+ "ImagePlus  as image data source. \n"
+							+ "Its dataset path cannot be edited.",
+					"Cannot edit dataset path",
+					JOptionPane.WARNING_MESSAGE,
+					MastodonIcons.MASTODON_ICON_MEDIUM );
+			return;
+		}
 		new DatasetPathDialog( null, pluginAppModel ).setVisible( true );
 	}
 
