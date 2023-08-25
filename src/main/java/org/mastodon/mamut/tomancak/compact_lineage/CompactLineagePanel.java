@@ -48,7 +48,7 @@ public class CompactLineagePanel extends JPanel {
 	private final InteractiveDisplayCanvas canvas;
 	private final CompactLineageRenderer renderer;
 	private LineageComboBox treeComboBox;
-	private final FocusModel<Spot, Link> focusModel;
+	private final FocusModel<Spot> focusModel;
 	private final ModelGraph graph;
 
 	CompactLineagePanel(ProjectModel appModel) {

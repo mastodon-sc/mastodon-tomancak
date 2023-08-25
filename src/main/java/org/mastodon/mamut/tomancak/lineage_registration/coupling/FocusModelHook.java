@@ -27,7 +27,7 @@ class FocusModelHook implements SpotHook, FocusListener
 
 	private final ModelGraph graph;
 
-	private final FocusModel< Spot, Link > focusModel;
+	private final FocusModel< Spot > focusModel;
 
 	private Consumer< Spot > listener;
 

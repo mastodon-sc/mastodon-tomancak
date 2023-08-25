@@ -40,7 +40,7 @@ public class RenameBranchLabels
 {
 	public static void run( ProjectModel appModel )
 	{
-		FocusModel<Spot, Link> focusModel = appModel.getFocusModel();
+		FocusModel<Spot> focusModel = appModel.getFocusModel();
 		Model model = appModel.getModel();
 		ModelGraph graph = model.getGraph();
 		Spot ref = graph.vertexRef();
