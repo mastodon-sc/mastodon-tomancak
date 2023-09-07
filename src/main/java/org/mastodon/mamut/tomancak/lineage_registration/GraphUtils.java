@@ -52,4 +52,13 @@ public class GraphUtils
 			graph.releaseRef( ref );
 		}
 	}
+
+	/**
+	 * Returns the set of leaf nodes of the given graph.
+	 */
+	public static < V extends Vertex< ? > > RefSet< V > getLeafs( ReadOnlyGraph< V, ? > graph )
+	{
+		Predicate< V > isLeaf = spot -> spot.outgoingEdges().isEmpty();
+		return RefCollectionUtils.filterSet( graph.vertices(), isLeaf );
+	}
 }
