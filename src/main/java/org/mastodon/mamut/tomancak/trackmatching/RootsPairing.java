@@ -91,7 +91,7 @@ public class RootsPairing
 		Spot ref = spots.createRef();
 		try
 		{
-			return RefCollectionUtils.filterSet( spots, spot -> LineageTreeUtils.doesBranchDivide( spot, ref ) );
+			return RefCollectionUtils.filterSet( spots, spot -> BranchGraphUtils.doesBranchDivide( spot, ref ) );
 		}
 		finally
 		{
