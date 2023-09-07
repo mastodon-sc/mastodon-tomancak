@@ -73,7 +73,7 @@ public class RootsPairing
 
 	private static RefSet< Spot > getRoots( ModelGraph graph, int timepoint )
 	{
-		return getBranchStarts( filterDividingSpots( GraphUtils.getRoots( graph, timepoint ) ) );
+		return getBranchStarts( filterDividingSpots( GraphUtils.getRootsAfterTimepoint( graph, timepoint ) ) );
 	}
 
 	private static RefRefMap< Spot, Spot > pairSpotsBasedOnLabel( RefSet< Spot > spotsA, RefSet< Spot > spotsB )
