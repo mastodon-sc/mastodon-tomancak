@@ -44,7 +44,7 @@ public class RootsPairing
 
 	private static RefSet< Spot > getRoots( ModelGraph graph, int timepoint )
 	{
-		return getBranchStarts( filterDividingSpots( LineageTreeUtils.getRoots( graph, timepoint ) ) );
+		return getBranchStarts( filterDividingSpots( GraphUtils.getRootsAfterTimepoint( graph, timepoint ) ) );
 	}
 
 	private static RefRefMap< Spot, Spot > pairSpotsBasedOnLabel( RefSet< Spot > spotsA, RefSet< Spot > spotsB )
@@ -63,7 +63,7 @@ public class RootsPairing
 		Spot ref = spots.createRef();
 		try
 		{
-			return RefCollectionUtils.filterSet( spots, spot -> LineageTreeUtils.doesBranchDivide( spot, ref ) );
+			return RefCollectionUtils.filterSet( spots, spot -> BranchGraphUtils.doesBranchDivide( spot, ref ) );
 		}
 		finally
 		{
@@ -71,6 +71,10 @@ public class RootsPairing
 		}
 	}
 
+	/**
+	 * Returns the set that contains the first vertices of all branches, that
+	 * contain a vertex in the given set ({@code spots}).
+	 */
 	private static RefSet< Spot > getBranchStarts( RefSet< Spot > spots )
 	{
 		Spot ref = spots.createRef();
