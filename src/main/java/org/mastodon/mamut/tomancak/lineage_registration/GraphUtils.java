@@ -13,16 +13,43 @@ public class GraphUtils
 	/**
 	 * @return the set of root nodes of the given graph.
 	 */
-	public static < V extends Vertex< E >, E extends Edge< V > > RefSet< V > getRoots( ReadOnlyGraph< V, E > graph )
+	public static < V extends Vertex< ? > > RefSet< V > getRoots( ReadOnlyGraph< V, ? > graph )
 	{
 		Predicate< V > isRoot = spot -> spot.incomingEdges().isEmpty();
 		return RefCollectionUtils.filterSet( graph.vertices(), isRoot );
 	}
 
-	public static < V extends Vertex< E > & HasTimepoint, E extends Edge< V > > RefSet< V > getRoots( ReadOnlyGraph< V, E > graph, int timepoint )
+	/**
+	 * Returns the vertices of the graph that would be roots if all vertices with
+	 * {@code vertex.getTimepoint() < timepoint} would be discarded.
+	 */
+	public static < V extends Vertex< E > & HasTimepoint, E extends Edge< V > > RefSet< V > getRootsAfterTimepoint( ReadOnlyGraph< V, E > graph, int timepoint )
 	{
-		Predicate< V > isRoot = spot -> spot.getTimepoint() == timepoint || ( spot.incomingEdges().isEmpty() && spot.getTimepoint() > timepoint );
-		return RefCollectionUtils.filterSet( graph.vertices(), isRoot );
-	}
+		V ref = graph.vertexRef();
+		try
+		{
+			Predicate< V > isRoot = spot -> {
 
+				if ( spot.getTimepoint() < timepoint )
+					return false;
+
+				if ( spot.incomingEdges().isEmpty() )
+					return true;
+
+				for ( E edge : spot.incomingEdges() )
+				{
+					V source = edge.getSource( ref );
+					if ( source.getTimepoint() >= timepoint )
+						return false;
+				}
+
+				return true;
+			};
+			return RefCollectionUtils.filterSet( graph.vertices(), isRoot );
+		}
+		finally
+		{
+			graph.releaseRef( ref );
+		}
+	}
 }
