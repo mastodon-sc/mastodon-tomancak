@@ -24,12 +24,4 @@ public class LineageTreeUtils
 		return RefCollectionUtils.filterSet( graph.vertices(), isRoot );
 	}
 
-	/**
-	 * @return true if the given spot is part of a branch that divides.
-	 */
-	public static boolean doesBranchDivide( final Spot spot, final Spot ref )
-	{
-		Spot branchEnd = BranchGraphUtils.getBranchEnd( spot, ref );
-		return branchEnd.outgoingEdges().size() > 1;
-	}
 }

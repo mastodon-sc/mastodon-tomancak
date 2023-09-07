@@ -121,6 +121,22 @@ public class BranchGraphUtils
 	}
 
 	/**
+	 * Returns true if the branch, that contains the given spot, divides.
+	 * (A branch divides if it's last vertex has at least two outgoing edges.)
+	 *
+	 * @param spot The spot that defines the branch. It can be any vertex of the branch.
+	 * @param ref  Buffer that might be used during computation.
+	 * @param <V>  The vertex type.
+	 * @param <E>  The edge type.
+	 * @return True if the branch divides.
+	 */
+	public static < V extends Vertex< E >, E extends Edge< V > > boolean doesBranchDivide( final V spot, final V ref )
+	{
+		V branchEnd = getBranchEnd( spot, ref );
+		return branchEnd.outgoingEdges().size() > 1;
+	}
+
+	/**
 	 * Returns the vertex of the specified branch that is at the given time point.
 	 *
 	 * @param branchStart The first vertex of the branch.
