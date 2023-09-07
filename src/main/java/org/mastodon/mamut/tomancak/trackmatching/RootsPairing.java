@@ -41,6 +41,7 @@ import org.mastodon.collection.ref.ObjectRefHashMap;
 import org.mastodon.collection.ref.RefRefHashMap;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.lineage_registration.GraphUtils;
 
 /**
  * Pair the root spots in two ModelGraphs based on their label.
@@ -72,7 +73,7 @@ public class RootsPairing
 
 	private static RefSet< Spot > getRoots( ModelGraph graph, int timepoint )
 	{
-		return getBranchStarts( filterDividingSpots( LineageTreeUtils.getRoots( graph, timepoint ) ) );
+		return getBranchStarts( filterDividingSpots( GraphUtils.getRoots( graph, timepoint ) ) );
 	}
 
 	private static RefRefMap< Spot, Spot > pairSpotsBasedOnLabel( RefSet< Spot > spotsA, RefSet< Spot > spotsB )
@@ -99,6 +100,10 @@ public class RootsPairing
 		}
 	}
 
+	/**
+	 * Returns the set that contains the first vertices of all branches, that
+	 * contain a vertex in the given set ({@code spots}).
+	 */
 	private static RefSet< Spot > getBranchStarts( RefSet< Spot > spots )
 	{
 		Spot ref = spots.createRef();

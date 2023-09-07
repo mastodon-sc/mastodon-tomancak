@@ -8,7 +8,7 @@ import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.graph.Vertex;
 import org.mastodon.spatial.HasTimepoint;
 
-public class LineageTreeUtils
+public class GraphUtils
 {
 	/**
 	 * @return the set of root nodes of the given graph.

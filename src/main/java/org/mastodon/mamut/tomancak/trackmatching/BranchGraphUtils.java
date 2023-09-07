@@ -137,7 +137,7 @@ public class BranchGraphUtils
 	}
 
 	/**
-	 * Returns the first vertex of the specified branch with {@code vertex.getTimepoint() > timepoint.}
+	 * Returns the first vertex of the specified branch with {@code vertex.getTimepoint() >= timepoint.}
 	 *
 	 * @param branchStart The first vertex of the branch.
 	 * @param timepoint   The time point.
