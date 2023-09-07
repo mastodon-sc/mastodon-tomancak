@@ -137,24 +137,24 @@ public class BranchGraphUtils
 	}
 
 	/**
-	 * Returns the vertex of the specified branch that is at the given time point.
+	 * Returns the first vertex of the specified branch with {@code vertex.getTimepoint() > timepoint.}
 	 *
 	 * @param branchStart The first vertex of the branch.
-	 * @param timePoint   The time point.
+	 * @param timepoint   The time point.
 	 * @param ref         Buffer that might be used to store the result.
 	 * @param <V>         The vertex type.
 	 * @param <E>         The edge type.
 	 * @return Vertex of the branch at the given time point.
 	 */
-	public static < V extends Vertex< E > & HasTimepoint, E extends Edge< V > > V findVertexForTimePoint( V branchStart, int timePoint, V ref )
+	public static < V extends Vertex< E > & HasTimepoint, E extends Edge< V > > V findVertexForTimepoint( V branchStart, int timepoint, V ref )
 	{
 		V spot = branchStart;
-		if ( spot.getTimepoint() >= timePoint )
+		if ( spot.getTimepoint() >= timepoint )
 			return spot;
 		while ( spot.outgoingEdges().size() == 1 )
 		{
 			spot = spot.outgoingEdges().iterator().next().getTarget( ref );
-			if ( spot.getTimepoint() >= timePoint )
+			if ( spot.getTimepoint() >= timepoint )
 				return spot;
 		}
 		return spot;
