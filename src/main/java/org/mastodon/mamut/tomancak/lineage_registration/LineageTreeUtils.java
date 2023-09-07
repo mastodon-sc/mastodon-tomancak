@@ -3,24 +3,25 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 import java.util.function.Predicate;
 
 import org.mastodon.collection.RefSet;
-import org.mastodon.mamut.model.ModelGraph;
-import org.mastodon.mamut.model.Spot;
+import org.mastodon.graph.Edge;
+import org.mastodon.graph.ReadOnlyGraph;
+import org.mastodon.graph.Vertex;
+import org.mastodon.spatial.HasTimepoint;
 
 public class LineageTreeUtils
 {
 	/**
 	 * @return the set of root nodes of the given graph.
 	 */
-	public static RefSet< Spot > getRoots( ModelGraph graph )
+	public static < V extends Vertex< E >, E extends Edge< V > > RefSet< V > getRoots( ReadOnlyGraph< V, E > graph )
 	{
-		Predicate< Spot > isRoot = spot -> spot.incomingEdges().isEmpty();
+		Predicate< V > isRoot = spot -> spot.incomingEdges().isEmpty();
 		return RefCollectionUtils.filterSet( graph.vertices(), isRoot );
 	}
 
-	public static RefSet< Spot > getRoots( ModelGraph graph, int timepoint )
+	public static < V extends Vertex< E > & HasTimepoint, E extends Edge< V > > RefSet< V > getRoots( ReadOnlyGraph< V, E > graph, int timepoint )
 	{
-		Predicate< Spot > isRoot = spot -> spot.getTimepoint() == timepoint
-				|| ( spot.incomingEdges().isEmpty() && spot.getTimepoint() > timepoint );
+		Predicate< V > isRoot = spot -> spot.getTimepoint() == timepoint || ( spot.incomingEdges().isEmpty() && spot.getTimepoint() > timepoint );
 		return RefCollectionUtils.filterSet( graph.vertices(), isRoot );
 	}
 
