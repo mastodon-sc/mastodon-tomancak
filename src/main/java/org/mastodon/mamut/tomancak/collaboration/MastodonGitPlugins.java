@@ -28,9 +28,9 @@
  */
 package org.mastodon.mamut.tomancak.collaboration;
 
+import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCloneRepository;
-import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCommit;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCreateRepository;
 import org.mastodon.mamut.tomancak.collaboration.utils.ActionDescriptions;
 import org.mastodon.mamut.tomancak.collaboration.utils.BasicDescriptionProvider;
@@ -78,7 +78,12 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 
 	private void commit()
 	{
-		commandService.run( MastodonGitCommit.class, true, "windowManager", getWindowManager() );
+		run( () -> MastodonGitUtils.commit( getWindowManager() ) );
+	}
+
+	private void run( Runnable action )
+	{
+		new Thread( action ).start();
 	}
 
 	@Plugin( type = CommandDescriptionProvider.class )

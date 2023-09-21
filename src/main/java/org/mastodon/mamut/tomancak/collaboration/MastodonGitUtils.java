@@ -116,15 +116,7 @@ public class MastodonGitUtils
 
 	public static void commit( WindowManager windowManager )
 	{
-		File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
-		boolean correctFolder = projectRoot.getName().equals( "mastodon.project" );
-		if ( !correctFolder )
-			throw new RuntimeException( "The current project does not appear to be in a git repo." );
-		File gitRoot = projectRoot.getParentFile();
-		if ( !new File( gitRoot, ".git" ).exists() )
-			throw new RuntimeException( "The current project does not appear to be in a git repo." );
-		windowManager.getProjectManager().saveProject();
-		try (Git git = Git.open( gitRoot ))
+		try (Git git = initGit( windowManager ))
 		{
 			git.add().addFilepattern( "mastodon.project" ).call();
 			git.commit().setMessage( "Commit from Mastodon" ).call();
@@ -133,5 +125,18 @@ public class MastodonGitUtils
 		{
 			throw new RuntimeException( e );
 		}
+	}
+
+	private static Git initGit( WindowManager windowManager ) throws IOException
+	{
+		File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
+		boolean correctFolder = projectRoot.getName().equals( "mastodon.project" );
+		if ( !correctFolder )
+			throw new RuntimeException( "The current project does not appear to be in a git repo." );
+		File gitRoot = projectRoot.getParentFile();
+		if ( !new File( gitRoot, ".git" ).exists() )
+			throw new RuntimeException( "The current project does not appear to be in a git repo." );
+		windowManager.getProjectManager().saveProject();
+		return Git.open( gitRoot );
 	}
 }
