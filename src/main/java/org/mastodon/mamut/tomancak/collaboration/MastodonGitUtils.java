@@ -30,6 +30,7 @@ package org.mastodon.mamut.tomancak.collaboration;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +38,7 @@ import java.nio.file.Path;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.URIish;
+import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.project.MamutProjectIO;
 import org.scijava.Context;
@@ -49,13 +51,18 @@ public class MastodonGitUtils
 	public static void main( String... args ) throws IOException, SpimDataException
 	{
 		String projectPath = "/home/arzt/devel/mastodon/mastodon/src/test/resources/org/mastodon/mamut/examples/tiny/tiny-project.mastodon";
-		Context context = new Context();
-		WindowManager windowManager = new WindowManager( context );
-		windowManager.getProjectManager().open( new MamutProjectIO().load( projectPath ) );
-		File parentDirectory = new File( "/home/arzt/tmp/" );
 		String repositoryName = "mgit-test";
 		String repositoryURL = "git@github.com:maarzt/mgit-test.git";
-		MastodonGitUtils.createRepositoryAndUpload( windowManager, parentDirectory, repositoryName, repositoryURL );
+		File parentDirectory = new File( "/home/arzt/tmp/" );
+
+//		Context context = new Context();
+//		WindowManager windowManager = new WindowManager( context );
+//		windowManager.getProjectManager().open( new MamutProjectIO().load( projectPath ) );
+//		MastodonGitUtils.createRepositoryAndUpload( windowManager, parentDirectory, repositoryName, repositoryURL );
+
+//		MastodonGitUtils.cloneRepository( repositoryURL, new File( parentDirectory, "2/" ) );
+
+		MastodonGitUtils.openProjectInRepository( new Context(), new File( parentDirectory, "2/" ) );
 	}
 
 	public static void createRepositoryAndUpload( WindowManager windowManager, File parentDirectory, String repositoryName, String repositoryURL )
@@ -75,6 +82,33 @@ public class MastodonGitUtils
 			git.close();
 		}
 		catch ( GitAPIException | IOException | URISyntaxException e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+
+	public static void cloneRepository( String repositoryURL, File parentDirectory )
+	{
+		try
+		{
+			Git.cloneRepository().setURI( repositoryURL ).setDirectory( parentDirectory ).call();
+		}
+		catch ( GitAPIException e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+
+	public static void openProjectInRepository( Context context, File directory )
+	{
+		try
+		{
+			WindowManager windowManager = new WindowManager( context );
+			Path path = directory.toPath().resolve( "mastodon.project" );
+			windowManager.getProjectManager().openWithDialog( new MamutProjectIO().load( path.toAbsolutePath().toString() ) );
+			new MainWindow( windowManager ).setVisible( true );
+		}
+		catch ( SpimDataException | IOException e )
 		{
 			throw new RuntimeException( e );
 		}

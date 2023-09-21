@@ -66,7 +66,7 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 
 	private void cloneGitRepository()
 	{
-		System.out.println( "git clone" );
+		commandService.run( MastodonGitCloneRepository.class, true );
 	}
 
 	@Plugin( type = CommandDescriptionProvider.class )
