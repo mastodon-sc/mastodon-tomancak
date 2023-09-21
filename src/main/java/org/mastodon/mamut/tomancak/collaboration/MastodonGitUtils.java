@@ -117,6 +117,7 @@ public class MastodonGitUtils
 	{
 		try (Git git = initGit( windowManager ))
 		{
+			windowManager.getProjectManager().saveProject();
 			git.add().addFilepattern( "mastodon.project" ).call();
 			git.commit().setMessage( "Commit from Mastodon" ).call();
 		}
@@ -159,7 +160,6 @@ public class MastodonGitUtils
 		File gitRoot = projectRoot.getParentFile();
 		if ( !new File( gitRoot, ".git" ).exists() )
 			throw new RuntimeException( "The current project does not appear to be in a git repo." );
-		windowManager.getProjectManager().saveProject();
 		return Git.open( gitRoot );
 	}
 }
