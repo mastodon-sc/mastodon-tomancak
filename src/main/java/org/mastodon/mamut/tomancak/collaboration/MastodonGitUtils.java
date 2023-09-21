@@ -30,7 +30,6 @@ package org.mastodon.mamut.tomancak.collaboration;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -120,6 +119,30 @@ public class MastodonGitUtils
 		{
 			git.add().addFilepattern( "mastodon.project" ).call();
 			git.commit().setMessage( "Commit from Mastodon" ).call();
+		}
+		catch ( IOException | GitAPIException e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+
+	public static void push( WindowManager windowManager )
+	{
+		try (Git git = initGit( windowManager ))
+		{
+			git.push().setRemote( "origin" ).call();
+		}
+		catch ( IOException | GitAPIException e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+
+	public static void createNewBranch( WindowManager windowManager, String branchName )
+	{
+		try (Git git = initGit( windowManager ))
+		{
+			git.checkout().setCreateBranch( true ).setName( branchName ).call();
 		}
 		catch ( IOException | GitAPIException e )
 		{

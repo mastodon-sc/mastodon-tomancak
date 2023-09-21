@@ -32,6 +32,7 @@ import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCloneRepository;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCreateRepository;
+import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitNewBranch;
 import org.mastodon.mamut.tomancak.collaboration.utils.ActionDescriptions;
 import org.mastodon.mamut.tomancak.collaboration.utils.BasicDescriptionProvider;
 import org.mastodon.mamut.tomancak.collaboration.utils.BasicMamutPlugin;
@@ -59,7 +60,15 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 			.addActionDescription( "[mastodon git] commit",
 					"Plugins > Git > Commit",
 					"Commit changes to the git repository.",
-					MastodonGitPlugins::commit );
+					MastodonGitPlugins::commit )
+			.addActionDescription( "[mastodon git] push",
+					"Plugins > Git > Push",
+					"Push changes to the git repository.",
+					MastodonGitPlugins::push )
+			.addActionDescription( "[mastodon git] new branch",
+					"Plugins > Git > Create New Branch",
+					"Create a new branch in the git repository.",
+					MastodonGitPlugins::newBranch );
 
 	public MastodonGitPlugins()
 	{
@@ -79,6 +88,16 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 	private void commit()
 	{
 		run( () -> MastodonGitUtils.commit( getWindowManager() ) );
+	}
+
+	private void push()
+	{
+		run( () -> MastodonGitUtils.push( getWindowManager() ) );
+	}
+
+	private void newBranch()
+	{
+		commandService.run( MastodonGitNewBranch.class, true, "windowManager", getWindowManager() );
 	}
 
 	private void run( Runnable action )
