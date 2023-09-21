@@ -46,13 +46,17 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 
 	public static final ActionDescriptions< MastodonGitPlugins > actionDescriptions = new ActionDescriptions<>( MastodonGitPlugins.class )
 			.addActionDescription( "[mastodon git] create repository",
-					"Plugins > Git > New git repository",
+					"Plugins > Git > Create Repository",
 					"Upload Mastodon project to a newly created git repository.",
 					MastodonGitPlugins::createRepository )
 			.addActionDescription( "[mastodon git] clone repository",
-					"Plugins > Git > Clone git repository",
+					"Plugins > Git > Clone Repository",
 					"Clone a git repository to a new Mastodon project.",
-					MastodonGitPlugins::cloneGitRepository );
+					MastodonGitPlugins::cloneGitRepository )
+			.addActionDescription( "[mastodon git] commit",
+					"Plugins > Git > Commit",
+					"Commit changes to the git repository.",
+					MastodonGitPlugins::commit );
 
 	public MastodonGitPlugins()
 	{
@@ -61,12 +65,17 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 
 	private void createRepository()
 	{
-		commandService.run( MastodonGitCreateRepository.class, true );
+		commandService.run( MastodonGitCreateRepository.class, true, "windowManager", getWindowManager() );
 	}
 
 	private void cloneGitRepository()
 	{
 		commandService.run( MastodonGitCloneRepository.class, true );
+	}
+
+	private void commit()
+	{
+		commandService.run( MastodonGitCommit.class, true, "windowManager", getWindowManager() );
 	}
 
 	@Plugin( type = CommandDescriptionProvider.class )
