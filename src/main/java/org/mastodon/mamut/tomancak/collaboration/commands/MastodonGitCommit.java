@@ -1,6 +1,7 @@
-package org.mastodon.mamut.tomancak.collaboration;
+package org.mastodon.mamut.tomancak.collaboration.commands;
 
 import org.mastodon.mamut.WindowManager;
+import org.mastodon.mamut.tomancak.collaboration.MastodonGitUtils;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 
