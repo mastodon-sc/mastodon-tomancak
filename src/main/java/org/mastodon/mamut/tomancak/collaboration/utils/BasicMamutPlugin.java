@@ -37,6 +37,7 @@ import net.imglib2.util.Cast;
 
 import org.mastodon.app.ui.ViewMenuBuilder;
 import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
@@ -58,6 +59,10 @@ public class BasicMamutPlugin implements MamutPlugin
 	private final Map< String, AbstractNamedAction > actions = new HashMap<>();
 
 	private final List< ViewMenuBuilder.MenuItem > menuItems = new ArrayList<>();
+
+	private MamutAppModel appModel;
+
+	private WindowManager windowManager;
 
 	public < T > BasicMamutPlugin( ActionDescriptions< T > description )
 	{
@@ -91,7 +96,8 @@ public class BasicMamutPlugin implements MamutPlugin
 	@Override
 	public void setAppPluginModel( MamutPluginAppModel appPluginModel )
 	{
-		MamutAppModel appModel = appPluginModel.getAppModel();
+		appModel = appPluginModel.getAppModel();
+		windowManager = appPluginModel.getWindowManager();
 		actions.forEach( ( key, action ) -> action.setEnabled( appModel != null ) );
 	}
 
@@ -114,4 +120,13 @@ public class BasicMamutPlugin implements MamutPlugin
 			pluginActions.namedAction( actions.get( entry.key ), entry.shortCuts );
 	}
 
+	protected MamutAppModel getAppModel()
+	{
+		return appModel;
+	}
+
+	protected WindowManager getWindowManager()
+	{
+		return windowManager;
+	}
 }
