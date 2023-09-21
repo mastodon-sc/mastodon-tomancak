@@ -28,7 +28,10 @@
  */
 package org.mastodon.mamut.tomancak.collaboration;
 
-import org.mastodon.mamut.WindowManager;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCloneRepository;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCreateRepository;
@@ -68,7 +71,11 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 			.addActionDescription( "[mastodon git] new branch",
 					"Plugins > Git > Create New Branch",
 					"Create a new branch in the git repository.",
-					MastodonGitPlugins::newBranch );
+					MastodonGitPlugins::newBranch )
+			.addActionDescription( "[mastodon git] switch branch",
+					"Plugins > Git > Switch Branch",
+					"Switch to a different branch in the git repository.",
+					MastodonGitPlugins::switchBranch );
 
 	public MastodonGitPlugins()
 	{
@@ -98,6 +105,19 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 	private void newBranch()
 	{
 		commandService.run( MastodonGitNewBranch.class, true, "windowManager", getWindowManager() );
+	}
+
+	private void switchBranch()
+	{
+		// TODO: the branches are not formatted nicely
+		List< String > branches = MastodonGitUtils.getBranches( getWindowManager() );
+		String currentBranch = MastodonGitUtils.getCurrentBranch( getWindowManager() );
+		// show JOptionPane that allows to select a branch
+		String selectedBranch = ( String ) JOptionPane.showInputDialog( null, "Select a branch", "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), currentBranch );
+		if ( selectedBranch == null )
+			return;
+		// switch to selected branch
+		MastodonGitUtils.switchBranch( getWindowManager(), selectedBranch );
 	}
 
 	private void run( Runnable action )

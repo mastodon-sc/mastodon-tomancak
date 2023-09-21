@@ -33,9 +33,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.URIish;
 import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.WindowManager;
@@ -151,9 +154,55 @@ public class MastodonGitUtils
 		}
 	}
 
+	public static void switchBranch( WindowManager windowManager, String branchName )
+	{
+		try
+		{
+			File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
+			try (Git git = initGit( projectRoot ))
+			{
+				git.checkout().setName( branchName ).call();
+			}
+			windowManager.getProjectManager().openWithDialog( new MamutProjectIO().load( projectRoot.getAbsolutePath() ) );
+		}
+		catch ( IOException | SpimDataException | GitAPIException e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+
+	public static List< String > getBranches( WindowManager windowManager )
+	{
+		try (Git git = initGit( windowManager ))
+		{
+			return git.branchList().call().stream().map( Ref::getName ).collect( Collectors.toList() );
+		}
+		catch ( IOException | GitAPIException e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+
+	public static String getCurrentBranch( WindowManager windowManager )
+	{
+		try (Git git = initGit( windowManager ))
+		{
+			return git.getRepository().getBranch();
+		}
+		catch ( IOException e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+
 	private static Git initGit( WindowManager windowManager ) throws IOException
 	{
 		File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
+		return initGit( projectRoot );
+	}
+
+	private static Git initGit( File projectRoot ) throws IOException
+	{
 		boolean correctFolder = projectRoot.getName().equals( "mastodon.project" );
 		if ( !correctFolder )
 			throw new RuntimeException( "The current project does not appear to be in a git repo." );
