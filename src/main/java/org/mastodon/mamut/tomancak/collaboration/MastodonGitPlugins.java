@@ -75,7 +75,11 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 			.addActionDescription( "[mastodon git] switch branch",
 					"Plugins > Git > Switch Branch",
 					"Switch to a different branch in the git repository.",
-					MastodonGitPlugins::switchBranch );
+					MastodonGitPlugins::switchBranch )
+			.addActionDescription( "[mastodon git] merge branch",
+					"Plugins > Git > Merge Branch",
+					"Merge a branch into the current branch.",
+					MastodonGitPlugins::mergeBranch );
 
 	public MastodonGitPlugins()
 	{
@@ -118,6 +122,18 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 			return;
 		// switch to selected branch
 		MastodonGitUtils.switchBranch( getWindowManager(), selectedBranch );
+	}
+
+	private void mergeBranch()
+	{
+		List< String > branches = MastodonGitUtils.getBranches( getWindowManager() );
+		String currentBranch = MastodonGitUtils.getCurrentBranch( getWindowManager() );
+		branches.remove( currentBranch );
+		// show JOptionPane that allows to select a branch
+		String selectedBranch = ( String ) JOptionPane.showInputDialog( null, "Select a branch", "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), null );
+		if ( selectedBranch == null )
+			return;
+		MastodonGitUtils.mergeBranch( getWindowManager(), selectedBranch );
 	}
 
 	private void run( Runnable action )

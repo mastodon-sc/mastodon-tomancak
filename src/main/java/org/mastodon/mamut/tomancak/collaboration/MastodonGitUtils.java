@@ -38,11 +38,19 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
+import org.eclipse.jgit.treewalk.filter.OrTreeFilter;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.WindowManager;
+import org.mastodon.mamut.project.MamutProject;
 import org.mastodon.mamut.project.MamutProjectIO;
+import org.mastodon.mamut.tomancak.merging.Dataset;
+import org.mastodon.mamut.tomancak.merging.MergeDatasets;
 import org.scijava.Context;
 
 import mpicbg.spim.data.SpimDataException;
@@ -121,8 +129,16 @@ public class MastodonGitUtils
 		try (Git git = initGit( windowManager ))
 		{
 			windowManager.getProjectManager().saveProject();
-			git.add().addFilepattern( "mastodon.project" ).call();
-			git.commit().setMessage( "Commit from Mastodon" ).call();
+			List< DiffEntry > changedFiles = git.diff().setPathFilter( AndTreeFilter.create( PathFilter.create( "mastodon.project" ), ignorePattern() ) ).call();
+			if ( !changedFiles.isEmpty() )
+			{
+				for ( DiffEntry diffEntry : changedFiles )
+				{
+					git.add().addFilepattern( diffEntry.getOldPath() ).call();
+					git.add().addFilepattern( diffEntry.getNewPath() ).call();
+				}
+				git.commit().setMessage( "Commit from Mastodon" ).call();
+			}
 		}
 		catch ( IOException | GitAPIException e )
 		{
@@ -195,6 +211,35 @@ public class MastodonGitUtils
 		}
 	}
 
+	public static void mergeBranch( WindowManager windowManager, String selectedBranch )
+	{
+		try (Git git = initGit( windowManager ))
+		{
+			boolean clean = isClean( windowManager );
+			if ( !clean )
+				throw new RuntimeException( "There are uncommitted changes. Please commit or stash them before merging." );
+			File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
+			String currentBranch = getCurrentBranch( windowManager );
+			Dataset dsA = new Dataset( projectRoot.getAbsolutePath() );
+			git.checkout().setName( selectedBranch ).call();
+			Dataset dsB = new Dataset( projectRoot.getAbsolutePath() );
+			git.checkout().setName( currentBranch ).call();
+			git.merge().setCommit( false ).include( git.getRepository().exactRef( selectedBranch ) ).call(); // TODO selected branch, should not be a string but a ref instead
+			windowManager.getProjectManager().open( new MamutProject( null, dsA.project().getDatasetXmlFile() ) );
+			final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( windowManager.getAppModel().getModel() );
+			double distCutoff = 1000;
+			double mahalanobisDistCutoff = 1;
+			double ratioThreshold = 2;
+			MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
+			windowManager.getProjectManager().saveProject( projectRoot );
+			commit( windowManager );
+		}
+		catch ( IOException | GitAPIException | SpimDataException e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+
 	private static Git initGit( WindowManager windowManager ) throws IOException
 	{
 		File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
@@ -210,5 +255,24 @@ public class MastodonGitUtils
 		if ( !new File( gitRoot, ".git" ).exists() )
 			throw new RuntimeException( "The current project does not appear to be in a git repo." );
 		return Git.open( gitRoot );
+	}
+
+	private static boolean isClean( WindowManager windowManager ) throws GitAPIException, IOException
+	{
+		try (Git git = initGit( windowManager ))
+		{
+			windowManager.getProjectManager().saveProject();
+			return git.diff().setPathFilter( ignorePattern() ).call().isEmpty();
+		}
+	}
+
+	private static TreeFilter ignorePattern()
+	{
+		TreeFilter[] filters = {
+				PathFilter.create( "mastodon.project/gui.xml" ),
+				PathFilter.create( "mastodon.project/project.xml" ),
+				PathFilter.create( "mastodon.project/dataset.xml.backup" )
+		};
+		return OrTreeFilter.create( filters ).negate();
 	}
 }
