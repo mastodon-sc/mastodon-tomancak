@@ -179,6 +179,7 @@ public class MastodonGitUtils
 
 	public static void switchBranch( WindowManager windowManager, String branchName )
 	{
+		// TODO allow to switch to remote branches
 		try
 		{
 			File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
