@@ -68,6 +68,14 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 					"Plugins > Git > Push",
 					"Push changes to the git repository.",
 					MastodonGitPlugins::push )
+			.addActionDescription( "[mastodon git] pull",
+					"Plugins > Git > Pull",
+					"Pull changes from the git repository.",
+					MastodonGitPlugins::pull )
+			.addActionDescription( "[mastodon git] reset",
+					"Plugins > Git > Reset",
+					"Reset changes in the git repository.",
+					MastodonGitPlugins::reset )
 			.addActionDescription( "[mastodon git] new branch",
 					"Plugins > Git > Create New Branch",
 					"Create a new branch in the git repository.",
@@ -134,6 +142,16 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 		if ( selectedBranch == null )
 			return;
 		MastodonGitUtils.mergeBranch( getWindowManager(), selectedBranch );
+	}
+
+	private void pull()
+	{
+		run( () -> MastodonGitUtils.pull( getWindowManager() ) );
+	}
+
+	private void reset()
+	{
+		run( () -> MastodonGitUtils.reset( getWindowManager() ) );
 	}
 
 	private void run( Runnable action )

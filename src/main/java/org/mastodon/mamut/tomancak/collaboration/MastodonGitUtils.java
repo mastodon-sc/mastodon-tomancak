@@ -37,8 +37,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
@@ -129,7 +131,7 @@ public class MastodonGitUtils
 		try (Git git = initGit( windowManager ))
 		{
 			windowManager.getProjectManager().saveProject();
-			List< DiffEntry > changedFiles = git.diff().setPathFilter( AndTreeFilter.create( PathFilter.create( "mastodon.project" ), ignorePattern() ) ).call();
+			List< DiffEntry > changedFiles = relevantChanges( git );
 			if ( !changedFiles.isEmpty() )
 			{
 				for ( DiffEntry diffEntry : changedFiles )
@@ -144,6 +146,11 @@ public class MastodonGitUtils
 		{
 			throw new RuntimeException( e );
 		}
+	}
+
+	private static List< DiffEntry > relevantChanges( Git git ) throws GitAPIException
+	{
+		return git.diff().setPathFilter( AndTreeFilter.create( PathFilter.create( "mastodon.project" ), ignorePattern() ) ).call();
 	}
 
 	public static void push( WindowManager windowManager )
@@ -237,6 +244,70 @@ public class MastodonGitUtils
 		catch ( IOException | GitAPIException | SpimDataException e )
 		{
 			throw new RuntimeException( e );
+		}
+	}
+
+	public static void pull( WindowManager windowManager )
+	{
+		try (Git git = initGit( windowManager ))
+		{
+			windowManager.getProjectManager().saveProject();
+			boolean isClean = isClean( windowManager );
+			if ( !isClean )
+				throw new RuntimeException( "There are uncommitted changes. Please commit or stash them before pulling." );
+			git.fetch().call();
+			int aheadCount = BranchTrackingStatus.of( git.getRepository(), git.getRepository().getBranch() ).getAheadCount();
+			if ( aheadCount > 0 )
+				throw new RuntimeException( "There are local changes. UNSUPPORTED operation. Cannot be done without merge." );
+			git.pull().call();
+			reloadFromDisc( windowManager );
+		}
+		catch ( IOException | GitAPIException | SpimDataException e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+
+	private static void reloadFromDisc( WindowManager windowManager ) throws IOException, SpimDataException
+	{
+		File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
+		windowManager.getProjectManager().openWithDialog( new MamutProjectIO().load( projectRoot.getAbsolutePath() ) );
+	}
+
+	public static void reset( WindowManager windowManager )
+	{
+		try (Git git = initGit( windowManager ))
+		{
+			resetRelevantChanges( git );
+			reloadFromDisc( windowManager );
+		}
+		catch ( IOException | GitAPIException | SpimDataException e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+
+	private static void resetRelevantChanges( Git git ) throws GitAPIException
+	{
+		// NB: More complicated than a simple reset --hard, because gui.xml, project.xml and dataset.xml.backup should remain untouched.
+		List< DiffEntry > diffEntries = relevantChanges( git );
+		ResetCommand resetCommand = git.reset().setMode( ResetCommand.ResetType.HARD );
+		for ( DiffEntry entry : diffEntries )
+		{
+			switch ( entry.getChangeType() )
+			{
+			case ADD:
+				resetCommand.addPath( entry.getNewPath() );
+				break;
+			case DELETE:
+				resetCommand.addPath( entry.getOldPath() );
+				break;
+			case MODIFY:
+				resetCommand.addPath( entry.getNewPath() );
+				resetCommand.addPath( entry.getOldPath() );
+				break;
+			}
+			resetCommand.call();
 		}
 	}
 
