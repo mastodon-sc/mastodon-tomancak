@@ -45,6 +45,8 @@ import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
+// TODO: allow to switch to remote only branch
+// TODO: disable commands if not in a git repo
 @Plugin( type = MamutPlugin.class )
 public class MastodonGitPlugins extends BasicMamutPlugin
 {
@@ -53,11 +55,11 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 
 	public static final ActionDescriptions< MastodonGitPlugins > actionDescriptions = new ActionDescriptions<>( MastodonGitPlugins.class )
 			.addActionDescription( "[mastodon git] create repository",
-					"Plugins > Git > Create Repository",
+					"Plugins > Git > Initialize > Create New Repository",
 					"Upload Mastodon project to a newly created git repository.",
 					MastodonGitPlugins::createRepository )
 			.addActionDescription( "[mastodon git] clone repository",
-					"Plugins > Git > Clone Repository",
+					"Plugins > Git > Initialize > Clone Existing Repository",
 					"Clone a git repository to a new Mastodon project.",
 					MastodonGitPlugins::cloneGitRepository )
 			.addActionDescription( "[mastodon git] commit",
@@ -77,15 +79,15 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 					"Reset changes in the git repository.",
 					MastodonGitPlugins::reset )
 			.addActionDescription( "[mastodon git] new branch",
-					"Plugins > Git > Create New Branch",
+					"Plugins > Git > Branches > Create New Branch",
 					"Create a new branch in the git repository.",
 					MastodonGitPlugins::newBranch )
 			.addActionDescription( "[mastodon git] switch branch",
-					"Plugins > Git > Switch Branch",
+					"Plugins > Git > Branches > Switch Branch",
 					"Switch to a different branch in the git repository.",
 					MastodonGitPlugins::switchBranch )
 			.addActionDescription( "[mastodon git] merge branch",
-					"Plugins > Git > Merge Branch",
+					"Plugins > Git > Branches > Merge Branch",
 					"Merge a branch into the current branch.",
 					MastodonGitPlugins::mergeBranch );
 
