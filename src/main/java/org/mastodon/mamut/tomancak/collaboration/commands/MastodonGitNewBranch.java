@@ -17,6 +17,13 @@ public class MastodonGitNewBranch implements Command
 	@Override
 	public void run()
 	{
-		MastodonGitUtils.createNewBranch( windowManager, branchName );
+		try
+		{
+			MastodonGitUtils.createNewBranch( windowManager, branchName );
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
 	}
 }

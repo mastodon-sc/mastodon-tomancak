@@ -121,27 +121,41 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 
 	private void switchBranch()
 	{
-		// TODO: the branches are not formatted nicely
-		List< String > branches = MastodonGitUtils.getBranches( getWindowManager() );
-		String currentBranch = MastodonGitUtils.getCurrentBranch( getWindowManager() );
-		// show JOptionPane that allows to select a branch
-		String selectedBranch = ( String ) JOptionPane.showInputDialog( null, "Select a branch", "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), currentBranch );
-		if ( selectedBranch == null )
-			return;
-		// switch to selected branch
-		MastodonGitUtils.switchBranch( getWindowManager(), selectedBranch );
+		try
+		{
+			// TODO: the branches are not formatted nicely
+			List< String > branches = MastodonGitUtils.getBranches( getWindowManager() );
+			String currentBranch = MastodonGitUtils.getCurrentBranch( getWindowManager() );
+			// show JOptionPane that allows to select a branch
+			String selectedBranch = ( String ) JOptionPane.showInputDialog( null, "Select a branch", "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), currentBranch );
+			if ( selectedBranch == null )
+				return;
+			// switch to selected branch
+			run( () -> MastodonGitUtils.switchBranch( getWindowManager(), selectedBranch ) );
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private void mergeBranch()
 	{
-		List< String > branches = MastodonGitUtils.getBranches( getWindowManager() );
-		String currentBranch = MastodonGitUtils.getCurrentBranch( getWindowManager() );
-		branches.remove( currentBranch );
-		// show JOptionPane that allows to select a branch
-		String selectedBranch = ( String ) JOptionPane.showInputDialog( null, "Select a branch", "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), null );
-		if ( selectedBranch == null )
-			return;
-		MastodonGitUtils.mergeBranch( getWindowManager(), selectedBranch );
+		try
+		{
+			List< String > branches = MastodonGitUtils.getBranches( getWindowManager() );
+			String currentBranch = MastodonGitUtils.getCurrentBranch( getWindowManager() );
+			branches.remove( currentBranch );
+			// show JOptionPane that allows to select a branch
+			String selectedBranch = ( String ) JOptionPane.showInputDialog( null, "Select a branch", "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), null );
+			if ( selectedBranch == null )
+				return;
+			MastodonGitUtils.mergeBranch( getWindowManager(), selectedBranch );
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private void pull()
@@ -154,9 +168,23 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 		run( () -> MastodonGitUtils.reset( getWindowManager() ) );
 	}
 
-	private void run( Runnable action )
+	private void run( RunnableWithException action )
 	{
-		new Thread( action ).start();
+		new Thread( () -> {
+			try
+			{
+				action.run();
+			}
+			catch ( Exception e )
+			{
+				e.printStackTrace();
+			}
+		} ).start();
+	}
+
+	interface RunnableWithException
+	{
+		void run() throws Exception;
 	}
 
 	@Plugin( type = CommandDescriptionProvider.class )

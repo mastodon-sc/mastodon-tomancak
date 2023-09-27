@@ -52,6 +52,13 @@ public class MastodonGitCreateRepository implements Command
 	@Override
 	public void run()
 	{
-		MastodonGitUtils.createRepositoryAndUpload( windowManager, parentDirectory, repositoryName, repositoryURL );
+		try
+		{
+			MastodonGitUtils.createRepositoryAndUpload( windowManager, parentDirectory, repositoryName, repositoryURL );
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
 	}
 }
