@@ -35,7 +35,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -150,28 +152,48 @@ public class MastodonGitUtils
 
 	public static void switchBranch( WindowManager windowManager, String branchName ) throws Exception
 	{
-		// TODO allow to switch to remote branches
 		File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
 		try (Git git = initGit( projectRoot ))
 		{
-			git.checkout().setName( branchName ).call();
+			boolean isRemoteBranch = branchName.startsWith( "refs/remotes/" );
+			if ( isRemoteBranch )
+			{
+				String simpleName = getSimpleName( branchName );
+				boolean conflict = git.branchList().call().stream().map( Ref::getName ).anyMatch( localName -> simpleName.equals( getSimpleName( localName ) ) );
+				if ( conflict )
+					throw new RuntimeException( "There's already a local branch with the same name." );
+				git.checkout()
+						.setCreateBranch( true )
+						.setName( simpleName )
+						.setUpstreamMode( CreateBranchCommand.SetupUpstreamMode.TRACK )
+						.setStartPoint( branchName )
+						.call();
+			}
+			else
+				git.checkout().setName( branchName ).call();
 		}
 		windowManager.getProjectManager().openWithDialog( new MamutProjectIO().load( projectRoot.getAbsolutePath() ) );
+	}
+
+	private static String getSimpleName( String branchName )
+	{
+		String[] parts = branchName.split( "/" );
+		return parts[ parts.length - 1 ];
 	}
 
 	public static List< String > getBranches( WindowManager windowManager ) throws Exception
 	{
 		try (Git git = initGit( windowManager ))
 		{
-			return git.branchList().call().stream().map( Ref::getName ).collect( Collectors.toList() );
+			return git.branchList().setListMode( ListBranchCommand.ListMode.ALL ).call().stream().map( Ref::getName ).collect( Collectors.toList() );
 		}
 	}
 
-	public static String getCurrentBranch( WindowManager windowManager )  throws Exception
+	public static String getCurrentBranch( WindowManager windowManager ) throws Exception
 	{
 		try (Git git = initGit( windowManager ))
 		{
-			return git.getRepository().getBranch();
+			return git.getRepository().getFullBranch();
 		}
 	}
 

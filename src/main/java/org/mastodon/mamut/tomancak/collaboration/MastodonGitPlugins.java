@@ -45,7 +45,6 @@ import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-// TODO: allow to switch to remote only branch
 // TODO: disable commands if not in a git repo
 @Plugin( type = MamutPlugin.class )
 public class MastodonGitPlugins extends BasicMamutPlugin
