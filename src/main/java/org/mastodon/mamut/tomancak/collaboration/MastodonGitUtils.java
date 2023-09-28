@@ -51,14 +51,19 @@ import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.project.MamutProject;
 import org.mastodon.mamut.project.MamutProjectIO;
+import org.mastodon.mamut.tomancak.collaboration.credentials.PersistentCredentials;
 import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
 import org.scijava.Context;
 
 import mpicbg.spim.data.SpimDataException;
 
+// make it one synchronized class per repository
+// don't allow to open a repository twice (maybe read only)
 public class MastodonGitUtils
 {
+
+	private static final PersistentCredentials credentials = new PersistentCredentials();
 
 	public static void main( String... args ) throws Exception
 	{
@@ -93,13 +98,17 @@ public class MastodonGitUtils
 		git.add().addFilepattern( "mastodon.project" ).call();
 		git.commit().setMessage( "Initial commit" ).call();
 		git.remoteAdd().setName( "origin" ).setUri( new URIish( repositoryURL ) ).call();
-		git.push().setRemote( "origin" ).call();
+		git.push().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).setRemote( "origin" ).call();
 		git.close();
 	}
 
 	public static void cloneRepository( String repositoryURL, File parentDirectory ) throws Exception
 	{
-		Git git = Git.cloneRepository().setURI( repositoryURL ).setDirectory( parentDirectory ).call();
+		Git git = Git.cloneRepository()
+				.setURI( repositoryURL )
+				.setCredentialsProvider( credentials.getSingleUseCredentialsProvider() )
+				.setDirectory( parentDirectory )
+				.call();
 		git.close();
 	}
 
@@ -138,7 +147,7 @@ public class MastodonGitUtils
 	{
 		try (Git git = initGit( windowManager ))
 		{
-			git.push().setRemote( "origin" ).call();
+			git.push().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).setRemote( "origin" ).call();
 		}
 	}
 
@@ -230,12 +239,12 @@ public class MastodonGitUtils
 			windowManager.getProjectManager().saveProject();
 			boolean isClean = isClean( git );
 			if ( !isClean )
-				throw new RuntimeException( "There are uncommitted changes. Please commit or stash them before pulling." );
-			git.fetch().call();
+				throw new RuntimeException( "There are uncommitted changes. Please commit or stash them before.setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ) pulling." );
+			git.fetch().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).call();
 			int aheadCount = BranchTrackingStatus.of( git.getRepository(), git.getRepository().getBranch() ).getAheadCount();
 			if ( aheadCount > 0 )
 				throw new RuntimeException( "There are local changes. UNSUPPORTED operation. Cannot be done without merge." );
-			git.pull().call();
+			git.pull().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).call();
 			reloadFromDisc( windowManager );
 		}
 	}
@@ -298,7 +307,7 @@ public class MastodonGitUtils
 
 	private static boolean isClean( Git git ) throws GitAPIException
 	{
-			return git.diff().setPathFilter( relevantFilesFilter() ).call().isEmpty();
+		return git.diff().setPathFilter( relevantFilesFilter() ).call().isEmpty();
 	}
 
 	private static TreeFilter relevantFilesFilter()
