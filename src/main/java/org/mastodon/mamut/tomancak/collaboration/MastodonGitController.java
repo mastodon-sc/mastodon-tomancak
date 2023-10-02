@@ -56,7 +56,7 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	public static final ActionDescriptions< MastodonGitController > actionDescriptions = new ActionDescriptions<>( MastodonGitController.class )
 			.addActionDescription( "[mastodon git] create repository",
-					"Plugins > Git > Initialize > Create New Repository",
+					"Plugins > Git > Initialize > Share Project",
 					"Upload Mastodon project to a newly created git repository.",
 					MastodonGitController::createRepository )
 			.addActionDescription( "[mastodon git] clone repository",
@@ -64,18 +64,18 @@ public class MastodonGitController extends BasicMamutPlugin
 					"Clone a git repository to a new Mastodon project.",
 					MastodonGitController::cloneGitRepository )
 			.addActionDescription( "[mastodon git] commit",
-					"Plugins > Git > Commit",
+					"Plugins > Git > Add Save Point (commit)",
 					"Commit changes to the git repository.",
 					MastodonGitController::commit )
 			.addActionDescription( "[mastodon git] push",
-					"Plugins > Git > Push",
+					"Plugins > Git > Upload Changes (push)",
 					"Push changes to the git repository.",
 					MastodonGitController::push )
 			.addActionDescription( "[mastodon git] pull",
-					"Plugins > Git > Pull",
+					"Plugins > Git > Download Changes (pull)",
 					"Pull changes from the git repository.",
 					MastodonGitController::pull )
-			.addActionDescription( "[mastodon git] reset",
+			.addActionDescription( "[mastodon git] Undo Changes (reset)",
 					"Plugins > Git > Reset",
 					"Reset changes in the git repository.",
 					MastodonGitController::reset )
