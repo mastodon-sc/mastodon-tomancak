@@ -25,7 +25,7 @@ public class PersistentCredentials
 		return password == null || username == null;
 	}
 
-	private boolean queryPassword( String url )
+	private boolean queryPassword( String url, boolean previousAuthenticationFailed )
 	{
 		JTextField usernameField = new JTextField( 20 );
 		JPasswordField passwordField = new JPasswordField( 20 );
@@ -38,6 +38,8 @@ public class PersistentCredentials
 		panel.add( usernameField, "wrap" );
 		panel.add( new JLabel( " password" ) );
 		panel.add( passwordField, "wrap" );
+		if ( previousAuthenticationFailed )
+			panel.add( new JLabel( "<html><font color=red>(Authentication failed. Please try again!)" ), "span, wrap" );
 		boolean ok = JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog( null,
 				panel, "Authentication for Git Repository",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
@@ -96,7 +98,7 @@ public class PersistentCredentials
 			counter++;
 			boolean previousAuthenticationFailed = counter > 1;
 			if ( previousAuthenticationFailed || missingCredentials() )
-				if ( !queryPassword( uri.toString() ) )
+				if ( !queryPassword( uri.toString(), previousAuthenticationFailed ) )
 					return false;
 			fillUsernameAndPassword( items );
 			return true;
