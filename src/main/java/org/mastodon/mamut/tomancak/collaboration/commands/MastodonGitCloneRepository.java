@@ -2,7 +2,7 @@ package org.mastodon.mamut.tomancak.collaboration.commands;
 
 import java.io.File;
 
-import org.mastodon.mamut.tomancak.collaboration.MastodonGitUtils;
+import org.mastodon.mamut.tomancak.collaboration.MastodonGitRepository;
 import org.scijava.Context;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
@@ -31,8 +31,8 @@ public class MastodonGitCloneRepository implements Command
 		try
 		{
 			File directory = new File( this.parentDirectory, repositoryName );
-			MastodonGitUtils.cloneRepository( repositoryURL, directory );
-			MastodonGitUtils.openProjectInRepository( context, directory );
+			MastodonGitRepository.cloneRepository( repositoryURL, directory );
+			MastodonGitRepository.openProjectInRepository( context, directory );
 		}
 		catch ( final Exception e )
 		{

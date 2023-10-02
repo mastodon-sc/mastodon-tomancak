@@ -60,7 +60,7 @@ import mpicbg.spim.data.SpimDataException;
 
 // make it one synchronized class per repository
 // don't allow to open a repository twice (maybe read only)
-public class MastodonGitUtils
+public class MastodonGitRepository
 {
 
 	private static final PersistentCredentials credentials = new PersistentCredentials();
@@ -79,7 +79,7 @@ public class MastodonGitUtils
 
 //		MastodonGitUtils.cloneRepository( repositoryURL, new File( parentDirectory, "2/" ) );
 
-		MastodonGitUtils.openProjectInRepository( new Context(), new File( parentDirectory, "2/" ) );
+		MastodonGitRepository.openProjectInRepository( new Context(), new File( parentDirectory, "2/" ) );
 	}
 
 	public static void createRepositoryAndUpload(

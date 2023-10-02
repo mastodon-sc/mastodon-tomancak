@@ -31,7 +31,7 @@ package org.mastodon.mamut.tomancak.collaboration.commands;
 import java.io.File;
 
 import org.mastodon.mamut.WindowManager;
-import org.mastodon.mamut.tomancak.collaboration.MastodonGitUtils;
+import org.mastodon.mamut.tomancak.collaboration.MastodonGitRepository;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 
@@ -54,7 +54,7 @@ public class MastodonGitCreateRepository implements Command
 	{
 		try
 		{
-			MastodonGitUtils.createRepositoryAndUpload( windowManager, parentDirectory, repositoryName, repositoryURL );
+			MastodonGitRepository.createRepositoryAndUpload( windowManager, parentDirectory, repositoryName, repositoryURL );
 		}
 		catch ( Exception e )
 		{

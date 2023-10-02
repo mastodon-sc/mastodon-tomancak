@@ -40,13 +40,14 @@ import org.mastodon.mamut.MamutAppModel;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
+import org.mastodon.mamut.tomancak.collaboration.MastodonGitController;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 import org.scijava.ui.behaviour.util.RunnableAction;
 
 /**
  * A class that simplifies the creation of a {@link MamutPlugin}.
- * See {@link org.mastodon.mamut.tomancak.collaboration.MastodonGitPlugins} for
+ * See {@link MastodonGitController} for
  * usage example.
  */
 public class BasicMamutPlugin implements MamutPlugin

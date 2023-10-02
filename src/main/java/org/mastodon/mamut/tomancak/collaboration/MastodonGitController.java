@@ -47,50 +47,50 @@ import org.scijava.plugin.Plugin;
 
 // TODO: disable commands if not in a git repo
 @Plugin( type = MamutPlugin.class )
-public class MastodonGitPlugins extends BasicMamutPlugin
+public class MastodonGitController extends BasicMamutPlugin
 {
 	@Parameter
 	private CommandService commandService;
 
-	public static final ActionDescriptions< MastodonGitPlugins > actionDescriptions = new ActionDescriptions<>( MastodonGitPlugins.class )
+	public static final ActionDescriptions< MastodonGitController > actionDescriptions = new ActionDescriptions<>( MastodonGitController.class )
 			.addActionDescription( "[mastodon git] create repository",
 					"Plugins > Git > Initialize > Create New Repository",
 					"Upload Mastodon project to a newly created git repository.",
-					MastodonGitPlugins::createRepository )
+					MastodonGitController::createRepository )
 			.addActionDescription( "[mastodon git] clone repository",
 					"Plugins > Git > Initialize > Clone Existing Repository",
 					"Clone a git repository to a new Mastodon project.",
-					MastodonGitPlugins::cloneGitRepository )
+					MastodonGitController::cloneGitRepository )
 			.addActionDescription( "[mastodon git] commit",
 					"Plugins > Git > Commit",
 					"Commit changes to the git repository.",
-					MastodonGitPlugins::commit )
+					MastodonGitController::commit )
 			.addActionDescription( "[mastodon git] push",
 					"Plugins > Git > Push",
 					"Push changes to the git repository.",
-					MastodonGitPlugins::push )
+					MastodonGitController::push )
 			.addActionDescription( "[mastodon git] pull",
 					"Plugins > Git > Pull",
 					"Pull changes from the git repository.",
-					MastodonGitPlugins::pull )
+					MastodonGitController::pull )
 			.addActionDescription( "[mastodon git] reset",
 					"Plugins > Git > Reset",
 					"Reset changes in the git repository.",
-					MastodonGitPlugins::reset )
+					MastodonGitController::reset )
 			.addActionDescription( "[mastodon git] new branch",
 					"Plugins > Git > Branches > Create New Branch",
 					"Create a new branch in the git repository.",
-					MastodonGitPlugins::newBranch )
+					MastodonGitController::newBranch )
 			.addActionDescription( "[mastodon git] switch branch",
 					"Plugins > Git > Branches > Switch Branch",
 					"Switch to a different branch in the git repository.",
-					MastodonGitPlugins::switchBranch )
+					MastodonGitController::switchBranch )
 			.addActionDescription( "[mastodon git] merge branch",
 					"Plugins > Git > Branches > Merge Branch",
 					"Merge a branch into the current branch.",
-					MastodonGitPlugins::mergeBranch );
+					MastodonGitController::mergeBranch );
 
-	public MastodonGitPlugins()
+	public MastodonGitController()
 	{
 		super( actionDescriptions );
 	}
@@ -107,12 +107,12 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 
 	private void commit()
 	{
-		run( () -> MastodonGitUtils.commit( getWindowManager() ) );
+		run( () -> MastodonGitRepository.commit( getWindowManager() ) );
 	}
 
 	private void push()
 	{
-		run( () -> MastodonGitUtils.push( getWindowManager() ) );
+		run( () -> MastodonGitRepository.push( getWindowManager() ) );
 	}
 
 	private void newBranch()
@@ -125,14 +125,14 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 		try
 		{
 			// TODO: the branches are not formatted nicely
-			List< String > branches = MastodonGitUtils.getBranches( getWindowManager() );
-			String currentBranch = MastodonGitUtils.getCurrentBranch( getWindowManager() );
+			List< String > branches = MastodonGitRepository.getBranches( getWindowManager() );
+			String currentBranch = MastodonGitRepository.getCurrentBranch( getWindowManager() );
 			// show JOptionPane that allows to select a branch
 			String selectedBranch = ( String ) JOptionPane.showInputDialog( null, "Select a branch", "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), currentBranch );
 			if ( selectedBranch == null )
 				return;
 			// switch to selected branch
-			run( () -> MastodonGitUtils.switchBranch( getWindowManager(), selectedBranch ) );
+			run( () -> MastodonGitRepository.switchBranch( getWindowManager(), selectedBranch ) );
 		}
 		catch ( Exception e )
 		{
@@ -144,14 +144,14 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 	{
 		try
 		{
-			List< String > branches = MastodonGitUtils.getBranches( getWindowManager() );
-			String currentBranch = MastodonGitUtils.getCurrentBranch( getWindowManager() );
+			List< String > branches = MastodonGitRepository.getBranches( getWindowManager() );
+			String currentBranch = MastodonGitRepository.getCurrentBranch( getWindowManager() );
 			branches.remove( currentBranch );
 			// show JOptionPane that allows to select a branch
 			String selectedBranch = ( String ) JOptionPane.showInputDialog( null, "Select a branch", "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), null );
 			if ( selectedBranch == null )
 				return;
-			MastodonGitUtils.mergeBranch( getWindowManager(), selectedBranch );
+			MastodonGitRepository.mergeBranch( getWindowManager(), selectedBranch );
 		}
 		catch ( Exception e )
 		{
@@ -161,12 +161,12 @@ public class MastodonGitPlugins extends BasicMamutPlugin
 
 	private void pull()
 	{
-		run( () -> MastodonGitUtils.pull( getWindowManager() ) );
+		run( () -> MastodonGitRepository.pull( getWindowManager() ) );
 	}
 
 	private void reset()
 	{
-		run( () -> MastodonGitUtils.reset( getWindowManager() ) );
+		run( () -> MastodonGitRepository.reset( getWindowManager() ) );
 	}
 
 	private void run( RunnableWithException action )
