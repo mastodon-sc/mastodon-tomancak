@@ -75,8 +75,8 @@ public class MastodonGitController extends BasicMamutPlugin
 					"Plugins > Git > Download Changes (pull)",
 					"Pull changes from the git repository.",
 					MastodonGitController::pull )
-			.addActionDescription( "[mastodon git] Undo Changes (reset)",
-					"Plugins > Git > Reset",
+			.addActionDescription( "[mastodon git] git reset",
+					"Plugins > Git > Undo Changes (reset)",
 					"Reset changes in the git repository.",
 					MastodonGitController::reset )
 			.addActionDescription( "[mastodon git] new branch",
