@@ -29,8 +29,9 @@
 package org.mastodon.mamut.tomancak.collaboration.commands;
 
 import java.io.File;
+import java.util.function.BiConsumer;
 
-import org.mastodon.mamut.WindowManager;
+import org.mastodon.mamut.tomancak.collaboration.MastodonGitController;
 import org.mastodon.mamut.tomancak.collaboration.MastodonGitRepository;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
@@ -38,13 +39,10 @@ import org.scijava.plugin.Parameter;
 public class MastodonGitCreateRepository implements Command
 {
 	@Parameter
-	WindowManager windowManager;
+	BiConsumer< File, String > directoryAndUrlCallback;
 
 	@Parameter( label = "Directory to contain the repository", style = "directory" )
-	File parentDirectory;
-
-	@Parameter( label = "Repository name" )
-	String repositoryName;
+	File directory;
 
 	@Parameter( label = "URL on github or gitlab" )
 	String repositoryURL;
@@ -54,7 +52,7 @@ public class MastodonGitCreateRepository implements Command
 	{
 		try
 		{
-			MastodonGitRepository.createRepositoryAndUpload( windowManager, parentDirectory, repositoryName, repositoryURL );
+			directoryAndUrlCallback.accept( directory, repositoryURL );
 		}
 		catch ( Exception e )
 		{

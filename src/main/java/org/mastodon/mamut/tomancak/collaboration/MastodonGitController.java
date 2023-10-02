@@ -28,7 +28,9 @@
  */
 package org.mastodon.mamut.tomancak.collaboration;
 
+import java.io.File;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import javax.swing.JOptionPane;
 
@@ -90,14 +92,26 @@ public class MastodonGitController extends BasicMamutPlugin
 					"Merge a branch into the current branch.",
 					MastodonGitController::mergeBranch );
 
+	private MastodonGitRepository repository;
+
 	public MastodonGitController()
 	{
 		super( actionDescriptions );
 	}
 
+	@Override
+	protected void initialize()
+	{
+		super.initialize();
+		repository = new MastodonGitRepository( getWindowManager() );
+	}
+
 	private void createRepository()
 	{
-		commandService.run( MastodonGitCreateRepository.class, true, "windowManager", getWindowManager() );
+		BiConsumer< File, String > directoryAndUrlCallback = ( directory, url ) -> {
+			run( () -> this.repository = MastodonGitRepository.createRepositoryAndUpload( getWindowManager(), directory, url ) );
+		};
+		commandService.run( MastodonGitCreateRepository.class, true, "directoryAndUrlCallback", directoryAndUrlCallback );
 	}
 
 	private void cloneGitRepository()
@@ -107,17 +121,17 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void commit()
 	{
-		run( () -> MastodonGitRepository.commit( getWindowManager() ) );
+		run( () -> repository.commit() );
 	}
 
 	private void push()
 	{
-		run( () -> MastodonGitRepository.push( getWindowManager() ) );
+		run( () -> repository.push() );
 	}
 
 	private void newBranch()
 	{
-		commandService.run( MastodonGitNewBranch.class, true, "windowManager", getWindowManager() );
+		commandService.run( MastodonGitNewBranch.class, true, "repository", repository );
 	}
 
 	private void switchBranch()
@@ -125,14 +139,14 @@ public class MastodonGitController extends BasicMamutPlugin
 		try
 		{
 			// TODO: the branches are not formatted nicely
-			List< String > branches = MastodonGitRepository.getBranches( getWindowManager() );
-			String currentBranch = MastodonGitRepository.getCurrentBranch( getWindowManager() );
+			List< String > branches = repository.getBranches();
+			String currentBranch = repository.getCurrentBranch();
 			// show JOptionPane that allows to select a branch
 			String selectedBranch = ( String ) JOptionPane.showInputDialog( null, "Select a branch", "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), currentBranch );
 			if ( selectedBranch == null )
 				return;
 			// switch to selected branch
-			run( () -> MastodonGitRepository.switchBranch( getWindowManager(), selectedBranch ) );
+			run( () -> repository.switchBranch( selectedBranch ) );
 		}
 		catch ( Exception e )
 		{
@@ -144,14 +158,14 @@ public class MastodonGitController extends BasicMamutPlugin
 	{
 		try
 		{
-			List< String > branches = MastodonGitRepository.getBranches( getWindowManager() );
-			String currentBranch = MastodonGitRepository.getCurrentBranch( getWindowManager() );
+			List< String > branches = repository.getBranches();
+			String currentBranch = repository.getCurrentBranch();
 			branches.remove( currentBranch );
 			// show JOptionPane that allows to select a branch
 			String selectedBranch = ( String ) JOptionPane.showInputDialog( null, "Select a branch", "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), null );
 			if ( selectedBranch == null )
 				return;
-			MastodonGitRepository.mergeBranch( getWindowManager(), selectedBranch );
+			repository.mergeBranch( selectedBranch );
 		}
 		catch ( Exception e )
 		{
@@ -161,12 +175,12 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void pull()
 	{
-		run( () -> MastodonGitRepository.pull( getWindowManager() ) );
+		run( () -> repository.pull() );
 	}
 
 	private void reset()
 	{
-		run( () -> MastodonGitRepository.reset( getWindowManager() ) );
+		run( () -> repository.reset() );
 	}
 
 	private void run( RunnableWithException action )
@@ -181,6 +195,10 @@ public class MastodonGitController extends BasicMamutPlugin
 				e.printStackTrace();
 			}
 		} ).start();
+	}
+
+	public void createRepositoryAndUpload( File directory, String repositoryURL )
+	{
 	}
 
 	interface RunnableWithException

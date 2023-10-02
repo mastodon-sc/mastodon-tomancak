@@ -65,34 +65,25 @@ public class MastodonGitRepository
 
 	private static final PersistentCredentials credentials = new PersistentCredentials();
 
-	public static void main( String... args ) throws Exception
+	private final WindowManager windowManager;
+
+	public MastodonGitRepository( WindowManager windowManager )
 	{
-		String projectPath = "/home/arzt/devel/mastodon/mastodon/src/test/resources/org/mastodon/mamut/examples/tiny/tiny-project.mastodon";
-		String repositoryName = "mgit-test";
-		String repositoryURL = "git@github.com:maarzt/mgit-test.git";
-		File parentDirectory = new File( "/home/arzt/tmp/" );
-
-//		Context context = new Context();
-//		WindowManager windowManager = new WindowManager( context );
-//		windowManager.getProjectManager().open( new MamutProjectIO().load( projectPath ) );
-//		MastodonGitUtils.createRepositoryAndUpload( windowManager, parentDirectory, repositoryName, repositoryURL );
-
-//		MastodonGitUtils.cloneRepository( repositoryURL, new File( parentDirectory, "2/" ) );
-
-		MastodonGitRepository.openProjectInRepository( new Context(), new File( parentDirectory, "2/" ) );
+		this.windowManager = windowManager;
 	}
 
-	public static void createRepositoryAndUpload(
+	public static MastodonGitRepository createRepositoryAndUpload(
 			WindowManager windowManager,
-			File parentDirectory,
-			String repositoryName,
+			File directory,
 			String repositoryURL )
 			throws Exception
 	{
-		Path gitRepositoryPath = parentDirectory.toPath().resolve( repositoryName );
-		Files.createDirectories( gitRepositoryPath );
-		Git git = Git.init().setDirectory( gitRepositoryPath.toFile() ).call();
-		Path mastodonProjectPath = gitRepositoryPath.resolve( "mastodon.project" );
+		if ( !directory.isDirectory() )
+			throw new IllegalArgumentException( "Not a directory: " + directory );
+		if ( !isEmpty( directory ) )
+			throw new IllegalArgumentException( "Directory not empty: " + directory );
+		Git git = Git.init().setDirectory( directory ).call();
+		Path mastodonProjectPath = directory.toPath().resolve( "mastodon.project" );
 		Files.createDirectory( mastodonProjectPath );
 		windowManager.getProjectManager().saveProject( mastodonProjectPath.toFile() );
 		git.add().addFilepattern( "mastodon.project" ).call();
@@ -100,6 +91,13 @@ public class MastodonGitRepository
 		git.remoteAdd().setName( "origin" ).setUri( new URIish( repositoryURL ) ).call();
 		git.push().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).setRemote( "origin" ).call();
 		git.close();
+		return new MastodonGitRepository( windowManager );
+	}
+
+	private static boolean isEmpty( File directory )
+	{
+		String[] containedFiles = directory.list();
+		return containedFiles == null || containedFiles.length == 0;
 	}
 
 	public static void cloneRepository( String repositoryURL, File parentDirectory ) throws Exception
@@ -120,9 +118,9 @@ public class MastodonGitRepository
 		new MainWindow( windowManager ).setVisible( true );
 	}
 
-	public static void commit( WindowManager windowManager ) throws Exception
+	public synchronized void commit() throws Exception
 	{
-		try (Git git = initGit( windowManager ))
+		try (Git git = initGit())
 		{
 			windowManager.getProjectManager().saveProject();
 			List< DiffEntry > changedFiles = relevantChanges( git );
@@ -138,28 +136,28 @@ public class MastodonGitRepository
 		}
 	}
 
-	private static List< DiffEntry > relevantChanges( Git git ) throws GitAPIException
+	private synchronized List< DiffEntry > relevantChanges( Git git ) throws GitAPIException
 	{
 		return git.diff().setPathFilter( relevantFilesFilter() ).call();
 	}
 
-	public static void push( WindowManager windowManager ) throws Exception
+	public synchronized void push() throws Exception
 	{
-		try (Git git = initGit( windowManager ))
+		try (Git git = initGit())
 		{
 			git.push().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).setRemote( "origin" ).call();
 		}
 	}
 
-	public static void createNewBranch( WindowManager windowManager, String branchName ) throws Exception
+	public synchronized void createNewBranch( String branchName ) throws Exception
 	{
-		try (Git git = initGit( windowManager ))
+		try (Git git = initGit())
 		{
 			git.checkout().setCreateBranch( true ).setName( branchName ).call();
 		}
 	}
 
-	public static void switchBranch( WindowManager windowManager, String branchName ) throws Exception
+	public synchronized void switchBranch( String branchName ) throws Exception
 	{
 		File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
 		try (Git git = initGit( projectRoot ))
@@ -184,38 +182,38 @@ public class MastodonGitRepository
 		windowManager.getProjectManager().openWithDialog( new MamutProjectIO().load( projectRoot.getAbsolutePath() ) );
 	}
 
-	private static String getSimpleName( String branchName )
+	private synchronized String getSimpleName( String branchName )
 	{
 		String[] parts = branchName.split( "/" );
 		return parts[ parts.length - 1 ];
 	}
 
-	public static List< String > getBranches( WindowManager windowManager ) throws Exception
+	public synchronized List< String > getBranches() throws Exception
 	{
-		try (Git git = initGit( windowManager ))
+		try (Git git = initGit())
 		{
 			return git.branchList().setListMode( ListBranchCommand.ListMode.ALL ).call().stream().map( Ref::getName ).collect( Collectors.toList() );
 		}
 	}
 
-	public static String getCurrentBranch( WindowManager windowManager ) throws Exception
+	public synchronized String getCurrentBranch() throws Exception
 	{
-		try (Git git = initGit( windowManager ))
+		try (Git git = initGit())
 		{
 			return git.getRepository().getFullBranch();
 		}
 	}
 
-	public static void mergeBranch( WindowManager windowManager, String selectedBranch ) throws Exception
+	public synchronized void mergeBranch( String selectedBranch ) throws Exception
 	{
-		try (Git git = initGit( windowManager ))
+		try (Git git = initGit())
 		{
 			windowManager.getProjectManager().saveProject();
 			boolean clean = isClean( git );
 			if ( !clean )
 				throw new RuntimeException( "There are uncommitted changes. Please commit or stash them before merging." );
 			File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
-			String currentBranch = getCurrentBranch( windowManager );
+			String currentBranch = getCurrentBranch();
 			Dataset dsA = new Dataset( projectRoot.getAbsolutePath() );
 			git.checkout().setName( selectedBranch ).call();
 			Dataset dsB = new Dataset( projectRoot.getAbsolutePath() );
@@ -228,13 +226,13 @@ public class MastodonGitRepository
 			double ratioThreshold = 2;
 			MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
 			windowManager.getProjectManager().saveProject( projectRoot );
-			commit( windowManager );
+			commit();
 		}
 	}
 
-	public static void pull( WindowManager windowManager ) throws Exception
+	public synchronized void pull() throws Exception
 	{
-		try (Git git = initGit( windowManager ))
+		try (Git git = initGit())
 		{
 			windowManager.getProjectManager().saveProject();
 			boolean isClean = isClean( git );
@@ -245,26 +243,26 @@ public class MastodonGitRepository
 			if ( aheadCount > 0 )
 				throw new RuntimeException( "There are local changes. UNSUPPORTED operation. Cannot be done without merge." );
 			git.pull().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).call();
-			reloadFromDisc( windowManager );
+			reloadFromDisc();
 		}
 	}
 
-	private static void reloadFromDisc( WindowManager windowManager ) throws IOException, SpimDataException
+	private synchronized void reloadFromDisc() throws IOException, SpimDataException
 	{
 		File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
 		windowManager.getProjectManager().openWithDialog( new MamutProjectIO().load( projectRoot.getAbsolutePath() ) );
 	}
 
-	public static void reset( WindowManager windowManager ) throws Exception
+	public synchronized void reset() throws Exception
 	{
-		try (Git git = initGit( windowManager ))
+		try (Git git = initGit())
 		{
 			resetRelevantChanges( git );
-			reloadFromDisc( windowManager );
+			reloadFromDisc();
 		}
 	}
 
-	private static void resetRelevantChanges( Git git ) throws GitAPIException
+	private synchronized void resetRelevantChanges( Git git ) throws GitAPIException
 	{
 		// NB: More complicated than a simple reset --hard, because gui.xml, project.xml and dataset.xml.backup should remain untouched.
 		List< DiffEntry > diffEntries = relevantChanges( git );
@@ -288,13 +286,13 @@ public class MastodonGitRepository
 		}
 	}
 
-	private static Git initGit( WindowManager windowManager ) throws IOException
+	private synchronized Git initGit() throws IOException
 	{
 		File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
 		return initGit( projectRoot );
 	}
 
-	private static Git initGit( File projectRoot ) throws IOException
+	private synchronized Git initGit( File projectRoot ) throws IOException
 	{
 		boolean correctFolder = projectRoot.getName().equals( "mastodon.project" );
 		if ( !correctFolder )
@@ -305,12 +303,12 @@ public class MastodonGitRepository
 		return Git.open( gitRoot );
 	}
 
-	private static boolean isClean( Git git ) throws GitAPIException
+	private synchronized boolean isClean( Git git ) throws GitAPIException
 	{
 		return git.diff().setPathFilter( relevantFilesFilter() ).call().isEmpty();
 	}
 
-	private static TreeFilter relevantFilesFilter()
+	private synchronized TreeFilter relevantFilesFilter()
 	{
 		TreeFilter[] filters = {
 				// only files in subdirectory "mastodon.project"

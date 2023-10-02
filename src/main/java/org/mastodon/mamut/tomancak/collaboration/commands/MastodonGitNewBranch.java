@@ -9,7 +9,7 @@ public class MastodonGitNewBranch implements Command
 {
 
 	@Parameter
-	private WindowManager windowManager;
+	private MastodonGitRepository repository;
 
 	@Parameter( label = "Branch name", persist = false )
 	private String branchName;
@@ -19,7 +19,7 @@ public class MastodonGitNewBranch implements Command
 	{
 		try
 		{
-			MastodonGitRepository.createNewBranch( windowManager, branchName );
+			repository.createNewBranch( branchName );
 		}
 		catch ( Exception e )
 		{

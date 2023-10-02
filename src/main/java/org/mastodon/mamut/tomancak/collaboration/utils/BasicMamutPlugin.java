@@ -100,7 +100,10 @@ public class BasicMamutPlugin implements MamutPlugin
 		appModel = appPluginModel.getAppModel();
 		windowManager = appPluginModel.getWindowManager();
 		actions.forEach( ( key, action ) -> action.setEnabled( appModel != null ) );
+		initialize();
 	}
+
+	protected void initialize() {}
 
 	@Override
 	public Map< String, String > getMenuTexts()
