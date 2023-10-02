@@ -29,49 +29,49 @@
 package org.mastodon.mamut.tomancak.collaboration.commands;
 
 import java.io.File;
-import java.util.function.BiConsumer;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.scijava.ItemVisibility;
-import org.scijava.command.Command;
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
-
-@Plugin( type = Command.class,
-		label = "Share Current Project via GitHub or GitLab",
-		visible = false )
-public class MastodonGitCreateRepository implements Command
+public class NewDirectoryUtils
 {
-	@Parameter( visibility = ItemVisibility.MESSAGE )
-	private String text = "<html><body>"
-			+ "<h1>Share Project</h1>"
-			+ "<p>Share the current project on github or gitlab.</p>"
-			+ "<p>Go to github.com or to ure institute's gitlab and create a new repository.</p>"
-			+ "<p>Then copy the URL of the repository and paste it below.</p>"
-			+ "<p>A copy of will be created in the directory you specify, and then uploaded to the specified URL.</p>";
 
-	@Parameter
-	BiConsumer< File, String > directoryAndUrlCallback;
-
-	@Parameter( label = "URL on github or gitlab" )
-	String repositoryURL;
-
-	@Parameter( label = "Directory to contain the repository", style = "directory" )
-	File directory;
-
-	@Parameter( label = "Create new subdirectory", required = false )
-	boolean createSubdirectory = false;
-
-	@Override
-	public void run()
+	/**
+	 * If {@code newSubdirectory} is true, create a new subdirectory in the
+	 * given {@code directory}. The name of the subdirectory is extracted from
+	 * the {@code repositoryURL}.
+	 * <p>
+	 * If {@code newSubdirectory} is false, return the {@code directory} as it is.
+	 */
+	static File createRepositoryDirectory( boolean newSubdirectory, File directory, String repositoryURL ) throws IOException
 	{
-		try
+		if ( !newSubdirectory )
+			return directory;
+
+		return createSubdirectory( directory, extractRepositoryName( repositoryURL ) );
+	}
+
+	static File createSubdirectory( File parentDirectory, String repositoryName ) throws IOException
+	{
+		File directory = new File( parentDirectory, repositoryName );
+		if ( directory.isDirectory() )
 		{
-			directory = NewDirectoryUtils.createRepositoryDirectory( createSubdirectory, directory, repositoryURL );
-			directoryAndUrlCallback.accept( directory, repositoryURL );
+			if ( directory.list().length > 0 )
+				throw new IOException( "Directory already exists and is not empty: " + directory );
+			else
+				return directory;
 		}
-		catch ( Exception e )
-		{
-			e.printStackTrace();
-		}
+		Files.createDirectory( directory.toPath() );
+		return directory;
+	}
+
+	static String extractRepositoryName( String repositoryURL )
+	{
+		Pattern pattern = Pattern.compile( "/([\\w-]+)(\\.git|/)?$" );
+		Matcher matcher = pattern.matcher( repositoryURL );
+		if ( matcher.find() )
+			return matcher.group( 1 );
+		throw new IllegalArgumentException( "Could not extract repository name from URL:" + repositoryURL );
 	}
 }

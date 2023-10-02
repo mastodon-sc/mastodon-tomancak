@@ -28,50 +28,25 @@
  */
 package org.mastodon.mamut.tomancak.collaboration.commands;
 
-import java.io.File;
-import java.util.function.BiConsumer;
+import static org.junit.Assert.assertEquals;
 
-import org.scijava.ItemVisibility;
-import org.scijava.command.Command;
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
+import java.util.Arrays;
+import java.util.List;
 
-@Plugin( type = Command.class,
-		label = "Share Current Project via GitHub or GitLab",
-		visible = false )
-public class MastodonGitCreateRepository implements Command
+import org.junit.Test;
+
+public class NewDirectoryUtilsTest
 {
-	@Parameter( visibility = ItemVisibility.MESSAGE )
-	private String text = "<html><body>"
-			+ "<h1>Share Project</h1>"
-			+ "<p>Share the current project on github or gitlab.</p>"
-			+ "<p>Go to github.com or to ure institute's gitlab and create a new repository.</p>"
-			+ "<p>Then copy the URL of the repository and paste it below.</p>"
-			+ "<p>A copy of will be created in the directory you specify, and then uploaded to the specified URL.</p>";
-
-	@Parameter
-	BiConsumer< File, String > directoryAndUrlCallback;
-
-	@Parameter( label = "URL on github or gitlab" )
-	String repositoryURL;
-
-	@Parameter( label = "Directory to contain the repository", style = "directory" )
-	File directory;
-
-	@Parameter( label = "Create new subdirectory", required = false )
-	boolean createSubdirectory = false;
-
-	@Override
-	public void run()
+	@Test
+	public void testExtractRepositoryName()
 	{
-		try
-		{
-			directory = NewDirectoryUtils.createRepositoryDirectory( createSubdirectory, directory, repositoryURL );
-			directoryAndUrlCallback.accept( directory, repositoryURL );
-		}
-		catch ( Exception e )
-		{
-			e.printStackTrace();
-		}
+		final String expected = "mastodon-tomancak";
+		List< String > urls = Arrays.asList(
+				"https://github.com/mastodon-sc/mastodon-tomancak.git",
+				"https://github.com/mastodon-sc/mastodon-tomancak/",
+				"git@github.com:mastodon-sc/mastodon-tomancak.git"
+		);
+		for ( String url : urls )
+			assertEquals( expected, NewDirectoryUtils.extractRepositoryName( url ) );
 	}
 }
