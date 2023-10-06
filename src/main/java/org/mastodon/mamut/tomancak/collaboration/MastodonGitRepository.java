@@ -250,7 +250,7 @@ public class MastodonGitRepository
 			windowManager.getProjectManager().saveProject();
 			boolean isClean = isClean( git );
 			if ( !isClean )
-				throw new RuntimeException( "There are uncommitted changes. Please commit or stash them before.setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ) pulling." );
+				throw new RuntimeException( "There are uncommitted changes. Please commit or stash them before pulling." );
 			git.fetch().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).call();
 			int aheadCount = BranchTrackingStatus.of( git.getRepository(), git.getRepository().getBranch() ).getAheadCount();
 			if ( aheadCount > 0 )
