@@ -20,14 +20,33 @@ public class MastodonGitCloneRepository implements Command
 	@Parameter
 	Context context;
 
-	@Parameter( label = "URL on github or gitlab" )
+	@Parameter( label = "URL on github or gitlab", description = URL_DESCRIPTION )
 	String repositoryURL;
 
-	@Parameter( label = "Directory that will contain the cloned repository", style = "directory" )
+	private static final String URL_DESCRIPTION = "<html><body>"
+			+ "Here are two examples of valid URLs:<br>"
+			+ "<ul>"
+			+ "<li>https://github.com/username/repositoryname.git</li>"
+			+ "<li>git@github.com:username/repositoryname.git (if you use SSH to authenticate)</li>"
+			+ "</ul>"
+			+ "</body></html>";
+
+	@Parameter( label = "Directory, to store the project:", style = "directory", description = DIRECTORY_DESCRIPTION )
 	File directory;
 
-	@Parameter( label = "Create new subdirectory", required = false )
+	private static final String DIRECTORY_DESCRIPTION = "<html><body>"
+			+ "A copy of the shared project will be downloaded to your computer.<br>"
+			+ "Please select a directory where to store it.<br>"
+			+ "The directory should be empty, or select \"Create new subdirectory\"."
+			+ "</body></html>";
+
+	@Parameter( label = "Create new subdirectory", required = false, description = CREATE_SUBDIRECTORY_DESCRIPTION )
 	boolean createSubdirectory = false;
+
+	private static final String CREATE_SUBDIRECTORY_DESCRIPTION = "<html><body>"
+			+ "If selected, a new subdirectory will be created in the selected directory.<br>"
+			+ "The name of the subdirectory will be the name of the repository."
+			+ "</body></html>";
 
 	@Override
 	public void run()
