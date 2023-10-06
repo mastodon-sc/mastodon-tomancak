@@ -219,15 +219,20 @@ public class MastodonGitRepository
 			Dataset dsB = new Dataset( projectRoot.getAbsolutePath() );
 			git.checkout().setName( currentBranch ).call();
 			git.merge().setCommit( false ).include( git.getRepository().exactRef( selectedBranch ) ).call(); // TODO selected branch, should not be a string but a ref instead
-			windowManager.getProjectManager().openWithDialog( new MamutProject( null, dsA.project().getDatasetXmlFile() ) );
-			final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( windowManager.getAppModel().getModel() );
-			double distCutoff = 1000;
-			double mahalanobisDistCutoff = 1;
-			double ratioThreshold = 2;
-			MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
+			mergeTwoProjectsAndOpenTheResult( dsA, dsB );
 			windowManager.getProjectManager().saveProject( projectRoot );
 			commit();
 		}
+	}
+
+	private void mergeTwoProjectsAndOpenTheResult( Dataset dsA, Dataset dsB ) throws IOException, SpimDataException
+	{
+		windowManager.getProjectManager().openWithDialog( new MamutProject( null, dsA.project().getDatasetXmlFile() ) );
+		final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( windowManager.getAppModel().getModel() );
+		double distCutoff = 1000;
+		double mahalanobisDistCutoff = 1;
+		double ratioThreshold = 2;
+		MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
 	}
 
 	public synchronized void pull() throws Exception
