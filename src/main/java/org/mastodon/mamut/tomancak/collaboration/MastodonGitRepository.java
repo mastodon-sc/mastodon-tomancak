@@ -219,7 +219,7 @@ public class MastodonGitRepository
 			Dataset dsB = new Dataset( projectRoot.getAbsolutePath() );
 			git.checkout().setName( currentBranch ).call();
 			git.merge().setCommit( false ).include( git.getRepository().exactRef( selectedBranch ) ).call(); // TODO selected branch, should not be a string but a ref instead
-			windowManager.getProjectManager().open( new MamutProject( null, dsA.project().getDatasetXmlFile() ) );
+			windowManager.getProjectManager().openWithDialog( new MamutProject( null, dsA.project().getDatasetXmlFile() ) );
 			final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( windowManager.getAppModel().getModel() );
 			double distCutoff = 1000;
 			double mahalanobisDistCutoff = 1;
