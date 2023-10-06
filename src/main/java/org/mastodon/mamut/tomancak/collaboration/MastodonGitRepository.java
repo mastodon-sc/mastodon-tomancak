@@ -196,6 +196,14 @@ public class MastodonGitRepository
 		}
 	}
 
+	public synchronized void fetchAll() throws Exception
+	{
+		try (Git git = initGit())
+		{
+			git.fetch().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).call();
+		}
+	}
+
 	public synchronized String getCurrentBranch() throws Exception
 	{
 		try (Git git = initGit())

@@ -139,10 +139,19 @@ public class MastodonGitController extends BasicMamutPlugin
 		try
 		{
 			// TODO: the branches are not formatted nicely
+			String message = "Select a branch";
+			try
+			{
+				repository.fetchAll();
+			}
+			catch ( Exception e )
+			{
+				message += " \n(The was a failure downloading the latest branch changes.)";
+			}
 			List< String > branches = repository.getBranches();
 			String currentBranch = repository.getCurrentBranch();
 			// show JOptionPane that allows to select a branch
-			String selectedBranch = ( String ) JOptionPane.showInputDialog( null, "Select a branch", "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), currentBranch );
+			String selectedBranch = ( String ) JOptionPane.showInputDialog( null, message, "Switch Git Branch", JOptionPane.PLAIN_MESSAGE, null, branches.toArray(), currentBranch );
 			if ( selectedBranch == null )
 				return;
 			// switch to selected branch
