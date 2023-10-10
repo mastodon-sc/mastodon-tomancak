@@ -6,7 +6,7 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 @Plugin( type = Command.class, label = "Create New Branch", visible = false )
-public class MastodonGitNewBranch implements Command
+public class MastodonGitNewBranch extends AbstractCancellable implements Command
 {
 
 	@Parameter

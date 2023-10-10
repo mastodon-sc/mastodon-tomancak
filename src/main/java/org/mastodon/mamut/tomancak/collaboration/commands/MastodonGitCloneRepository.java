@@ -15,7 +15,7 @@ import org.scijava.plugin.Plugin;
 @Plugin( type = Command.class,
 		label = "Mastodon Collaborative - Download Shared Project (clone)",
 		menuPath = "Plugins > Mastodon Collaborative > Download Shared Project" )
-public class MastodonGitCloneRepository implements Command
+public class MastodonGitCloneRepository extends AbstractCancellable implements Command
 {
 	@Parameter
 	Context context;

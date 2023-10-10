@@ -39,7 +39,7 @@ import org.scijava.plugin.Plugin;
 @Plugin( type = Command.class,
 		label = "Share Current Project via GitHub or GitLab",
 		visible = false )
-public class MastodonGitCreateRepository implements Command
+public class MastodonGitCreateRepository extends AbstractCancellable implements Command
 {
 	@Parameter( visibility = ItemVisibility.MESSAGE )
 	private String text = "<html><body>"

@@ -8,7 +8,7 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 @Plugin( type = Command.class, label = "Set Author Name", visible = false )
-public class MastodonGitSetAuthorCommand implements Command, Initializable
+public class MastodonGitSetAuthorCommand extends AbstractCancellable implements Command, Initializable
 {
 	@Parameter
 	private MastodonGitSettingsService settings;
