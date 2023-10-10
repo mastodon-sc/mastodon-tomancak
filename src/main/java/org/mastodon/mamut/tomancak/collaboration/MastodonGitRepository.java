@@ -35,6 +35,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -67,9 +68,12 @@ public class MastodonGitRepository
 
 	private final WindowManager windowManager;
 
+	private final MastodonGitSettingsService settingsService;
+
 	public MastodonGitRepository( WindowManager windowManager )
 	{
 		this.windowManager = windowManager;
+		settingsService = windowManager.getContext().service( MastodonGitSettingsService.class );
 	}
 
 	public static MastodonGitRepository createRepositoryAndUpload(
@@ -118,21 +122,25 @@ public class MastodonGitRepository
 		new MainWindow( windowManager ).setVisible( true );
 	}
 
-	public synchronized void commit() throws Exception
+	public synchronized void commit( String message ) throws Exception
 	{
 		try (Git git = initGit())
 		{
 			windowManager.getProjectManager().saveProject();
 			List< DiffEntry > changedFiles = relevantChanges( git );
-			if ( !changedFiles.isEmpty() )
+			if ( changedFiles.isEmpty() )
+				return;
+
+			for ( DiffEntry diffEntry : changedFiles )
 			{
-				for ( DiffEntry diffEntry : changedFiles )
-				{
-					git.add().addFilepattern( diffEntry.getOldPath() ).call();
-					git.add().addFilepattern( diffEntry.getNewPath() ).call();
-				}
-				git.commit().setMessage( "Commit from Mastodon" ).call();
+				git.add().addFilepattern( diffEntry.getOldPath() ).call();
+				git.add().addFilepattern( diffEntry.getNewPath() ).call();
 			}
+
+			CommitCommand commit = git.commit();
+			commit.setMessage( message );
+			commit.setAuthor( settingsService.getPersonIdent() );
+			commit.call();
 		}
 	}
 
@@ -229,7 +237,7 @@ public class MastodonGitRepository
 			git.merge().setCommit( false ).include( git.getRepository().exactRef( selectedBranch ) ).call(); // TODO selected branch, should not be a string but a ref instead
 			mergeTwoProjectsAndOpenTheResult( dsA, dsB );
 			windowManager.getProjectManager().saveProject( projectRoot );
-			commit();
+			commit( "Merge commit generated with Mastodon" );
 		}
 	}
 

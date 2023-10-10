@@ -36,8 +36,10 @@ import javax.swing.JOptionPane;
 
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCloneRepository;
+import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCommitCommand;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCreateRepository;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitNewBranch;
+import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitSetAuthorCommand;
 import org.mastodon.mamut.tomancak.collaboration.utils.ActionDescriptions;
 import org.mastodon.mamut.tomancak.collaboration.utils.BasicDescriptionProvider;
 import org.mastodon.mamut.tomancak.collaboration.utils.BasicMamutPlugin;
@@ -63,6 +65,10 @@ public class MastodonGitController extends BasicMamutPlugin
 					"Plugins > Git > Initialize > Clone Existing Repository",
 					"Clone a git repository to a new Mastodon project.",
 					MastodonGitController::cloneGitRepository )
+			.addActionDescription( "[mastodon git] set author",
+					"Plugins > Git > Initialize > Set Author Name",
+					"Set the author name that is used for your commits.",
+					MastodonGitController::setAuthor )
 			.addActionDescription( "[mastodon git] commit",
 					"Plugins > Git > Add Save Point (commit)",
 					"Commit changes to the git repository.",
@@ -106,6 +112,11 @@ public class MastodonGitController extends BasicMamutPlugin
 		repository = new MastodonGitRepository( getWindowManager() );
 	}
 
+	private void setAuthor()
+	{
+		commandService.run( MastodonGitSetAuthorCommand.class, true );
+	}
+
 	private void createRepository()
 	{
 		BiConsumer< File, String > directoryAndUrlCallback = ( directory, url ) -> {
@@ -121,7 +132,7 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void commit()
 	{
-		run( () -> repository.commit() );
+		commandService.run( MastodonGitCommitCommand.class, true, "repository", repository );
 	}
 
 	private void push()
