@@ -217,10 +217,6 @@ public class MastodonGitController extends BasicMamutPlugin
 		} ).start();
 	}
 
-	public void createRepositoryAndUpload( File directory, String repositoryURL )
-	{
-	}
-
 	interface RunnableWithException
 	{
 		void run() throws Exception;
