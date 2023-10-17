@@ -78,6 +78,11 @@ public class BasicMamutPlugin implements MamutPlugin
 		}
 	}
 
+	public void setActionEnabled( String key, boolean enabled )
+	{
+		actions.get( key ).setEnabled( enabled );
+	}
+
 	private String extractMenuText( String menuEntry )
 	{
 		// From menuEntry, extract the last part, which is the menu item name.

@@ -49,15 +49,15 @@ public class ActionDescriptions< T >
 		this.pluginClass = pluginClass;
 	}
 
-	public final ActionDescriptions< T > addActionDescription( String key, String menuText, String description, Consumer< T > action )
+	public final String addActionDescription( String key, String menuText, String description, Consumer< T > action )
 	{
 		return addActionDescription( key, menuText, description, action, "not mapped" );
 	}
 
-	public final ActionDescriptions< T > addActionDescription( String key, String menuText, String description, Consumer< T > action, String... keyStrokes )
+	public final String addActionDescription( String key, String menuText, String description, Consumer< T > action, String... keyStrokes )
 	{
 		entries.add( new Entry<>( key, menuText, keyStrokes, description, action ) );
-		return this;
+		return key;
 	}
 
 	public Class< T > getPluginClass()

@@ -29,8 +29,8 @@
 package org.mastodon.mamut.tomancak.collaboration;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 import javax.swing.JOptionPane;
 
@@ -59,47 +59,79 @@ public class MastodonGitController extends BasicMamutPlugin
 	@Parameter
 	private MastodonGitSettingsService settingsService;
 
-	public static final ActionDescriptions< MastodonGitController > actionDescriptions = new ActionDescriptions<>( MastodonGitController.class )
-			.addActionDescription( "[mastodon git] create repository",
-					"Plugins > Git > Initialize > Share Project",
-					"Upload Mastodon project to a newly created git repository.",
-					MastodonGitController::createRepository )
-			.addActionDescription( "[mastodon git] clone repository",
-					"Plugins > Git > Initialize > Clone Existing Repository",
-					"Clone a git repository to a new Mastodon project.",
-					MastodonGitController::cloneGitRepository )
-			.addActionDescription( "[mastodon git] set author",
-					"Plugins > Git > Initialize > Set Author Name",
-					"Set the author name that is used for your commits.",
-					MastodonGitController::setAuthor )
-			.addActionDescription( "[mastodon git] commit",
-					"Plugins > Git > Add Save Point (commit)",
-					"Commit changes to the git repository.",
-					MastodonGitController::commit )
-			.addActionDescription( "[mastodon git] push",
-					"Plugins > Git > Upload Changes (push)",
-					"Push changes to the git repository.",
-					MastodonGitController::push )
-			.addActionDescription( "[mastodon git] pull",
+	public static final ActionDescriptions< MastodonGitController > actionDescriptions = new ActionDescriptions<>( MastodonGitController.class );
+
+	private static final String SHARE_PROJECT_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] create repository",
+			"Plugins > Git > Initialize > Share Project",
+			"Upload Mastodon project to a newly created git repository.",
+			MastodonGitController::createRepository );
+
+	private static final String CLONE_REPOSITORY_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] clone repository",
+			"Plugins > Git > Initialize > Clone Existing Repository",
+			"Clone a git repository to a new Mastodon project.",
+			MastodonGitController::cloneGitRepository );
+
+	private static final String SET_AUTHOR_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] set author",
+			"Plugins > Git > Initialize > Set Author Name",
+			"Set the author name that is used for your commits.",
+			MastodonGitController::setAuthor );
+
+	private static final String COMMIT_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] commit",
+			"Plugins > Git > Add Save Point (commit)",
+			"Commit changes to the git repository.",
+			MastodonGitController::commit );
+
+	private static final String PUSH_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] push",
+			"Plugins > Git > Upload Changes (push)",
+			"Push changes to the git repository.",
+			MastodonGitController::push );
+
+	private static final String PULL_ACTION_KEY = actionDescriptions.
+			addActionDescription(
+					"[mastodon git] pull",
 					"Plugins > Git > Download Changes (pull)",
 					"Pull changes from the git repository.",
-					MastodonGitController::pull )
-			.addActionDescription( "[mastodon git] git reset",
+					MastodonGitController::pull );
+
+	private static final String RESET_ACTION_KEY = actionDescriptions.
+			addActionDescription(
+					"[mastodon git] git reset",
 					"Plugins > Git > Undo Changes (reset)",
 					"Reset changes in the git repository.",
-					MastodonGitController::reset )
-			.addActionDescription( "[mastodon git] new branch",
+					MastodonGitController::reset );
+
+	private static final String NEW_BRANCH_ACTION_KEY = actionDescriptions.
+			addActionDescription(
+					"[mastodon git] new branch",
 					"Plugins > Git > Branches > Create New Branch",
 					"Create a new branch in the git repository.",
-					MastodonGitController::newBranch )
-			.addActionDescription( "[mastodon git] switch branch",
-					"Plugins > Git > Branches > Switch Branch",
-					"Switch to a different branch in the git repository.",
-					MastodonGitController::switchBranch )
-			.addActionDescription( "[mastodon git] merge branch",
-					"Plugins > Git > Branches > Merge Branch",
-					"Merge a branch into the current branch.",
-					MastodonGitController::mergeBranch );
+					MastodonGitController::newBranch );
+
+	private static final String SWITCH_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] switch branch",
+			"Plugins > Git > Branches > Switch Branch",
+			"Switch to a different branch in the git repository.",
+			MastodonGitController::switchBranch );
+
+	private static final String MERGE_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] merge branch",
+			"Plugins > Git > Branches > Merge Branch",
+			"Merge a branch into the current branch.",
+			MastodonGitController::mergeBranch );
+
+	private static final List< String > IN_REPOSITORY_ACTIONS = Arrays.asList(
+			COMMIT_ACTION_KEY,
+			PUSH_ACTION_KEY,
+			PULL_ACTION_KEY,
+			RESET_ACTION_KEY,
+			NEW_BRANCH_ACTION_KEY,
+			SWITCH_ACTION_KEY,
+			MERGE_ACTION_KEY );
 
 	private MastodonGitRepository repository;
 
@@ -113,6 +145,7 @@ public class MastodonGitController extends BasicMamutPlugin
 	{
 		super.initialize();
 		repository = new MastodonGitRepository( getWindowManager() );
+		updateEnableCommands();
 	}
 
 	private void setAuthor()
@@ -127,10 +160,17 @@ public class MastodonGitController extends BasicMamutPlugin
 			askForAuthorName( "Please set your author name before sharing a project." );
 			return;
 		}
-		BiConsumer< File, String > directoryAndUrlCallback = ( directory, url ) -> {
-			run( () -> this.repository = MastodonGitRepository.createRepositoryAndUpload( getWindowManager(), directory, url ) );
+		MastodonGitCreateRepository.Callback callback = ( File directory, String url ) -> {
+			this.repository = MastodonGitRepository.createRepositoryAndUpload( getWindowManager(), directory, url );
+			updateEnableCommands();
 		};
-		commandService.run( MastodonGitCreateRepository.class, true, "directoryAndUrlCallback", directoryAndUrlCallback );
+		commandService.run( MastodonGitCreateRepository.class, true, "callback", callback );
+	}
+
+	private void updateEnableCommands()
+	{
+		boolean isRepository = repository.isRepository();
+		IN_REPOSITORY_ACTIONS.forEach( action -> setActionEnabled( action, isRepository ) );
 	}
 
 	private void cloneGitRepository()

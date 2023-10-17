@@ -29,7 +29,6 @@
 package org.mastodon.mamut.tomancak.collaboration.commands;
 
 import java.io.File;
-import java.util.function.BiConsumer;
 
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
@@ -50,7 +49,7 @@ public class MastodonGitCreateRepository extends AbstractCancellable implements 
 			+ "<p>A copy of will be created in the directory you specify, and then uploaded to the specified URL.</p>";
 
 	@Parameter
-	BiConsumer< File, String > directoryAndUrlCallback;
+	Callback callback;
 
 	@Parameter( label = "URL on github or gitlab" )
 	String repositoryURL;
@@ -67,11 +66,16 @@ public class MastodonGitCreateRepository extends AbstractCancellable implements 
 		try
 		{
 			directory = NewDirectoryUtils.createRepositoryDirectory( createSubdirectory, directory, repositoryURL );
-			directoryAndUrlCallback.accept( directory, repositoryURL );
+			callback.run( directory, repositoryURL );
 		}
 		catch ( Exception e )
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public interface Callback
+	{
+		void run( File directory, String repositoryURL ) throws Exception;
 	}
 }

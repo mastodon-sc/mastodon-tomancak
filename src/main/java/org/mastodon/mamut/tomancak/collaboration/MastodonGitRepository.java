@@ -341,4 +341,16 @@ public class MastodonGitRepository
 		};
 		return AndTreeFilter.create( filters );
 	}
+
+	public boolean isRepository()
+	{
+		try (Git ignored = initGit())
+		{
+			return true;
+		}
+		catch ( Exception e )
+		{
+			return false;
+		}
+	}
 }
