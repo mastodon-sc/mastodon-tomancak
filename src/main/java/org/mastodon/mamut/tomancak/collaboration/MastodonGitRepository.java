@@ -44,7 +44,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
@@ -76,7 +75,7 @@ public class MastodonGitRepository
 		settingsService = windowManager.getContext().service( MastodonGitSettingsService.class );
 	}
 
-	public static MastodonGitRepository createRepositoryAndUpload(
+	public static MastodonGitRepository shareProject(
 			WindowManager windowManager,
 			File directory,
 			String repositoryURL )
@@ -86,13 +85,18 @@ public class MastodonGitRepository
 			throw new IllegalArgumentException( "Not a directory: " + directory );
 		if ( !isEmpty( directory ) )
 			throw new IllegalArgumentException( "Directory not empty: " + directory );
-		Git git = Git.init().setDirectory( directory ).call();
+		Git git = Git.cloneRepository()
+				.setURI( repositoryURL )
+				.setCredentialsProvider( credentials.getSingleUseCredentialsProvider() )
+				.setDirectory( directory )
+				.call();
 		Path mastodonProjectPath = directory.toPath().resolve( "mastodon.project" );
+		if ( Files.exists( mastodonProjectPath ) )
+			throw new RuntimeException( "The repository already contains a shared mastodon project: " + repositoryURL );
 		Files.createDirectory( mastodonProjectPath );
 		windowManager.getProjectManager().saveProject( mastodonProjectPath.toFile() );
 		git.add().addFilepattern( "mastodon.project" ).call();
-		git.commit().setMessage( "Initial commit" ).call();
-		git.remoteAdd().setName( "origin" ).setUri( new URIish( repositoryURL ) ).call();
+		git.commit().setMessage( "Share mastodon project" ).call();
 		git.push().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).setRemote( "origin" ).call();
 		git.close();
 		return new MastodonGitRepository( windowManager );
@@ -104,12 +108,12 @@ public class MastodonGitRepository
 		return containedFiles == null || containedFiles.length == 0;
 	}
 
-	public static void cloneRepository( String repositoryURL, File parentDirectory ) throws Exception
+	public static void cloneRepository( String repositoryURL, File directory ) throws Exception
 	{
 		Git git = Git.cloneRepository()
 				.setURI( repositoryURL )
 				.setCredentialsProvider( credentials.getSingleUseCredentialsProvider() )
-				.setDirectory( parentDirectory )
+				.setDirectory( directory )
 				.call();
 		git.close();
 	}

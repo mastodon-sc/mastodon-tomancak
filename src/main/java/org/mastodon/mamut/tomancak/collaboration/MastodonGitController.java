@@ -62,10 +62,10 @@ public class MastodonGitController extends BasicMamutPlugin
 	public static final ActionDescriptions< MastodonGitController > actionDescriptions = new ActionDescriptions<>( MastodonGitController.class );
 
 	private static final String SHARE_PROJECT_ACTION_KEY = actionDescriptions.addActionDescription(
-			"[mastodon git] create repository",
+			"[mastodon git] share project",
 			"Plugins > Git > Initialize > Share Project",
 			"Upload Mastodon project to a newly created git repository.",
-			MastodonGitController::createRepository );
+			MastodonGitController::shareProject );
 
 	private static final String CLONE_REPOSITORY_ACTION_KEY = actionDescriptions.addActionDescription(
 			"[mastodon git] clone repository",
@@ -153,7 +153,7 @@ public class MastodonGitController extends BasicMamutPlugin
 		commandService.run( MastodonGitSetAuthorCommand.class, true );
 	}
 
-	private void createRepository()
+	private void shareProject()
 	{
 		if ( !settingsService.isAuthorSpecified() )
 		{
@@ -161,7 +161,7 @@ public class MastodonGitController extends BasicMamutPlugin
 			return;
 		}
 		MastodonGitCreateRepository.Callback callback = ( File directory, String url ) -> {
-			this.repository = MastodonGitRepository.createRepositoryAndUpload( getWindowManager(), directory, url );
+			this.repository = MastodonGitRepository.shareProject( getWindowManager(), directory, url );
 			updateEnableCommands();
 		};
 		commandService.run( MastodonGitCreateRepository.class, true, "callback", callback );
