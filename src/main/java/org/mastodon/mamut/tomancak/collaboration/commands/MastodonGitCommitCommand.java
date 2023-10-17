@@ -12,7 +12,7 @@ public class MastodonGitCommitCommand extends AbstractCancellable implements Com
 	@Parameter
 	private MastodonGitRepository repository;
 
-	@Parameter( label = "Commit message", style = "textarea", persist = false, description = "A short description of the changes." )
+	@Parameter( label = "Commit message", style = "text area", persist = false, description = "A short description of the changes." )
 	private String commitMessage;
 
 	@Override
