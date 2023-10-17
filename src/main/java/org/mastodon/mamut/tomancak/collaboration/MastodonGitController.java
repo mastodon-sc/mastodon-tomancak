@@ -210,7 +210,7 @@ public class MastodonGitController extends BasicMamutPlugin
 			}
 			catch ( Exception e )
 			{
-				message += " \n(The was a failure downloading the latest branch changes.)";
+				message += " \n(There was a failure downloading the latest branch changes.)";
 			}
 			List< String > branches = repository.getBranches();
 			String currentBranch = repository.getCurrentBranch();
