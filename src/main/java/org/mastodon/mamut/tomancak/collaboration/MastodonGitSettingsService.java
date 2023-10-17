@@ -26,6 +26,11 @@ public class MastodonGitSettingsService extends AbstractService
 		authorEmail = prefService.get( MastodonGitSettingsService.class, "author.email", null );
 	}
 
+	public boolean isAuthorSpecified()
+	{
+		return authorName != null && authorEmail != null;
+	}
+
 	public void setAuthorName( String name )
 	{
 		this.authorName = name;

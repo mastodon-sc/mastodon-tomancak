@@ -56,6 +56,9 @@ public class MastodonGitController extends BasicMamutPlugin
 	@Parameter
 	private CommandService commandService;
 
+	@Parameter
+	private MastodonGitSettingsService settingsService;
+
 	public static final ActionDescriptions< MastodonGitController > actionDescriptions = new ActionDescriptions<>( MastodonGitController.class )
 			.addActionDescription( "[mastodon git] create repository",
 					"Plugins > Git > Initialize > Share Project",
@@ -119,6 +122,11 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void createRepository()
 	{
+		if ( !settingsService.isAuthorSpecified() )
+		{
+			askForAuthorName( "Please set your author name before sharing a project." );
+			return;
+		}
 		BiConsumer< File, String > directoryAndUrlCallback = ( directory, url ) -> {
 			run( () -> this.repository = MastodonGitRepository.createRepositoryAndUpload( getWindowManager(), directory, url ) );
 		};
@@ -132,6 +140,11 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void commit()
 	{
+		if ( !settingsService.isAuthorSpecified() )
+		{
+			askForAuthorName( "Please set your author name before your first commit." );
+			return;
+		}
 		commandService.run( MastodonGitCommitCommand.class, true, "repository", repository );
 	}
 
@@ -176,6 +189,11 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void mergeBranch()
 	{
+		if ( !settingsService.isAuthorSpecified() )
+		{
+			askForAuthorName( "You need to set your author name before you can merge branches." );
+			return;
+		}
 		try
 		{
 			List< String > branches = repository.getBranches();
@@ -201,6 +219,16 @@ public class MastodonGitController extends BasicMamutPlugin
 	private void reset()
 	{
 		run( () -> repository.reset() );
+	}
+
+	private void askForAuthorName( String message )
+	{
+		String title = "Set Author Name";
+		String[] options = { "Set Author Name", "Cancel" };
+		int result = JOptionPane.showOptionDialog( null, message, title, JOptionPane.YES_NO_OPTION,
+				JOptionPane.PLAIN_MESSAGE, null, options, options[ 0 ] );
+		if ( result == JOptionPane.YES_OPTION )
+			setAuthor();
 	}
 
 	private void run( RunnableWithException action )
