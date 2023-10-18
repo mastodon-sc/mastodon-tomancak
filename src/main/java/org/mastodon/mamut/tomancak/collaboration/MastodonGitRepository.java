@@ -161,7 +161,7 @@ public class MastodonGitRepository
 		}
 	}
 
-	private synchronized List< DiffEntry > relevantChanges( Git git ) throws GitAPIException
+	private static synchronized List< DiffEntry > relevantChanges( Git git ) throws GitAPIException
 	{
 		return git.diff().setPathFilter( relevantFilesFilter() ).call();
 	}
@@ -341,7 +341,7 @@ public class MastodonGitRepository
 		}
 	}
 
-	private synchronized void resetRelevantChanges( Git git ) throws Exception
+	private static synchronized void resetRelevantChanges( Git git ) throws Exception
 	{
 		// NB: More complicated than a simple reset --hard, because gui.xml, project.xml and dataset.xml.backup should remain untouched.
 		List< DiffEntry > diffEntries = relevantChanges( git );
@@ -390,7 +390,7 @@ public class MastodonGitRepository
 		return git.diff().setPathFilter( relevantFilesFilter() ).call().isEmpty();
 	}
 
-	private synchronized TreeFilter relevantFilesFilter()
+	private static synchronized TreeFilter relevantFilesFilter()
 	{
 		TreeFilter[] filters = {
 				// only files in subdirectory "mastodon.project"
@@ -415,12 +415,33 @@ public class MastodonGitRepository
 		}
 	}
 
-	private static void abortMerge( Git git ) throws IOException, GitAPIException
+	public static void main( String... args )
+	{
+
+		File dir = new File( "/home/arzt/tmp/2/mgit-test" );
+		File projectRoot = new File( dir, "mastodon.project" );
+		try (Git git = Git.open( dir ); Context context = new Context())
+		{
+			git.checkout()
+					.addPath( "mastodon.project/gui.xml" )
+					.addPath( "mastodon.project/model.raw" )
+					.addPath( "mastodon.project/tags.raw" )
+					.addPath( "mastodon.project/ksdfghksdgh.raw" )
+					.call();
+		}
+		catch ( Exception e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+
+	private static void abortMerge( Git git ) throws Exception
 	{
 		Repository repository = git.getRepository();
 		repository.writeMergeCommitMsg( null );
 		repository.writeMergeHeads( null );
-		git.reset().setMode( ResetCommand.ResetType.HARD ).call();
+		git.reset().setMode( ResetCommand.ResetType.MIXED ).call();
+		resetRelevantChanges( git );
 	}
 
 	public void resetToRemoteBranch() throws Exception
