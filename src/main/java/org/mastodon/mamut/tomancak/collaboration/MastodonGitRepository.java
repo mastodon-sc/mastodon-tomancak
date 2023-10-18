@@ -239,33 +239,26 @@ public class MastodonGitRepository
 
 	public synchronized void mergeBranch( String selectedBranch ) throws Exception
 	{
+		Context context = windowManager.getContext();
+		MamutProject project = windowManager.getProjectManager().getProject();
+		File projectRoot = project.getProjectRoot();
 		try (Git git = initGit())
 		{
 			windowManager.getProjectManager().saveProject();
 			boolean clean = isClean( git );
 			if ( !clean )
 				throw new RuntimeException( "There are uncommitted changes. Please commit or stash them before merging." );
-			File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
 			String currentBranch = getCurrentBranch();
 			Dataset dsA = new Dataset( projectRoot.getAbsolutePath() );
 			git.checkout().setName( selectedBranch ).call();
 			Dataset dsB = new Dataset( projectRoot.getAbsolutePath() );
 			git.checkout().setName( currentBranch ).call();
 			git.merge().setCommit( false ).include( git.getRepository().exactRef( selectedBranch ) ).call(); // TODO selected branch, should not be a string but a ref instead
-			mergeTwoProjectsAndOpenTheResult( dsA, dsB );
-			windowManager.getProjectManager().saveProject( projectRoot );
-			commit( "Merge commit generated with Mastodon" );
+			Model mergedModel = merge( dsA, dsB );
+			saveModel( context, mergedModel, project );
+			commitWithoutSave( "Merge commit generated with Mastodon" );
+			reloadFromDisc();
 		}
-	}
-
-	private void mergeTwoProjectsAndOpenTheResult( Dataset dsA, Dataset dsB ) throws IOException, SpimDataException
-	{
-		windowManager.getProjectManager().openWithDialog( new MamutProject( null, dsA.project().getDatasetXmlFile() ) );
-		final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( windowManager.getAppModel().getModel() );
-		double distCutoff = 1000;
-		double mahalanobisDistCutoff = 1;
-		double ratioThreshold = 2;
-		MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
 	}
 
 	public synchronized void pull() throws Exception
@@ -335,8 +328,8 @@ public class MastodonGitRepository
 
 	private synchronized void reloadFromDisc() throws IOException, SpimDataException
 	{
-		File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
-		windowManager.getProjectManager().openWithDialog( new MamutProjectIO().load( projectRoot.getAbsolutePath() ) );
+		MamutProject project = windowManager.getProjectManager().getProject();
+		windowManager.getProjectManager().openWithDialog( project );
 	}
 
 	public synchronized void reset() throws Exception
