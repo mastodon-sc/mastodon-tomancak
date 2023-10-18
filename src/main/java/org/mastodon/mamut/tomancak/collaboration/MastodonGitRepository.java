@@ -35,6 +35,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
@@ -287,28 +288,31 @@ public class MastodonGitRepository
 		}
 	}
 
-	private synchronized void resetRelevantChanges( Git git ) throws GitAPIException
+	private synchronized void resetRelevantChanges( Git git ) throws Exception
 	{
 		// NB: More complicated than a simple reset --hard, because gui.xml, project.xml and dataset.xml.backup should remain untouched.
 		List< DiffEntry > diffEntries = relevantChanges( git );
-		ResetCommand resetCommand = git.reset().setMode( ResetCommand.ResetType.HARD );
+		if ( diffEntries.isEmpty() )
+			return;
+
+		CheckoutCommand command = git.checkout();
 		for ( DiffEntry entry : diffEntries )
 		{
 			switch ( entry.getChangeType() )
 			{
 			case ADD:
-				resetCommand.addPath( entry.getNewPath() );
+				command.addPath( entry.getNewPath() );
 				break;
 			case DELETE:
-				resetCommand.addPath( entry.getOldPath() );
+				command.addPath( entry.getOldPath() );
 				break;
 			case MODIFY:
-				resetCommand.addPath( entry.getNewPath() );
-				resetCommand.addPath( entry.getOldPath() );
+				command.addPath( entry.getNewPath() );
+				command.addPath( entry.getOldPath() );
 				break;
 			}
-			resetCommand.call();
 		}
+		command.call();
 	}
 
 	private synchronized Git initGit() throws IOException
