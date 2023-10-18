@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -103,6 +104,15 @@ public class MastodonGitRepository
 			throw new RuntimeException( "The repository already contains a shared mastodon project: " + repositoryURL );
 		Files.createDirectory( mastodonProjectPath );
 		windowManager.getProjectManager().saveProject( mastodonProjectPath.toFile() );
+		Files.copy( mastodonProjectPath.resolve( "gui.xml" ), mastodonProjectPath.resolve( "gui.xml_remote" ) );
+		Files.copy( mastodonProjectPath.resolve( "project.xml" ), mastodonProjectPath.resolve( "project.xml_remote" ) );
+		Files.copy( mastodonProjectPath.resolve( "dataset.xml.backup" ), mastodonProjectPath.resolve( "dataset.xml.backup_remote" ) );
+		Path gitignore = directory.toPath().resolve( ".gitignore" );
+		Files.write( gitignore, "/mastodon.project/gui.xml\n".getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND );
+		Files.write( gitignore, "/mastodon.project/project.xml\n".getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND );
+		Files.write( gitignore, "/mastodon.project/dataset.xml.backup\n".getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND );
+		git.add().addFilepattern( ".gitignore" ).call();
+		git.commit().setMessage( "Add .gitignore file" ).call();
 		git.add().addFilepattern( "mastodon.project" ).call();
 		git.commit().setMessage( "Share mastodon project" ).call();
 		git.push().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).setRemote( "origin" ).call();
@@ -118,12 +128,17 @@ public class MastodonGitRepository
 
 	public static void cloneRepository( String repositoryURL, File directory ) throws Exception
 	{
-		Git git = Git.cloneRepository()
+		try (Git git = Git.cloneRepository()
 				.setURI( repositoryURL )
 				.setCredentialsProvider( credentials.getSingleUseCredentialsProvider() )
 				.setDirectory( directory )
-				.call();
-		git.close();
+				.call())
+		{
+			Path mastodonProjectPath = directory.toPath().resolve( "mastodon.project" );
+			Files.copy( mastodonProjectPath.resolve( "gui.xml_remote" ), mastodonProjectPath.resolve( "gui.xml" ) );
+			Files.copy( mastodonProjectPath.resolve( "project.xml_remote" ), mastodonProjectPath.resolve( "project.xml" ) );
+			Files.copy( mastodonProjectPath.resolve( "dataset.xml.backup_remote" ), mastodonProjectPath.resolve( "dataset.xml.backup" ) );
+		}
 	}
 
 	public static void openProjectInRepository( Context context, File directory ) throws Exception
@@ -144,26 +159,12 @@ public class MastodonGitRepository
 	{
 		try (Git git = initGit())
 		{
-			List< DiffEntry > changedFiles = relevantChanges( git );
-			if ( changedFiles.isEmpty() )
-				return;
-
-			for ( DiffEntry diffEntry : changedFiles )
-			{
-				git.add().addFilepattern( diffEntry.getOldPath() ).call();
-				git.add().addFilepattern( diffEntry.getNewPath() ).call();
-			}
-
+			git.add().addFilepattern( "mastodon.project" ).call();
 			CommitCommand commit = git.commit();
 			commit.setMessage( message );
 			commit.setAuthor( settingsService.getPersonIdent() );
 			commit.call();
 		}
-	}
-
-	private static synchronized List< DiffEntry > relevantChanges( Git git ) throws GitAPIException
-	{
-		return git.diff().setPathFilter( relevantFilesFilter() ).call();
 	}
 
 	public synchronized void push() throws Exception
@@ -336,36 +337,9 @@ public class MastodonGitRepository
 	{
 		try (Git git = initGit())
 		{
-			resetRelevantChanges( git );
+			git.reset().setMode( ResetCommand.ResetType.HARD ).call();
 			reloadFromDisc();
 		}
-	}
-
-	private static synchronized void resetRelevantChanges( Git git ) throws Exception
-	{
-		// NB: More complicated than a simple reset --hard, because gui.xml, project.xml and dataset.xml.backup should remain untouched.
-		List< DiffEntry > diffEntries = relevantChanges( git );
-		if ( diffEntries.isEmpty() )
-			return;
-
-		CheckoutCommand command = git.checkout();
-		for ( DiffEntry entry : diffEntries )
-		{
-			switch ( entry.getChangeType() )
-			{
-			case ADD:
-				command.addPath( entry.getNewPath() );
-				break;
-			case DELETE:
-				command.addPath( entry.getOldPath() );
-				break;
-			case MODIFY:
-				command.addPath( entry.getNewPath() );
-				command.addPath( entry.getOldPath() );
-				break;
-			}
-		}
-		command.call();
 	}
 
 	private synchronized Git initGit() throws IOException
@@ -387,20 +361,7 @@ public class MastodonGitRepository
 
 	private synchronized boolean isClean( Git git ) throws GitAPIException
 	{
-		return git.diff().setPathFilter( relevantFilesFilter() ).call().isEmpty();
-	}
-
-	private static synchronized TreeFilter relevantFilesFilter()
-	{
-		TreeFilter[] filters = {
-				// only files in subdirectory "mastodon.project"
-				PathFilter.create( "mastodon.project" ),
-				// but exclude gui.xml project.xml and dataset.xml.backup
-				PathFilter.create( "mastodon.project/gui.xml" ).negate(),
-				PathFilter.create( "mastodon.project/project.xml" ).negate(),
-				PathFilter.create( "mastodon.project/dataset.xml.backup" ).negate()
-		};
-		return AndTreeFilter.create( filters );
+		return git.status().call().isClean();
 	}
 
 	public boolean isRepository()
@@ -440,8 +401,7 @@ public class MastodonGitRepository
 		Repository repository = git.getRepository();
 		repository.writeMergeCommitMsg( null );
 		repository.writeMergeHeads( null );
-		git.reset().setMode( ResetCommand.ResetType.MIXED ).call();
-		resetRelevantChanges( git );
+		git.reset().setMode( ResetCommand.ResetType.HARD ).call();
 	}
 
 	public void resetToRemoteBranch() throws Exception
@@ -450,8 +410,7 @@ public class MastodonGitRepository
 		{
 			Repository repository = git.getRepository();
 			String remoteTrackingBranch = new BranchConfig( repository.getConfig(), repository.getBranch() ).getRemoteTrackingBranch();
-			git.reset().setMode( ResetCommand.ResetType.MIXED ).setRef( remoteTrackingBranch ).call();
-			resetRelevantChanges( git );
+			git.reset().setMode( ResetCommand.ResetType.HARD ).setRef( remoteTrackingBranch ).call();
 			reloadFromDisc();
 		}
 	}
