@@ -69,9 +69,9 @@ public class MastodonGitController extends BasicMamutPlugin
 			MastodonGitController::shareProject );
 
 	private static final String CLONE_REPOSITORY_ACTION_KEY = actionDescriptions.addActionDescription(
-			"[mastodon git] clone repository",
-			"Plugins > Git > Initialize > Clone Existing Repository",
-			"Clone a git repository to a new Mastodon project.",
+			"[mastodon git] clone",
+			"Plugins > Git > Initialize > Download Shared Project (clone)",
+			"Download a shared project, save a copy on the local disc and open it with Mastodon.",
 			MastodonGitController::cloneGitRepository );
 
 	private static final String SET_AUTHOR_ACTION_KEY = actionDescriptions.addActionDescription(
@@ -89,21 +89,21 @@ public class MastodonGitController extends BasicMamutPlugin
 	private static final String PUSH_ACTION_KEY = actionDescriptions.addActionDescription(
 			"[mastodon git] push",
 			"Plugins > Git > Upload Changes (push)",
-			"Push changes to the git repository.",
+			"Push local changed to the remote server.",
 			MastodonGitController::push );
 
 	private static final String PULL_ACTION_KEY = actionDescriptions.
 			addActionDescription(
 					"[mastodon git] pull",
 					"Plugins > Git > Download Changes (pull)",
-					"Pull changes from the git repository.",
+					"Pull changes from the remote server and merge them with my changes.",
 					MastodonGitController::pull );
 
 	private static final String RESET_ACTION_KEY = actionDescriptions.
 			addActionDescription(
 					"[mastodon git] git reset",
-					"Plugins > Git > Undo Changes (reset)",
-					"Reset changes in the git repository.",
+					"Plugins > Git > Go Back To Latest Save Point (reset)",
+					"Discard all changes made since the last save point.",
 					MastodonGitController::reset );
 
 	private static final String NEW_BRANCH_ACTION_KEY = actionDescriptions.

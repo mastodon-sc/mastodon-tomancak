@@ -13,8 +13,8 @@ import org.scijava.plugin.Plugin;
 // - warn if repositoryName already exists and the corresponding directory is not empty
 // - fill repositoryName with a default value based on the repositoryURL
 @Plugin( type = Command.class,
-		label = "Mastodon Collaborative - Download Shared Project (clone)",
-		menuPath = "Plugins > Mastodon Collaborative > Download Shared Project" )
+		label = "Mastodon Git - Download Shared Project (clone)",
+		menuPath = "Plugins > Mastodon Git > Download Shared Project" )
 public class MastodonGitCloneRepository extends AbstractCancellable implements Command
 {
 	@Parameter
