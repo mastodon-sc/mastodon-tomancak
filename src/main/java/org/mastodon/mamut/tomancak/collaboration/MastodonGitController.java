@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCloneRepository;
@@ -253,7 +254,40 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void pull()
 	{
-		run( () -> repository.pull() );
+		run( () -> {
+			try
+			{
+				repository.pull();
+			}
+			catch ( MergeConflictDuringPullException e )
+			{
+				SwingUtilities.invokeLater( () -> suggestPullAlternative() );
+			}
+		} );
+	}
+
+	private void suggestPullAlternative()
+	{
+		// TODO: add pull alternative, save to new branch
+		String title = "Conflict During Pull";
+		String message = "There was a merge conflict during the pull.\n"
+				+ "You made changes on your computer that conflict with changes on the server.\n"
+				+ "The conflicts could not be resolved automatically.\n"
+				+ "You can either:\n"
+				+ "  1. Throw away you local changes.\n"
+				+ "  2. Cancel (And maybe save your local changes to a new branch,\n"
+				+ "             which you can then merge into the remote branch.)\n";
+
+		String[] options = { "Discard Local Changes", "Cancel" };
+		int result = JOptionPane.showOptionDialog( null, message, title, JOptionPane.YES_NO_OPTION,
+				JOptionPane.PLAIN_MESSAGE, null, options, options[ 0 ] );
+		if ( result == JOptionPane.YES_OPTION )
+			resetToRemoteBranch();
+	}
+
+	private void resetToRemoteBranch()
+	{
+		run( () -> repository.resetToRemoteBranch() );
 	}
 
 	private void reset()

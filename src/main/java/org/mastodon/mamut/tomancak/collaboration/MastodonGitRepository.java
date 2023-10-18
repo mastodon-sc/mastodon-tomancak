@@ -43,16 +43,23 @@ import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.lib.BranchTrackingStatus;
+import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.mastodon.graph.io.RawGraphIO;
 import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.WindowManager;
+import org.mastodon.mamut.feature.MamutRawFeatureModelIO;
+import org.mastodon.mamut.model.Link;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.project.MamutProject;
 import org.mastodon.mamut.project.MamutProjectIO;
 import org.mastodon.mamut.tomancak.collaboration.credentials.PersistentCredentials;
+import org.mastodon.mamut.tomancak.collaboration.utils.ConflictUtils;
 import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
 import org.scijava.Context;
@@ -129,9 +136,14 @@ public class MastodonGitRepository
 
 	public synchronized void commit( String message ) throws Exception
 	{
+		windowManager.getProjectManager().saveProject();
+		commitWithoutSave( message );
+	}
+
+	private void commitWithoutSave( String message ) throws Exception
+	{
 		try (Git git = initGit())
 		{
-			windowManager.getProjectManager().saveProject();
 			List< DiffEntry > changedFiles = relevantChanges( git );
 			if ( changedFiles.isEmpty() )
 				return;
@@ -258,19 +270,67 @@ public class MastodonGitRepository
 
 	public synchronized void pull() throws Exception
 	{
+		Context context = windowManager.getContext();
+		MamutProject project = windowManager.getProjectManager().getProject();
+		File projectRoot = project.getProjectRoot();
 		try (Git git = initGit())
 		{
 			windowManager.getProjectManager().saveProject();
 			boolean isClean = isClean( git );
 			if ( !isClean )
 				throw new RuntimeException( "There are uncommitted changes. Please commit or stash them before pulling." );
-			git.fetch().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).call();
-			int aheadCount = BranchTrackingStatus.of( git.getRepository(), git.getRepository().getBranch() ).getAheadCount();
-			if ( aheadCount > 0 )
-				throw new RuntimeException( "There are local changes. UNSUPPORTED operation. Cannot be done without merge." );
-			git.pull().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).call();
+			try
+			{
+				boolean conflict = !git.pull()
+						.setCredentialsProvider( credentials.getSingleUseCredentialsProvider() )
+						.setRemote( "origin" )
+						.setRebase( false )
+						.call().isSuccessful();
+				if ( conflict )
+					automaticMerge( context, project, projectRoot, git );
+			}
+			finally
+			{
+				abortMerge( git );
+			}
 			reloadFromDisc();
 		}
+	}
+
+	private void automaticMerge( Context context, MamutProject project, File projectRoot, Git git ) throws Exception
+	{
+		git.checkout().setAllPaths( true ).setStage( CheckoutCommand.Stage.OURS ).call();
+		Dataset dsA = new Dataset( projectRoot.getAbsolutePath() );
+		git.checkout().setAllPaths( true ).setStage( CheckoutCommand.Stage.THEIRS ).call();
+		Dataset dsB = new Dataset( projectRoot.getAbsolutePath() );
+		git.checkout().setAllPaths( true ).setStage( CheckoutCommand.Stage.OURS ).call();
+		Model mergedModel = merge( dsA, dsB );
+		if ( ConflictUtils.hasConflict( mergedModel ) )
+			throw new MergeConflictDuringPullException();
+		ConflictUtils.removeMergeConflictTagSets( mergedModel );
+		saveModel( context, mergedModel, project );
+		commitWithoutSave( "Automatic merge by Mastodon during pull" );
+	}
+
+	private static void saveModel( Context context, Model model, MamutProject project ) throws IOException
+	{
+		project.setProjectRoot( project.getProjectRoot() );
+		try (final MamutProject.ProjectWriter writer = project.openForWriting())
+		{
+			new MamutProjectIO().save( project, writer );
+			final RawGraphIO.GraphToFileIdMap< Spot, Link > idmap = model.saveRaw( writer );
+			MamutRawFeatureModelIO.serialize( context, model, idmap, writer );
+		}
+	}
+
+	private static Model merge( Dataset dsA, Dataset dsB ) throws IOException, SpimDataException
+	{
+		final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet();
+		double distCutoff = 1000;
+		double mahalanobisDistCutoff = 1;
+		double ratioThreshold = 2;
+		MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
+		return output.getModel();
 	}
 
 	private synchronized void reloadFromDisc() throws IOException, SpimDataException
@@ -359,6 +419,26 @@ public class MastodonGitRepository
 		catch ( Exception e )
 		{
 			return false;
+		}
+	}
+
+	private static void abortMerge( Git git ) throws IOException, GitAPIException
+	{
+		Repository repository = git.getRepository();
+		repository.writeMergeCommitMsg( null );
+		repository.writeMergeHeads( null );
+		git.reset().setMode( ResetCommand.ResetType.HARD ).call();
+	}
+
+	public void resetToRemoteBranch() throws Exception
+	{
+		try (Git git = initGit())
+		{
+			Repository repository = git.getRepository();
+			String remoteTrackingBranch = new BranchConfig( repository.getConfig(), repository.getBranch() ).getRemoteTrackingBranch();
+			git.reset().setMode( ResetCommand.ResetType.MIXED ).setRef( remoteTrackingBranch ).call();
+			resetRelevantChanges( git );
+			reloadFromDisc();
 		}
 	}
 }
