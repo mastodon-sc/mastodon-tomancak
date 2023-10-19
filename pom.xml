@@ -49,18 +49,18 @@
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
-			<version>6.7.0.202309050840-r</version>
+			<version>5.13.2.202306221912-r</version>
 		</dependency>
 		<!-- SSH support for JGit based on Apache MINA sshd - not sure if this is needed -->
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit.ssh.apache</artifactId>
-			<version>6.7.0.202309050840-r</version>
+			<version>5.13.2.202306221912-r</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit.ui</artifactId>
-			<version>6.7.0.202309050840-r</version>
+			<version>5.13.2.202306221912-r</version>
 		</dependency>
 		<!-- Test dependencies -->
 		<dependency>
