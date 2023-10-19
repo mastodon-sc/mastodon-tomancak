@@ -46,6 +46,8 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.mastodon.graph.io.RawGraphIO;
 import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.WindowManager;
@@ -169,8 +171,25 @@ public class MastodonGitRepository
 	{
 		try (Git git = initGit())
 		{
-			git.push().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).setRemote( "origin" ).call();
-			// TODO: Tell user about failed push
+			Iterable< PushResult > results = git.push().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).setRemote( "origin" ).call();
+			raiseExceptionOnUnsuccessfulPush( results );
+		}
+	}
+
+	private static void raiseExceptionOnUnsuccessfulPush( Iterable< PushResult > results )
+	{
+		for ( PushResult result : results )
+		{
+			for ( RemoteRefUpdate update : result.getRemoteUpdates() )
+			{
+				if ( update.getStatus() == RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD )
+					throw new RuntimeException( "The remote server has changes, that you didn't download yet.\n"
+							+ "Please download changes (pull) first.\n"
+							+ "You can upload your changes afterwards.\n" );
+				if ( update.getStatus() != RemoteRefUpdate.Status.OK &&
+						update.getStatus() != RemoteRefUpdate.Status.UP_TO_DATE )
+					throw new RuntimeException( "Push failed: " + update.getMessage() + " " + update.getStatus() );
+			}
 		}
 	}
 
