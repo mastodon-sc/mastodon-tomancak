@@ -206,6 +206,7 @@ public class MastodonGitRepository
 		File projectRoot = windowManager.getProjectManager().getProject().getProjectRoot();
 		try (Git git = initGit( projectRoot ))
 		{
+			ensureClean( git, "switching the branch" );
 			boolean isRemoteBranch = branchName.startsWith( "refs/remotes/" );
 			if ( isRemoteBranch )
 			{
@@ -263,10 +264,7 @@ public class MastodonGitRepository
 		File projectRoot = project.getProjectRoot();
 		try (Git git = initGit())
 		{
-			windowManager.getProjectManager().saveProject();
-			boolean clean = isClean( git );
-			if ( !clean )
-				throw new RuntimeException( "There are uncommitted changes. Please commit or stash them before merging." );
+			ensureClean( git, "merging" );
 			String currentBranch = getCurrentBranch();
 			Dataset dsA = new Dataset( projectRoot.getAbsolutePath() );
 			git.checkout().setName( selectedBranch ).call();
@@ -287,10 +285,7 @@ public class MastodonGitRepository
 		File projectRoot = project.getProjectRoot();
 		try (Git git = initGit())
 		{
-			windowManager.getProjectManager().saveProject();
-			boolean isClean = isClean( git );
-			if ( !isClean )
-				throw new RuntimeException( "There are uncommitted changes. Please commit or stash them before pulling." );
+			ensureClean( git, "pulling" );
 			try
 			{
 				boolean conflict = !git.pull()
@@ -440,5 +435,13 @@ public class MastodonGitRepository
 			git.reset().setMode( ResetCommand.ResetType.HARD ).setRef( remoteTrackingBranch ).call();
 			reloadFromDisc();
 		}
+	}
+
+	private void ensureClean( Git git, String title ) throws GitAPIException
+	{
+		windowManager.getProjectManager().saveProject();
+		boolean clean = isClean( git );
+		if ( !clean )
+			throw new RuntimeException( "There are uncommitted changes. Please add a save point before " + title + "." );
 	}
 }
