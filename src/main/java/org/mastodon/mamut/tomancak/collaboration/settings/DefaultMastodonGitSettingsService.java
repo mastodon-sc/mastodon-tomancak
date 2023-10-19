@@ -1,14 +1,14 @@
-package org.mastodon.mamut.tomancak.collaboration;
+package org.mastodon.mamut.tomancak.collaboration.settings;
 
 import org.eclipse.jgit.lib.PersonIdent;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.prefs.PrefService;
 import org.scijava.service.AbstractService;
-import org.scijava.service.SciJavaService;
+import org.scijava.service.Service;
 
-@Plugin( type = SciJavaService.class )
-public class MastodonGitSettingsService extends AbstractService
+@Plugin( type = Service.class )
+public class DefaultMastodonGitSettingsService extends AbstractService implements MastodonGitSettingsService
 {
 
 	@Parameter
@@ -22,37 +22,43 @@ public class MastodonGitSettingsService extends AbstractService
 	public void initialize()
 	{
 		super.initialize();
-		authorName = prefService.get( MastodonGitSettingsService.class, "author.name", null );
-		authorEmail = prefService.get( MastodonGitSettingsService.class, "author.email", null );
+		authorName = prefService.get( DefaultMastodonGitSettingsService.class, "author.name", null );
+		authorEmail = prefService.get( DefaultMastodonGitSettingsService.class, "author.email", null );
 	}
 
+	@Override
 	public boolean isAuthorSpecified()
 	{
 		return authorName != null && authorEmail != null;
 	}
 
+	@Override
 	public void setAuthorName( String name )
 	{
 		this.authorName = name;
-		prefService.put( MastodonGitSettingsService.class, "author.name", name );
+		prefService.put( DefaultMastodonGitSettingsService.class, "author.name", name );
 	}
 
+	@Override
 	public void setAuthorEmail( String email )
 	{
 		this.authorEmail = email;
-		prefService.put( MastodonGitSettingsService.class, "author.email", email );
+		prefService.put( DefaultMastodonGitSettingsService.class, "author.email", email );
 	}
 
+	@Override
 	public String getAuthorName()
 	{
 		return authorName;
 	}
 
+	@Override
 	public String getAuthorEmail()
 	{
 		return authorEmail;
 	}
 
+	@Override
 	public PersonIdent getPersonIdent()
 	{
 		return new PersonIdent( authorName, authorEmail );

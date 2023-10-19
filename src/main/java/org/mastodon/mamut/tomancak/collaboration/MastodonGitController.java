@@ -46,6 +46,7 @@ import org.mastodon.mamut.tomancak.collaboration.exceptions.GraphMergeException;
 import org.mastodon.mamut.tomancak.collaboration.utils.ActionDescriptions;
 import org.mastodon.mamut.tomancak.collaboration.utils.BasicDescriptionProvider;
 import org.mastodon.mamut.tomancak.collaboration.utils.BasicMamutPlugin;
+import org.mastodon.mamut.tomancak.collaboration.settings.MastodonGitSettingsService;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.command.CommandService;

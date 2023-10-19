@@ -1,6 +1,6 @@
 package org.mastodon.mamut.tomancak.collaboration.commands;
 
-import org.mastodon.mamut.tomancak.collaboration.MastodonGitSettingsService;
+import org.mastodon.mamut.tomancak.collaboration.settings.MastodonGitSettingsService;
 import org.scijava.Initializable;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;

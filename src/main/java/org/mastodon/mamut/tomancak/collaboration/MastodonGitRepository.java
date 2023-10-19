@@ -61,6 +61,7 @@ import org.mastodon.mamut.tomancak.collaboration.credentials.PersistentCredentia
 import org.mastodon.mamut.tomancak.collaboration.exceptions.GraphMergeConflictException;
 import org.mastodon.mamut.tomancak.collaboration.exceptions.GraphMergeException;
 import org.mastodon.mamut.tomancak.collaboration.utils.ConflictUtils;
+import org.mastodon.mamut.tomancak.collaboration.settings.MastodonGitSettingsService;
 import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
 import org.scijava.Context;
