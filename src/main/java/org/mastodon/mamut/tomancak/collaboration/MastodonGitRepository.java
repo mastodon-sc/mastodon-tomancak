@@ -43,13 +43,9 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
-import org.eclipse.jgit.treewalk.filter.PathFilter;
-import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.mastodon.graph.io.RawGraphIO;
 import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.WindowManager;
@@ -60,6 +56,8 @@ import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.project.MamutProject;
 import org.mastodon.mamut.project.MamutProjectIO;
 import org.mastodon.mamut.tomancak.collaboration.credentials.PersistentCredentials;
+import org.mastodon.mamut.tomancak.collaboration.exceptions.GraphMergeConflictException;
+import org.mastodon.mamut.tomancak.collaboration.exceptions.GraphMergeException;
 import org.mastodon.mamut.tomancak.collaboration.utils.ConflictUtils;
 import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
@@ -172,6 +170,7 @@ public class MastodonGitRepository
 		try (Git git = initGit())
 		{
 			git.push().setCredentialsProvider( credentials.getSingleUseCredentialsProvider() ).setRemote( "origin" ).call();
+			// TODO: Tell user about failed push
 		}
 	}
 
@@ -293,17 +292,26 @@ public class MastodonGitRepository
 
 	private void automaticMerge( Context context, MamutProject project, File projectRoot, Git git ) throws Exception
 	{
-		git.checkout().setAllPaths( true ).setStage( CheckoutCommand.Stage.OURS ).call();
-		Dataset dsA = new Dataset( projectRoot.getAbsolutePath() );
-		git.checkout().setAllPaths( true ).setStage( CheckoutCommand.Stage.THEIRS ).call();
-		Dataset dsB = new Dataset( projectRoot.getAbsolutePath() );
-		git.checkout().setAllPaths( true ).setStage( CheckoutCommand.Stage.OURS ).call();
-		Model mergedModel = merge( dsA, dsB );
-		if ( ConflictUtils.hasConflict( mergedModel ) )
-			throw new MergeConflictDuringPullException();
-		ConflictUtils.removeMergeConflictTagSets( mergedModel );
-		saveModel( context, mergedModel, project );
-		commitWithoutSave( "Automatic merge by Mastodon during pull" );
+		try
+		{
+			git.checkout().setAllPaths( true ).setStage( CheckoutCommand.Stage.OURS ).call();
+			Dataset dsA = new Dataset( projectRoot.getAbsolutePath() );
+			git.checkout().setAllPaths( true ).setStage( CheckoutCommand.Stage.THEIRS ).call();
+			Dataset dsB = new Dataset( projectRoot.getAbsolutePath() );
+			git.checkout().setAllPaths( true ).setStage( CheckoutCommand.Stage.OURS ).call();
+			Model mergedModel = merge( dsA, dsB );
+			if ( ConflictUtils.hasConflict( mergedModel ) )
+				throw new GraphMergeConflictException();
+			ConflictUtils.removeMergeConflictTagSets( mergedModel );
+			saveModel( context, mergedModel, project );
+			commitWithoutSave( "Automatic merge by Mastodon during pull" );
+		}
+		catch ( Throwable t )
+		{
+			if ( t instanceof GraphMergeException )
+				throw t;
+			throw new GraphMergeException( "There was a failure, when merging changes to the Model.", t );
+		}
 	}
 
 	private static void saveModel( Context context, Model model, MamutProject project ) throws IOException

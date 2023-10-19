@@ -2,6 +2,7 @@ package org.mastodon.mamut.tomancak.collaboration.commands;
 
 import java.io.File;
 
+import org.mastodon.mamut.tomancak.collaboration.ErrorDialog;
 import org.mastodon.mamut.tomancak.collaboration.MastodonGitRepository;
 import org.scijava.Context;
 import org.scijava.command.Command;
@@ -59,7 +60,7 @@ public class MastodonGitCloneRepository extends AbstractCancellable implements C
 		}
 		catch ( final Exception e )
 		{
-			e.printStackTrace();
+			ErrorDialog.showErrorMessage( "Download Shares Project (Clone)", e );
 		}
 	}
 

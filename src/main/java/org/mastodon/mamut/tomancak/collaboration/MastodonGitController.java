@@ -41,6 +41,8 @@ import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCommitComma
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCreateRepository;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitNewBranch;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitSetAuthorCommand;
+import org.mastodon.mamut.tomancak.collaboration.exceptions.GraphMergeConflictException;
+import org.mastodon.mamut.tomancak.collaboration.exceptions.GraphMergeException;
 import org.mastodon.mamut.tomancak.collaboration.utils.ActionDescriptions;
 import org.mastodon.mamut.tomancak.collaboration.utils.BasicDescriptionProvider;
 import org.mastodon.mamut.tomancak.collaboration.utils.BasicMamutPlugin;
@@ -191,7 +193,7 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void push()
 	{
-		run( () -> repository.push() );
+		run( "Upload Changes (Push)", () -> repository.push() );
 	}
 
 	private void newBranch()
@@ -220,11 +222,11 @@ public class MastodonGitController extends BasicMamutPlugin
 			if ( selectedBranch == null )
 				return;
 			// switch to selected branch
-			run( () -> repository.switchBranch( selectedBranch ) );
+			run( "Switch To Branch", () -> repository.switchBranch( selectedBranch ) );
 		}
 		catch ( Exception e )
 		{
-			e.printStackTrace();
+			ErrorDialog.showErrorMessage( "Select Branch", e );
 		}
 	}
 
@@ -248,35 +250,38 @@ public class MastodonGitController extends BasicMamutPlugin
 		}
 		catch ( Exception e )
 		{
-			e.printStackTrace();
+			ErrorDialog.showErrorMessage( "Merge Branch", e );
 		}
 	}
 
 	private void pull()
 	{
-		run( () -> {
+		run( "Download Changes (Pull)", () -> {
 			try
 			{
 				repository.pull();
 			}
-			catch ( MergeConflictDuringPullException e )
+			catch ( GraphMergeException e )
 			{
-				SwingUtilities.invokeLater( () -> suggestPullAlternative() );
+				if ( !( e instanceof GraphMergeConflictException ) )
+					e.printStackTrace();
+				SwingUtilities.invokeLater( () -> suggestPullAlternative( e.getMessage() ) );
 			}
 		} );
 	}
 
-	private void suggestPullAlternative()
+	private void suggestPullAlternative( String errorMessage )
 	{
 		// TODO: add pull alternative, save to new branch
 		String title = "Conflict During Pull";
-		String message = "There was a merge conflict during the pull.\n"
-				+ "You made changes on your computer that conflict with changes on the server.\n"
-				+ "The conflicts could not be resolved automatically.\n"
+		String message = "There was a merge conflict during the pull. Details:\n"
+				+ "  " + errorMessage + "\n\n"
+				+ "You made changes on your computer that could not be automatically\n"
+				+ "merged with the changes on the server.\n\n"
 				+ "You can either:\n"
-				+ "  1. Throw away you local changes.\n"
-				+ "  2. Cancel (And maybe save your local changes to a new branch,\n"
-				+ "             which you can then merge into the remote branch.)\n";
+				+ "  1. Throw away your local changes & local save points.\n"
+				+ "  2. Or cancel (And maybe save your local changes to a new branch,\n"
+				+ "             which you can then be merged into the remote branch.)\n";
 
 		String[] options = { "Discard Local Changes", "Cancel" };
 		int result = JOptionPane.showOptionDialog( null, message, title, JOptionPane.YES_NO_OPTION,
@@ -287,12 +292,12 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void resetToRemoteBranch()
 	{
-		run( () -> repository.resetToRemoteBranch() );
+		run( "Throw Away All Local Changes (Reset To Remote)", () -> repository.resetToRemoteBranch() );
 	}
 
 	private void reset()
 	{
-		run( () -> repository.reset() );
+		run( "Go Back To Last Save Point (Reset)", () -> repository.reset() );
 	}
 
 	private void askForAuthorName( String message )
@@ -305,7 +310,7 @@ public class MastodonGitController extends BasicMamutPlugin
 			setAuthor();
 	}
 
-	private void run( RunnableWithException action )
+	private void run( String title, RunnableWithException action )
 	{
 		new Thread( () -> {
 			try
@@ -314,7 +319,7 @@ public class MastodonGitController extends BasicMamutPlugin
 			}
 			catch ( Exception e )
 			{
-				e.printStackTrace();
+				ErrorDialog.showErrorMessage( title, e );
 			}
 		} ).start();
 	}

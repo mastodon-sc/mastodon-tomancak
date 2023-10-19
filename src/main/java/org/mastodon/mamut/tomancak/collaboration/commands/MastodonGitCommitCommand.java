@@ -1,5 +1,6 @@
 package org.mastodon.mamut.tomancak.collaboration.commands;
 
+import org.mastodon.mamut.tomancak.collaboration.ErrorDialog;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
@@ -29,7 +30,7 @@ public class MastodonGitCommitCommand extends AbstractCancellable implements Com
 		}
 		catch ( Exception e )
 		{
-			e.printStackTrace();
+			ErrorDialog.showErrorMessage( "Add Save Point (Commit)", e );
 		}
 	}
 }
