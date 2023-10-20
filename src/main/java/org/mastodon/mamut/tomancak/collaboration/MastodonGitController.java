@@ -194,7 +194,11 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void push()
 	{
-		run( "Upload Changes (Push)", () -> repository.push() );
+		run( "Upload Changes (Push)", () -> {
+			repository.push();
+			NotificationDialog.show( "Upload Changes (Push)",
+					"<html><body><font size=+4 color=green>&#10003</font> Completed successfully." );
+		} );
 	}
 
 	private void newBranch()
@@ -274,7 +278,7 @@ public class MastodonGitController extends BasicMamutPlugin
 	private void suggestPullAlternative( String errorMessage )
 	{
 		// TODO: add pull alternative, save to new branch
-		String title = "Conflict During Pull";
+		String title = "Conflict During Download Of Changes (Pull)";
 		String message = "There was a merge conflict during the pull. Details:\n"
 				+ "  " + errorMessage + "\n\n"
 				+ "You made changes on your computer that could not be automatically\n"

@@ -185,7 +185,7 @@ public class MastodonGitRepository
 			{
 				if ( update.getStatus() == RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD )
 					throw new RuntimeException( "The remote server has changes, that you didn't download yet.\n"
-							+ "Please download changes (pull) first.\n"
+							+ "Please download changes first. (pull)\n"
 							+ "You can upload your changes afterwards.\n" );
 				if ( update.getStatus() != RemoteRefUpdate.Status.OK &&
 						update.getStatus() != RemoteRefUpdate.Status.UP_TO_DATE )
