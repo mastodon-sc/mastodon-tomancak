@@ -116,6 +116,12 @@ public class MastodonGitController extends BasicMamutPlugin
 					"Create a new branch in the git repository.",
 					MastodonGitController::newBranch );
 
+	private static final String SHOW_BRANCH_NAME_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] show branch name",
+			"Plugins > Git > Branches > Show Branch Name",
+			"Show the name of the current git branch",
+			MastodonGitController::showBranchName );
+
 	private static final String SWITCH_ACTION_KEY = actionDescriptions.addActionDescription(
 			"[mastodon git] switch branch",
 			"Plugins > Git > Branches > Switch Branch",
@@ -313,6 +319,18 @@ public class MastodonGitController extends BasicMamutPlugin
 				JOptionPane.PLAIN_MESSAGE, null, options, options[ 0 ] );
 		if ( result == JOptionPane.YES_OPTION )
 			setAuthor();
+	}
+
+	private void showBranchName()
+	{
+		run( "Show Branch Name", () -> {
+			String longBranchName = repository.getCurrentBranch();
+			String shortBranchName = longBranchName.replaceAll( "^refs/heads/", "" );
+			String title = "Current Branch Name";
+			String message = "<html><body>The current branch is:<br><b>" + shortBranchName;
+			SwingUtilities.invokeLater( () ->
+					JOptionPane.showMessageDialog( null, message, title, JOptionPane.PLAIN_MESSAGE ) );
+		} );
 	}
 
 	private void run( String title, RunnableWithException action )
