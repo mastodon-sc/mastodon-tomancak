@@ -83,6 +83,12 @@ public class MastodonGitController extends BasicMamutPlugin
 			"Set the author name that is used for your commits.",
 			MastodonGitController::setAuthor );
 
+	private static final String SYNCHRONIZE_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] synchronize",
+			"Plugins > Git > Synchronize (commit, pull, push)",
+			"Download remote changes and upload local changes.",
+			MastodonGitController::synchronize );
+
 	private static final String COMMIT_ACTION_KEY = actionDescriptions.addActionDescription(
 			"[mastodon git] commit",
 			"Plugins > Git > Add Save Point (commit)",
@@ -330,6 +336,47 @@ public class MastodonGitController extends BasicMamutPlugin
 			String message = "<html><body>The current branch is:<br><b>" + shortBranchName;
 			SwingUtilities.invokeLater( () ->
 					JOptionPane.showMessageDialog( null, message, title, JOptionPane.PLAIN_MESSAGE ) );
+		} );
+	}
+
+	private void synchronize()
+	{
+		// check if clean
+		// - yes, continue
+		// - no -> ask for commit message, and commit
+
+		// pull
+		// try to merge
+		// - no conflict -> continue
+		// - conflict, let the user change an option:
+		//    - discard local changes
+		//    - cancel
+
+		// push
+		// notify about success or failure
+		run( "Synchronize Changes", () -> {
+			boolean clean = repository.isClean();
+			if ( !clean )
+			{
+				String commitMessage = CommitMessageDialog.showDialog( "Add Save Point (commit)" );
+				if ( commitMessage == null )
+					return;
+				repository.commitWithoutSave( commitMessage );
+			}
+			try
+			{
+				repository.pull();
+			}
+			catch ( GraphMergeException e )
+			{
+				if ( !( e instanceof GraphMergeConflictException ) )
+					e.printStackTrace();
+				SwingUtilities.invokeLater( () -> suggestPullAlternative( e.getMessage() ) );
+				return;
+			}
+			repository.push();
+			NotificationDialog.show( "Synchronize Changes (Commit, Pull, Push)",
+					"<html><body><font size=+4 color=green>&#10003</font> Completed successfully." );
 		} );
 	}
 

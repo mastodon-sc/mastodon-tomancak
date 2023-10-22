@@ -156,7 +156,7 @@ public class MastodonGitRepository
 		commitWithoutSave( message );
 	}
 
-	private void commitWithoutSave( String message ) throws Exception
+	public void commitWithoutSave( String message ) throws Exception
 	{
 		try (Git git = initGit())
 		{
@@ -444,5 +444,14 @@ public class MastodonGitRepository
 		boolean clean = isClean( git );
 		if ( !clean )
 			throw new RuntimeException( "There are uncommitted changes. Please add a save point before " + title + "." );
+	}
+
+	public boolean isClean() throws Exception
+	{
+		windowManager.getProjectManager().saveProject();
+		try (Git git = initGit())
+		{
+			return isClean( git );
+		}
 	}
 }
