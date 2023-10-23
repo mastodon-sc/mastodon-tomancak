@@ -101,26 +101,23 @@ public class MastodonGitController extends BasicMamutPlugin
 			"Push local changed to the remote server.",
 			MastodonGitController::push );
 
-	private static final String PULL_ACTION_KEY = actionDescriptions.
-			addActionDescription(
-					"[mastodon git] pull",
-					"Plugins > Git > Download Changes (pull)",
-					"Pull changes from the remote server and merge them with my changes.",
-					MastodonGitController::pull );
+	private static final String PULL_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] pull",
+			"Plugins > Git > Download Changes (pull)",
+			"Pull changes from the remote server and merge them with my changes.",
+			MastodonGitController::pull );
 
-	private static final String RESET_ACTION_KEY = actionDescriptions.
-			addActionDescription(
-					"[mastodon git] git reset",
-					"Plugins > Git > Go Back To Latest Save Point (reset)",
-					"Discard all changes made since the last save point.",
-					MastodonGitController::reset );
+	private static final String RESET_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] git reset",
+			"Plugins > Git > Go Back To Latest Save Point (reset)",
+			"Discard all changes made since the last save point.",
+			MastodonGitController::reset );
 
-	private static final String NEW_BRANCH_ACTION_KEY = actionDescriptions.
-			addActionDescription(
-					"[mastodon git] new branch",
-					"Plugins > Git > Branches > Create New Branch",
-					"Create a new branch in the git repository.",
-					MastodonGitController::newBranch );
+	private static final String NEW_BRANCH_ACTION_KEY = actionDescriptions.addActionDescription(
+			"[mastodon git] new branch",
+			"Plugins > Git > Branches > Create New Branch",
+			"Create a new branch in the git repository.",
+			MastodonGitController::newBranch );
 
 	private static final String SHOW_BRANCH_NAME_ACTION_KEY = actionDescriptions.addActionDescription(
 			"[mastodon git] show branch name",
