@@ -1,10 +1,13 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.io.IOException;
 
 import mpicbg.spim.data.SpimDataException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.mastodon.feature.FeatureSpecsService;
 import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.WindowManager;
@@ -26,20 +29,13 @@ public class LineageRegistrationDemo
 		context.service( LineageRegistrationControlService.class ).showDialog();
 	}
 
-
-	private static WindowManager openAppModel( Context context, String projectPath )
+	private static void openAppModel( Context context, String projectPath )
 	{
 		try
 		{
 			ProjectModel projectModel = ProjectLoader.open( projectPath, context );
-			WindowManager wm = projectModel.getWindowManager();
-			TrackSchemeFrame frame = wm.createView( MamutViewTrackScheme.class ).getFrame();
-			String baseName = FilenameUtils.getBaseName( projectPath );
-			frame.setTitle( frame.getTitle() + " " + baseName );
-			MainWindow mainWindow = new MainWindow( projectModel );
-			mainWindow.setVisible( true );
-			mainWindow.setTitle( mainWindow.getTitle() + " " + baseName );
-			return wm;
+			projectModel.getWindowManager().createView( MamutViewTrackScheme.class );
+			new MainWindow( projectModel ).setVisible( true );
 		}
 		catch ( SpimDataException | IOException e )
 		{

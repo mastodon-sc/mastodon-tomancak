@@ -1,6 +1,5 @@
 package org.mastodon.mamut.tomancak.lineage_registration;
 
-import java.io.File;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,6 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.FilenameUtils;
 import org.mastodon.app.ui.GroupLocksPanel;
 import org.mastodon.mamut.ProjectModel;
-import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.io.project.MamutProject;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationMethod;
 
@@ -201,7 +199,7 @@ public class LineageRegistrationFrame extends JFrame
 	{
 		SelectedProject projectA = getProjectA();
 		SelectedProject projectB = getProjectB();
-		final boolean enabled = projectA != null && projectB != null && projectA.getWindowManager() != projectB.getWindowManager();
+		final boolean enabled = projectA != null && projectB != null && projectA.getProjectModel() != projectB.getProjectModel();
 		for ( JComponent b : enableDisable )
 			b.setEnabled( enabled );
 	}
@@ -298,7 +296,7 @@ public class LineageRegistrationFrame extends JFrame
 			comboBoxB.addItem( mastodonInstance );
 		}
 		setSelected( comboBoxA, a, 0 );
-		boolean sameProject = a != null && b != null && a.getWindowManager() == b.getWindowManager();
+		boolean sameProject = a != null && b != null && a.getProjectModel() == b.getProjectModel();
 		setSelected( comboBoxB, sameProject ? null : b, 1 );
 		updateEnableComponents();
 	}
@@ -308,7 +306,7 @@ public class LineageRegistrationFrame extends JFrame
 		if ( selectedProject != null )
 		{
 			for ( int i = 0; i < comboBox.getItemCount(); i++ )
-				if ( comboBox.getItemAt( i ).projectModel == selectedProject.getAppModel() )
+				if ( comboBox.getItemAt( i ).projectModel == selectedProject.getProjectModel() )
 				{
 					comboBox.setSelectedIndex( i );
 					return;

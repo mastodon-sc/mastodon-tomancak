@@ -11,7 +11,6 @@ import net.imagej.ImageJService;
 
 import org.mastodon.collection.RefDoubleMap;
 import org.mastodon.mamut.ProjectModel;
-import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.lineage_registration.angle_feature.CellDivisionAngleFeature;
@@ -102,7 +101,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 				dialog.log( "Use project \"%s\" as reference...", project2.getName() );
 				RegisteredGraphs registration = runRegistrationAlgorithm( project1, project2 );
 				LineageRegistrationUtils.sortSecondTrackSchemeToMatch( registration );
-				project2.getAppModel().getBranchGraphSync().sync();
+				project2.getProjectModel().getBranchGraphSync().sync();
 				project2.getModel().setUndoPoint();
 				dialog.log( "done." );
 			} );
@@ -233,7 +232,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 			}
 			dialog.log( "Synchronize focused and highlighted spot between project A and project B." );
 			dialog.log( "Synchronize navigate to spot actions between project A and project B. (sync. group %d)", i + 1 );
-			coupling = new ModelCoupling( projectA.getAppModel(), projectB.getAppModel(), r, i );
+			coupling = new ModelCoupling( projectA.getProjectModel(), projectB.getProjectModel(), r, i );
 		}
 
 		@Override
