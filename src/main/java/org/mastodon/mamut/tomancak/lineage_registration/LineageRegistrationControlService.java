@@ -27,7 +27,7 @@ import org.scijava.service.AbstractService;
  * There should be only one instance of this class in the Fiji application.
  * This is ensured by making it an {@link ImageJService}. Being a service,
  * allows the {@link LineageRegistrationPlugin} to access it, and to call
- * {@link #registerMastodonInstance(WindowManager)}.
+ * {@link #registerMastodonInstance}.
  *
  * @author Matthias Arzt
  */

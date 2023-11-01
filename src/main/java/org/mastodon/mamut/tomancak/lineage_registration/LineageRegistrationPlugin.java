@@ -24,7 +24,7 @@ import org.scijava.ui.behaviour.util.RunnableAction;
  * A plugin that registers the cell lineages of two stereotypically developing embryos.
  * <p>
  * The plugin interacts with the {@link LineageRegistrationControlService} to
- * register and unregister the {@link MamutAppModel}
+ * register and unregister the {@link ProjectModel}s
  * and to show the {@link LineageRegistrationFrame}.
  */
 @Plugin( type = MamutPlugin.class )
