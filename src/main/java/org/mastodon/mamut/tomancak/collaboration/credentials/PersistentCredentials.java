@@ -8,11 +8,17 @@ import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.eclipse.jgit.errors.UnsupportedCredentialItem;
-import org.eclipse.jgit.transport.CredentialItem;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.URIish;
 
+/**
+ * This class is meant to be used with JGIT for a comfortable way to ask the
+ * user for credentials. The user is only asked once for username and password.
+ * The credentials are stored in memory and reused for all subsequent requests.
+ * It also tries to detect if the user entered wrong credentials,
+ * and asks for new credentials.
+ */
 public class PersistentCredentials
 {
 
@@ -20,9 +26,18 @@ public class PersistentCredentials
 
 	private String password = null;
 
-	private boolean missingCredentials()
+	/**
+	 * This method simply returns the username and password if they are already
+	 * known. It asks the user for credentials if they are not known yet, or if
+	 * the previous attempt to use the credentials failed.
+	 */
+	private synchronized Pair< String, String > getUsernameAndPassword( URIish uri, boolean authenticationFailure )
 	{
-		return password == null || username == null;
+		boolean missingCredentials = password == null || username == null;
+		if ( missingCredentials || authenticationFailure )
+			if ( !queryPassword( uri.toString(), authenticationFailure ) )
+				return null;
+		return Pair.of( username, password );
 	}
 
 	private boolean queryPassword( String url, boolean previousAuthenticationFailed )
@@ -53,69 +68,6 @@ public class PersistentCredentials
 
 	public CredentialsProvider getSingleUseCredentialsProvider()
 	{
-		return new SingleUseCredentialsProvider();
-	}
-
-	/**
-	 * The JGIT api does not tell a CredentialsProvider if the credentials
-	 * where correct. It simply asks for them again if they were wrong.
-	 * <p>
-	 * We can exploit this behavior by counting the number of times the
-	 * CredentialsProvider was asked for credentials. If it was asked more than
-	 * once, we assume that the credentials were wrong.
-	 * <p>
-	 * This only works if the CredentialsProvider is only used once.
-	 */
-	private class SingleUseCredentialsProvider extends CredentialsProvider
-	{
-		private int counter = 0;
-
-		@Override
-		public boolean isInteractive()
-		{
-			return true;
-		}
-
-		@Override
-		public boolean supports( CredentialItem... items )
-		{
-			for ( CredentialItem item : items )
-				if ( !isUsernameOrPassword( item ) )
-					return false;
-			return true;
-		}
-
-		private boolean isUsernameOrPassword( CredentialItem item )
-		{
-			return ( item instanceof CredentialItem.Username ) || ( item instanceof CredentialItem.Password );
-		}
-
-		@Override
-		public boolean get( URIish uri, CredentialItem... items ) throws UnsupportedCredentialItem
-		{
-			if ( !supports( items ) )
-				return false;
-			counter++;
-			boolean previousAuthenticationFailed = counter > 1;
-			if ( previousAuthenticationFailed || missingCredentials() )
-				if ( !queryPassword( uri.toString(), previousAuthenticationFailed ) )
-					return false;
-			fillUsernameAndPassword( items );
-			return true;
-		}
-
-		private void fillUsernameAndPassword( CredentialItem[] items )
-		{
-			for ( CredentialItem item : items )
-				fillItem( item );
-		}
-
-		private void fillItem( CredentialItem item )
-		{
-			if ( item instanceof CredentialItem.Username )
-				( ( CredentialItem.Username ) item ).setValue( username );
-			else if ( item instanceof CredentialItem.Password )
-				( ( CredentialItem.Password ) item ).setValue( password.toCharArray() );
-		}
+		return new SingleUseCredentialsProvider( this::getUsernameAndPassword );
 	}
 }
