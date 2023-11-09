@@ -36,7 +36,7 @@ public class PersistentCredentials
 		panel.add( new JLabel( url ), "span, wrap, gapbottom unrelated" );
 		panel.add( new JLabel( "username" ) );
 		panel.add( usernameField, "wrap" );
-		panel.add( new JLabel( " password" ) );
+		panel.add( new JLabel( "password" ) );
 		panel.add( passwordField, "wrap" );
 		if ( previousAuthenticationFailed )
 			panel.add( new JLabel( "<html><font color=red>(Authentication failed. Please try again!)" ), "span, wrap" );
