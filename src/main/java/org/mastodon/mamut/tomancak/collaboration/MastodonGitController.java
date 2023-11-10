@@ -31,6 +31,7 @@ package org.mastodon.mamut.tomancak.collaboration;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -383,6 +384,10 @@ public class MastodonGitController extends BasicMamutPlugin
 			try
 			{
 				action.run();
+			}
+			catch ( CancellationException e )
+			{
+				// ignore
 			}
 			catch ( Exception e )
 			{

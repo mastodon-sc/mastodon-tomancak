@@ -1,5 +1,7 @@
 package org.mastodon.mamut.tomancak.collaboration.credentials;
 
+import java.util.concurrent.CancellationException;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -9,6 +11,7 @@ import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.URIish;
 
@@ -18,6 +21,13 @@ import org.eclipse.jgit.transport.URIish;
  * The credentials are stored in memory and reused for all subsequent requests.
  * It also tries to detect if the user entered wrong credentials,
  * and asks for new credentials.
+ * <p>
+ * WARNING: JGIT expects a {@link CredentialsProvider} to return false if the
+ * user cancels for example a username/password dialog. (see {@link CredentialsProvider#get})
+ * This class behaves differently: It throws a {@link CancellationException}
+ * instead. This difference is on purpose. The CancellationException
+ * better describes the situation and is easier to handle, than the
+ * {@link org.eclipse.jgit.errors.TransportException} that JGIT throws.
  */
 public class PersistentCredentials
 {
@@ -35,12 +45,11 @@ public class PersistentCredentials
 	{
 		boolean missingCredentials = password == null || username == null;
 		if ( missingCredentials || authenticationFailure )
-			if ( !queryPassword( uri.toString(), authenticationFailure ) )
-				return null;
+			queryPassword( uri.toString(), authenticationFailure );
 		return Pair.of( username, password );
 	}
 
-	private boolean queryPassword( String url, boolean previousAuthenticationFailed )
+	private void queryPassword( String url, boolean previousAuthenticationFailed )
 	{
 		JTextField usernameField = new JTextField( 20 );
 		JPasswordField passwordField = new JPasswordField( 20 );
@@ -59,11 +68,10 @@ public class PersistentCredentials
 				panel, "Authentication for Git Repository",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
 		if ( !ok )
-			return false;
+			throw new CancellationException( "User cancelled username & password dialog." );
 
 		username = usernameField.getText();
 		password = new String( passwordField.getPassword() );
-		return true;
 	}
 
 	public CredentialsProvider getSingleUseCredentialsProvider()
