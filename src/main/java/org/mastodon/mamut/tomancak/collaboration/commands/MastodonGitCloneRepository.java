@@ -60,7 +60,7 @@ public class MastodonGitCloneRepository extends AbstractCancellable implements C
 		}
 		catch ( final Exception e )
 		{
-			ErrorDialog.showErrorMessage( "Download Shares Project (Clone)", e );
+			ErrorDialog.showErrorMessage( "Download Shared Project (Clone)", e );
 		}
 	}
 
