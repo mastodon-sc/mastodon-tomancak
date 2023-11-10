@@ -57,13 +57,22 @@ public class NewDirectoryUtils
 		File directory = new File( parentDirectory, repositoryName );
 		if ( directory.isDirectory() )
 		{
-			if ( directory.list().length > 0 )
-				throw new IOException( "Directory already exists and is not empty: " + directory );
-			else
+			if ( isEmptyDirectory( directory ) )
 				return directory;
+			else
+				throw new IOException( "Directory already exists but is not empty: " + directory
+						+ "\nPlease move or delete the directory and try again." );
 		}
 		Files.createDirectory( directory.toPath() );
 		return directory;
+	}
+
+	private static boolean isEmptyDirectory( File directory )
+	{
+		String[] list = directory.list();
+		if ( list == null ) // not a directory
+			return false;
+		return list.length == 0;
 	}
 
 	static String extractRepositoryName( String repositoryURL )
