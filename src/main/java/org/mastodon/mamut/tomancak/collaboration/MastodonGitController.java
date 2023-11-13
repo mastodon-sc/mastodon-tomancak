@@ -72,43 +72,43 @@ public class MastodonGitController extends BasicMamutPlugin
 			MastodonGitController::shareProject );
 
 	private static final String CLONE_REPOSITORY_ACTION_KEY = actionDescriptions.addActionDescription(
-			"[mastodon git] clone",
+			"[mastodon git] download shared project (clone)",
 			"Plugins > Git > Initialize > Download Shared Project (clone)",
 			"Download a shared project, save a copy on the local disc and open it with Mastodon.",
 			MastodonGitController::cloneGitRepository );
 
 	private static final String SET_AUTHOR_ACTION_KEY = actionDescriptions.addActionDescription(
-			"[mastodon git] set author",
+			"[mastodon git] set author name",
 			"Plugins > Git > Initialize > Set Author Name",
 			"Set the author name that is used for your commits.",
 			MastodonGitController::setAuthor );
 
 	private static final String SYNCHRONIZE_ACTION_KEY = actionDescriptions.addActionDescription(
-			"[mastodon git] synchronize",
+			"[mastodon git] synchronize (commit, pull, push)",
 			"Plugins > Git > Synchronize (commit, pull, push)",
 			"Download remote changes and upload local changes.",
 			MastodonGitController::synchronize );
 
 	private static final String COMMIT_ACTION_KEY = actionDescriptions.addActionDescription(
-			"[mastodon git] commit",
+			"[mastodon git] add save point (commit)",
 			"Plugins > Git > Add Save Point (commit)",
 			"Commit changes to the git repository.",
 			MastodonGitController::commit );
 
 	private static final String PUSH_ACTION_KEY = actionDescriptions.addActionDescription(
-			"[mastodon git] push",
+			"[mastodon git] upload changes (push)",
 			"Plugins > Git > Upload Changes (push)",
 			"Push local changed to the remote server.",
 			MastodonGitController::push );
 
 	private static final String PULL_ACTION_KEY = actionDescriptions.addActionDescription(
-			"[mastodon git] pull",
+			"[mastodon git] download changes (pull)",
 			"Plugins > Git > Download Changes (pull)",
 			"Pull changes from the remote server and merge them with my changes.",
 			MastodonGitController::pull );
 
 	private static final String RESET_ACTION_KEY = actionDescriptions.addActionDescription(
-			"[mastodon git] git reset",
+			"[mastodon git] go back to latest save point (reset)",
 			"Plugins > Git > Go Back To Latest Save Point (reset)",
 			"Discard all changes made since the last save point.",
 			MastodonGitController::reset );
