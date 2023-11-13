@@ -402,26 +402,6 @@ public class MastodonGitRepository
 		}
 	}
 
-	public static void main( String... args )
-	{
-
-		File dir = new File( "/home/arzt/tmp/2/mgit-test" );
-		File projectRoot = new File( dir, "mastodon.project" );
-		try (Git git = Git.open( dir ); Context context = new Context())
-		{
-			git.checkout()
-					.addPath( "mastodon.project/gui.xml" )
-					.addPath( "mastodon.project/model.raw" )
-					.addPath( "mastodon.project/tags.raw" )
-					.addPath( "mastodon.project/ksdfghksdgh.raw" )
-					.call();
-		}
-		catch ( Exception e )
-		{
-			throw new RuntimeException( e );
-		}
-	}
-
 	private static void abortMerge( Git git ) throws Exception
 	{
 		Repository repository = git.getRepository();
