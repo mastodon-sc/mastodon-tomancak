@@ -46,6 +46,9 @@ public class ConflictUtils
 				name.startsWith( "((B)) " );
 	}
 
+	/**
+	 * Returns true if the given tag set is empty or if it does not exist.
+	 */
 	private static boolean isTagSetEmpty( TagSetModel< Spot, Link > tagSetModel, String tagSetName, String tagLabel )
 	{
 		TagSetStructure tagSetStructure = tagSetModel.getTagSetStructure();
