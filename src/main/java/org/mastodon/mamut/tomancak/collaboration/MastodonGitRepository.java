@@ -60,6 +60,7 @@ import org.mastodon.mamut.project.MamutProjectIO;
 import org.mastodon.mamut.tomancak.collaboration.credentials.PersistentCredentials;
 import org.mastodon.mamut.tomancak.collaboration.exceptions.GraphMergeConflictException;
 import org.mastodon.mamut.tomancak.collaboration.exceptions.GraphMergeException;
+import org.mastodon.mamut.tomancak.collaboration.exceptions.MastodonGitException;
 import org.mastodon.mamut.tomancak.collaboration.utils.ConflictUtils;
 import org.mastodon.mamut.tomancak.collaboration.settings.MastodonGitSettingsService;
 import org.mastodon.mamut.tomancak.merging.Dataset;
@@ -102,7 +103,7 @@ public class MastodonGitRepository
 				.call();
 		Path mastodonProjectPath = directory.toPath().resolve( "mastodon.project" );
 		if ( Files.exists( mastodonProjectPath ) )
-			throw new RuntimeException( "The repository already contains a shared mastodon project: " + repositoryURL );
+			throw new MastodonGitException( "The repository already contains a shared mastodon project: " + repositoryURL );
 		Files.createDirectory( mastodonProjectPath );
 		windowManager.getProjectManager().saveProject( mastodonProjectPath.toFile() );
 		Files.copy( mastodonProjectPath.resolve( "gui.xml" ), mastodonProjectPath.resolve( "gui.xml_remote" ) );
@@ -184,12 +185,12 @@ public class MastodonGitRepository
 			for ( RemoteRefUpdate update : result.getRemoteUpdates() )
 			{
 				if ( update.getStatus() == RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD )
-					throw new RuntimeException( "The remote server has changes, that you didn't download yet.\n"
+					throw new MastodonGitException( "The remote server has changes, that you didn't download yet.\n"
 							+ "Please download changes first. (pull)\n"
 							+ "You can upload your changes afterwards.\n" );
 				if ( update.getStatus() != RemoteRefUpdate.Status.OK &&
 						update.getStatus() != RemoteRefUpdate.Status.UP_TO_DATE )
-					throw new RuntimeException( "Push failed: " + update.getMessage() + " " + update.getStatus() );
+					throw new MastodonGitException( "Push failed: " + update.getMessage() + " " + update.getStatus() );
 			}
 		}
 	}
@@ -214,7 +215,7 @@ public class MastodonGitRepository
 				String simpleName = getSimpleName( branchName );
 				boolean conflict = git.branchList().call().stream().map( Ref::getName ).anyMatch( localName -> simpleName.equals( getSimpleName( localName ) ) );
 				if ( conflict )
-					throw new RuntimeException( "There's already a local branch with the same name." );
+					throw new MastodonGitException( "There's already a local branch with the same name." );
 				git.checkout()
 						.setCreateBranch( true )
 						.setName( simpleName )
@@ -321,10 +322,12 @@ public class MastodonGitRepository
 			saveModel( context, mergedModel, project );
 			commitWithoutSave( "Automatic merge by Mastodon during pull" );
 		}
+		catch ( GraphMergeException e )
+		{
+			throw e;
+		}
 		catch ( Throwable t )
 		{
-			if ( t instanceof GraphMergeException )
-				throw t;
 			throw new GraphMergeException( "There was a failure, when merging changes to the Model.", t );
 		}
 	}
@@ -340,7 +343,7 @@ public class MastodonGitRepository
 		}
 	}
 
-	private static Model merge( Dataset dsA, Dataset dsB ) throws IOException, SpimDataException
+	private static Model merge( Dataset dsA, Dataset dsB )
 	{
 		final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet();
 		double distCutoff = 1000;
@@ -375,10 +378,10 @@ public class MastodonGitRepository
 	{
 		boolean correctFolder = projectRoot.getName().equals( "mastodon.project" );
 		if ( !correctFolder )
-			throw new RuntimeException( "The current project does not appear to be in a git repo." );
+			throw new MastodonGitException( "The current project does not appear to be in a git repo." );
 		File gitRoot = projectRoot.getParentFile();
 		if ( !new File( gitRoot, ".git" ).exists() )
-			throw new RuntimeException( "The current project does not appear to be in a git repo." );
+			throw new MastodonGitException( "The current project does not appear to be in a git repo." );
 		return Git.open( gitRoot );
 	}
 
@@ -443,7 +446,7 @@ public class MastodonGitRepository
 		windowManager.getProjectManager().saveProject();
 		boolean clean = isClean( git );
 		if ( !clean )
-			throw new RuntimeException( "There are uncommitted changes. Please add a save point before " + title + "." );
+			throw new MastodonGitException( "There are uncommitted changes. Please add a save point before " + title + "." );
 	}
 
 	public boolean isClean() throws Exception
