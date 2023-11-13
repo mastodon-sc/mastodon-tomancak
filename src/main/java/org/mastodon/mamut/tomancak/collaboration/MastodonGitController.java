@@ -104,7 +104,7 @@ public class MastodonGitController extends BasicMamutPlugin
 	private static final String PULL_ACTION_KEY = actionDescriptions.addActionDescription(
 			"[mastodon git] download changes (pull)",
 			"Plugins > Git > Download Changes (pull)",
-			"Pull changes from the remote server and merge them with my changes.",
+			"Download changes from the remote server and merge them with my changes.",
 			MastodonGitController::pull );
 
 	private static final String RESET_ACTION_KEY = actionDescriptions.addActionDescription(
@@ -195,7 +195,7 @@ public class MastodonGitController extends BasicMamutPlugin
 	{
 		if ( !settingsService.isAuthorSpecified() )
 		{
-			askForAuthorName( "Please set your author name before your first commit." );
+			askForAuthorName( "Please set your author name before adding a save point (commit)." );
 			return;
 		}
 		commandService.run( MastodonGitCommitCommand.class, true, "repository", repository );
