@@ -41,7 +41,7 @@ public abstract class BasicDescriptionProvider extends CommandDescriptionProvide
 
 	private final ActionDescriptions< ? > actionDescriptions;
 
-	public BasicDescriptionProvider( ActionDescriptions< ? > actionDescriptions, String... contexts )
+	protected BasicDescriptionProvider( ActionDescriptions< ? > actionDescriptions, String... contexts )
 	{
 		super( contexts );
 		this.actionDescriptions = actionDescriptions;
@@ -50,7 +50,7 @@ public abstract class BasicDescriptionProvider extends CommandDescriptionProvide
 	@Override
 	public void getCommandDescriptions( CommandDescriptions descriptions )
 	{
-		for ( ActionDescriptions.Entry entry : actionDescriptions.getEntries() )
+		for ( ActionDescriptions.Entry< ? > entry : actionDescriptions.getEntries() )
 			descriptions.add( entry.key, entry.shortCuts, entry.description );
 	}
 

@@ -50,7 +50,7 @@ import org.scijava.ui.behaviour.util.RunnableAction;
  * See {@link MastodonGitController} for
  * usage example.
  */
-public class BasicMamutPlugin implements MamutPlugin
+public abstract class BasicMamutPlugin implements MamutPlugin
 {
 
 	private final List< ActionDescriptions.Entry< ? > > actionDescriptions;
@@ -65,7 +65,7 @@ public class BasicMamutPlugin implements MamutPlugin
 
 	private WindowManager windowManager;
 
-	public < T > BasicMamutPlugin( ActionDescriptions< T > description )
+	protected < T > BasicMamutPlugin( ActionDescriptions< T > description )
 	{
 		if ( !this.getClass().equals( description.getPluginClass() ) )
 			throw new IllegalArgumentException( "Plugin class mismatch." );
