@@ -38,7 +38,6 @@ import javax.swing.SwingUtilities;
 
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCloneRepository;
-import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCommitCommand;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitCreateRepository;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitNewBranch;
 import org.mastodon.mamut.tomancak.collaboration.commands.MastodonGitSetAuthorCommand;
@@ -198,7 +197,18 @@ public class MastodonGitController extends BasicMamutPlugin
 			askForAuthorName( "Please set your author name before adding a save point (commit)." );
 			return;
 		}
-		commandService.run( MastodonGitCommitCommand.class, true, "repository", repository );
+		run( "Add Save Point (Commit)", () -> {
+			if ( repository.isClean() )
+				NotificationDialog.show( "Add Save Point (Commit)",
+						"<html><body><font size=+4 color=green>&#10003</font> No changes to commit." );
+			else
+			{
+				String commitMessage = CommitMessageDialog.showDialog();
+				if ( commitMessage == null )
+					return;
+				repository.commitWithoutSave( commitMessage );
+			}
+		} );
 	}
 
 	private void push()
