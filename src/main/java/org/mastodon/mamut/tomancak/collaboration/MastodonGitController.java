@@ -54,7 +54,6 @@ import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-// TODO: disable commands if not in a git repo
 @Plugin( type = MamutPlugin.class )
 public class MastodonGitController extends BasicMamutPlugin
 {
@@ -220,7 +219,6 @@ public class MastodonGitController extends BasicMamutPlugin
 	{
 		try
 		{
-			// TODO: the branches are not formatted nicely
 			String message = "Select a branch";
 			try
 			{
@@ -287,7 +285,6 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void suggestPullAlternative( String errorMessage )
 	{
-		// TODO: add pull alternative, save to new branch
 		String title = "Conflict During Download Of Changes (Pull)";
 		String message = "There was a merge conflict during the pull. Details:\n"
 				+ "  " + errorMessage + "\n\n"
@@ -339,19 +336,6 @@ public class MastodonGitController extends BasicMamutPlugin
 
 	private void synchronize()
 	{
-		// check if clean
-		// - yes, continue
-		// - no -> ask for commit message, and commit
-
-		// pull
-		// try to merge
-		// - no conflict -> continue
-		// - conflict, let the user change an option:
-		//    - discard local changes
-		//    - cancel
-
-		// push
-		// notify about success or failure
 		run( "Synchronize Changes", () -> {
 			boolean clean = repository.isClean();
 			if ( !clean )
