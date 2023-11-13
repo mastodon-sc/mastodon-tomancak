@@ -15,6 +15,11 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+/**
+ * A dialog that shows an exception message and stack trace.
+ * The stack trace is hidden by default and can be shown by
+ * clicking on "details".
+ */
 public class ErrorDialog
 {
 
@@ -23,7 +28,7 @@ public class ErrorDialog
 		SwingUtilities.invokeLater( () -> showDialog( null, title + " (Error)", exception ) );
 	}
 
-	private static void showDialog( Frame parent, String text, Exception exception )
+	private static void showDialog( Frame parent, String title, Exception exception )
 	{
 		String message = "\nThere was a problem:\n\n  " + exception.getMessage() + "\n\n";
 		final JScrollPane scrollPane = initScrollPane( exception );
@@ -31,7 +36,7 @@ public class ErrorDialog
 		checkBox.setForeground( Color.BLUE );
 		Object[] objects = { message, checkBox, scrollPane };
 		JOptionPane pane = new JOptionPane( objects, JOptionPane.ERROR_MESSAGE );
-		JDialog dialog = pane.createDialog( parent, text );
+		JDialog dialog = pane.createDialog( parent, title );
 		dialog.setResizable( true );
 		checkBox.addItemListener( event -> {
 			boolean visible = event.getStateChange() == ItemEvent.SELECTED;
@@ -42,6 +47,7 @@ public class ErrorDialog
 		dialog.setModal( true );
 		dialog.pack();
 		dialog.setVisible( true );
+		dialog.dispose();
 	}
 
 	private static JScrollPane initScrollPane( Exception exception )
@@ -61,17 +67,5 @@ public class ErrorDialog
 	{
 		String[] lines = str.split( "\r\n|\r|\n" );
 		return lines.length;
-	}
-
-	public static void main( String... args )
-	{
-		try
-		{
-			throw new IllegalArgumentException( "Test exception" );
-		}
-		catch ( Exception e )
-		{
-			showErrorMessage( "Test", e );
-		}
 	}
 }

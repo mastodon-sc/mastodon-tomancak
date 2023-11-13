@@ -4,12 +4,11 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
+/**
+ * A dialog that shows a message for a short time and then disappears.
+ */
 public class NotificationDialog
 {
-	public static void main( String... args )
-	{
-		show( "Upload Changes", "<html><body><font size=+4 color=green>&#10003</font> Changes were uploaded successfully." );
-	}
 
 	public static void show( String title, String message )
 	{
@@ -17,6 +16,6 @@ public class NotificationDialog
 		JDialog dialog = pane.createDialog( null, title );
 		dialog.setModal( false );
 		dialog.setVisible( true );
-		new Timer( 1500, ignore -> dialog.setVisible( false ) ).start();
+		new Timer( 1500, ignore -> dialog.dispose() ).start();
 	}
 }

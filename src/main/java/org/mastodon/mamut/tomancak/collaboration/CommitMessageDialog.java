@@ -8,20 +8,28 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.WindowConstants;
 
 import net.miginfocom.swing.MigLayout;
 
+/**
+ * A dialog that asks the user to enter a commit message.
+ * The dialog can be closed by using the mouse to clock OK or Cancel,
+ * by pressing CTRL-ENTER or ESCAPE, or by pressing TAB and ENTER.
+ */
 public class CommitMessageDialog
 {
-	public static void main( String... args )
-	{
-		System.out.println( showDialog( "Add Save Point (Commit)" ) );
-	}
 
+	/**
+	 * Show a dialog that asks the user to enter a commit message.
+	 *
+	 * @param title The title of the dialog.
+	 * @return The commit message as a String, or null if the dialog was cancelled.
+	 */
 	public static String showDialog( String title )
 	{
 		JTextArea textArea = new JTextArea( 5, 40 );
+
+		// Make the tab key move focus to the next component and shift-tab to the previous.
 		textArea.setFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null );
 		textArea.setFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null );
 
@@ -42,8 +50,8 @@ public class CommitMessageDialog
 			}
 		};
 		JDialog dialog = optionPane.createDialog( "Add Save Point (commit)" );
-		dialog.setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
 		dialog.setVisible( true );
+		dialog.dispose();
 		Object result = optionPane.getValue();
 		if ( result instanceof Integer && ( int ) result == JOptionPane.OK_OPTION )
 			return textArea.getText();
