@@ -22,10 +22,9 @@ public class CommitMessageDialog
 	/**
 	 * Show a dialog that asks the user to enter a commit message.
 	 *
-	 * @param title The title of the dialog.
 	 * @return The commit message as a String, or null if the dialog was cancelled.
 	 */
-	public static String showDialog( String title )
+	public static String showDialog()
 	{
 		JTextArea textArea = new JTextArea( 5, 40 );
 

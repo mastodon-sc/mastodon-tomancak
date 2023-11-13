@@ -340,7 +340,7 @@ public class MastodonGitController extends BasicMamutPlugin
 			boolean clean = repository.isClean();
 			if ( !clean )
 			{
-				String commitMessage = CommitMessageDialog.showDialog( "Add Save Point (commit)" );
+				String commitMessage = CommitMessageDialog.showDialog();
 				if ( commitMessage == null )
 					return;
 				repository.commitWithoutSave( commitMessage );
