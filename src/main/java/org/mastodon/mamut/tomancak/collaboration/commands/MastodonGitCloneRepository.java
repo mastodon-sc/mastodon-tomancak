@@ -19,10 +19,10 @@ import org.scijava.plugin.Plugin;
 public class MastodonGitCloneRepository extends AbstractCancellable implements Command
 {
 	@Parameter
-	Context context;
+	private Context context;
 
 	@Parameter( label = "URL on github or gitlab", description = URL_DESCRIPTION )
-	String repositoryURL;
+	private String repositoryURL;
 
 	private static final String URL_DESCRIPTION = "<html><body>"
 			+ "Here are two examples of valid URLs:<br>"
@@ -33,7 +33,7 @@ public class MastodonGitCloneRepository extends AbstractCancellable implements C
 			+ "</body></html>";
 
 	@Parameter( label = "Directory, to store the project:", style = "directory", description = DIRECTORY_DESCRIPTION )
-	File directory;
+	private File directory;
 
 	private static final String DIRECTORY_DESCRIPTION = "<html><body>"
 			+ "A copy of the shared project will be downloaded to your computer.<br>"
@@ -42,7 +42,7 @@ public class MastodonGitCloneRepository extends AbstractCancellable implements C
 			+ "</body></html>";
 
 	@Parameter( label = "Create new subdirectory", required = false, description = CREATE_SUBDIRECTORY_DESCRIPTION )
-	boolean createSubdirectory = false;
+	private boolean createSubdirectory = false;
 
 	private static final String CREATE_SUBDIRECTORY_DESCRIPTION = "<html><body>"
 			+ "If selected, a new subdirectory will be created in the selected directory.<br>"

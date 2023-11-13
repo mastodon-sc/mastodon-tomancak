@@ -42,7 +42,7 @@ import org.scijava.plugin.Plugin;
 public class MastodonGitCreateRepository extends AbstractCancellable implements Command
 {
 	@Parameter( visibility = ItemVisibility.MESSAGE )
-	private String text = "<html><body>"
+	private final String text = "<html><body>"
 			+ "<h1>Share Project</h1>"
 			+ "<p>Share the current project on github or gitlab.</p>"
 			+ "<p>Go to github.com or to ure institute's gitlab and create a new repository.</p>"
@@ -50,16 +50,16 @@ public class MastodonGitCreateRepository extends AbstractCancellable implements 
 			+ "<p>A copy of will be created in the directory you specify, and then uploaded to the specified URL.</p>";
 
 	@Parameter
-	Callback callback;
+	private Callback callback;
 
 	@Parameter( label = "URL on github or gitlab" )
-	String repositoryURL;
+	private String repositoryURL;
 
 	@Parameter( label = "Directory to contain the repository", style = "directory" )
-	File directory;
+	private File directory;
 
 	@Parameter( label = "Create new subdirectory", required = false )
-	boolean createSubdirectory = false;
+	private boolean createSubdirectory = false;
 
 	@Override
 	public void run()

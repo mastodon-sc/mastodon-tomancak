@@ -14,7 +14,7 @@ public class MastodonGitSetAuthorCommand extends AbstractCancellable implements 
 	private MastodonGitSettingsService settings;
 
 	@Parameter( visibility = ItemVisibility.MESSAGE )
-	private String description = "<html><body align=left>"
+	private final String description = "<html><body align=left>"
 			+ "The name and email that you specify below<br>"
 			+ "are used to identify you as the author of the<br>"
 			+ "changes you make to the shared project.<br><br>"
