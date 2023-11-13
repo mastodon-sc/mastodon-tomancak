@@ -15,7 +15,7 @@ import org.scijava.plugin.Plugin;
 // - fill repositoryName with a default value based on the repositoryURL
 @Plugin( type = Command.class,
 		label = "Mastodon Git - Download Shared Project (clone)",
-		menuPath = "Plugins > Mastodon Git > Download Shared Project" )
+		menuPath = "Plugins > Mastodon Collaborative (Git) > Download Shared Project" )
 public class MastodonGitCloneRepository extends AbstractCancellable implements Command
 {
 	@Parameter
