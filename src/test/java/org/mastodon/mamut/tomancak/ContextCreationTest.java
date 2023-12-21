@@ -28,6 +28,8 @@
  */
 package org.mastodon.mamut.tomancak;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 import org.scijava.Context;
 
@@ -50,11 +52,11 @@ public class ContextCreationTest
 	@Test
 	public void testCreateContext()
 	{
-		// Make sure that the SciJava context with all the Mastodon services can be created.
-		// This must work also in headless mode.
-		try (Context ignore = new Context())
+		try (Context context = new Context())
 		{
-
+			// Make sure that the SciJava context with all the Mastodon services can be created.
+			// This must work also in headless mode.
+			assertNotNull( context );
 		}
 	}
 }
