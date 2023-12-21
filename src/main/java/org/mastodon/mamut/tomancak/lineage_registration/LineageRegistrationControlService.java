@@ -61,29 +61,33 @@ import org.scijava.service.AbstractService;
 @Plugin( type = ImageJService.class )
 public class LineageRegistrationControlService extends AbstractService implements ImageJService
 {
-	private final LineageRegistrationFrame dialog = new LineageRegistrationFrame( new Listener() );
+	private LineageRegistrationFrame dialog = null;
 
 	private final List< ProjectModel > projectModels = new ArrayList<>();
 
 	public void registerMastodonInstance( ProjectModel projectModel )
 	{
 		projectModels.add( projectModel );
-		dialog.setMastodonInstances( projectModels );
+		if ( dialog != null )
+			dialog.setMastodonInstances( projectModels );
 	}
 
 	public void unregisterMastodonInstance( ProjectModel projectModel )
 	{
 		projectModels.remove( projectModel );
-		dialog.setMastodonInstances( projectModels );
+		if ( dialog != null )
+			dialog.setMastodonInstances( projectModels );
 	}
 
-	public void showDialog()
+	public synchronized void showDialog()
 	{
-		if ( dialog.isVisible() )
+		if ( dialog != null && dialog.isVisible() )
 		{
 			dialog.toFront();
 			return;
 		}
+		if ( dialog == null )
+			dialog = new LineageRegistrationFrame( new Listener() );
 		dialog.setMastodonInstances( projectModels );
 		dialog.pack();
 		dialog.setVisible( true );
