@@ -28,9 +28,6 @@
  */
 package org.mastodon.mamut.tomancak.merging;
 
-import static org.mastodon.mamut.tomancak.merging.MergingUtil.getMaxNonEmptyTimepoint;
-import static org.mastodon.mamut.tomancak.merging.MergingUtil.getNumTimepoints;
-
 import java.io.IOException;
 
 import org.mastodon.mamut.io.project.MamutProject;
@@ -47,8 +44,6 @@ public class Dataset
 {
 	private final MamutProject project;
 
-	private final int numTimepoints;
-
 	private final Model model;
 
 	private final int maxNonEmptyTimepoint;
@@ -56,15 +51,21 @@ public class Dataset
 	public Dataset( final String path ) throws IOException
 	{
 		project = MamutProjectIO.load( path );
-		numTimepoints = getNumTimepoints( project );
 		model = new Model();
 		try (final MamutProject.ProjectReader reader = project.openForReading())
 		{
 			model.loadRaw( reader );
 		}
-		maxNonEmptyTimepoint = getMaxNonEmptyTimepoint( model, numTimepoints );
-
+		maxNonEmptyTimepoint = maxTimepoint( model );
 		verify();
+	}
+
+	private int maxTimepoint( Model model )
+	{
+		int max = 0;
+		for ( Spot spot : model.getGraph().vertices() )
+			max = Math.max( max, spot.getTimepoint() );
+		return max;
 	}
 
 	public Model model()
