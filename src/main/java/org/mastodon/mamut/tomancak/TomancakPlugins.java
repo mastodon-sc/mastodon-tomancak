@@ -42,6 +42,7 @@ import javax.swing.JOptionPane;
 import org.mastodon.app.MastodonIcons;
 import org.mastodon.app.ui.ViewMenuBuilder;
 import org.mastodon.mamut.KeyConfigScopes;
+import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.io.ProjectCreator;
 import org.mastodon.mamut.io.project.MamutImagePlusProject;
@@ -397,10 +398,14 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 				final Dataset dsA = new Dataset( pathA );
 				final Dataset dsB = new Dataset( pathB );
-				
+
 				final ProjectModel projectMerged = ProjectCreator.createProjectFromBdvFile( dsA.project().getDatasetXmlFile(), pluginAppModel.getContext() );
-				final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( projectMerged );
+				final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( projectMerged.getModel() );
 				MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
+				// close currently open instance of Mastodon
+				pluginAppModel.close();
+				// start a new instance of Mastodon that shows the result of the merge operation
+				new MainWindow( projectMerged ).setVisible( true );
 			}
 			catch( final Exception e )
 			{
