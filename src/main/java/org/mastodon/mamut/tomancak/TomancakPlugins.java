@@ -402,10 +402,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 				final ProjectModel projectMerged = ProjectCreator.createProjectFromBdvFile( dsA.project().getDatasetXmlFile(), pluginAppModel.getContext() );
 				final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( projectMerged.getModel() );
 				MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
-
-				pluginAppModel.close(); // close currently open instance of Mastodon
-
-				new MainWindow( projectMerged ).setVisible( true ); // start a new instance of Mastodon that shows the result of the merge operation
+				// close currently open instance of Mastodon
+				pluginAppModel.close();
+				// start a new instance of Mastodon that shows the result of the merge operation
+				new MainWindow( projectMerged ).setVisible( true );
 			}
 			catch( final Exception e )
 			{
