@@ -10,7 +10,7 @@
 
 	<groupId>org.mastodon</groupId>
 	<artifactId>mastodon-tomancak</artifactId>
-	<version>0.4.1-SNAPSHOT</version>
+	<version>0.4.1</version>
 
 	<name>Tomancak Lab Mastodon Plugins</name>
 	<description>Various Mastodon plugins for use in Tomancak lab projects</description>
@@ -70,7 +70,7 @@
 	<scm>
 		<connection>scm:git:https:github.com/mastodon-sc/mastodon-tomancak</connection>
 		<developerConnection>scm:git:git@github.com:mastodon-sc/mastodon-tomancak</developerConnection>
-		<tag>HEAD</tag>
+		<tag>mastodon-tomancak-0.4.1</tag>
 		<url>https://github.com/mastodon-sc/mastodon-tomancak</url>
 	</scm>
 	<issueManagement>
