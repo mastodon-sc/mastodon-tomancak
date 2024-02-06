@@ -45,22 +45,16 @@ import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.model.tag.TagSetStructure.Tag;
 import org.mastodon.model.tag.TagSetStructure.TagSet;
 import org.mastodon.spatial.SpatialIndex;
+import org.mastodon.util.TreeUtils;
 
 public class MergeModels
 {
-	static int getMaxNonEmptyTimepoint( final Model m )
-	{
-		int maxTimepoint = 0;
-		for ( final Spot s : m.getGraph().vertices() )
-			maxTimepoint = Math.max( maxTimepoint, s.getTimepoint() );
-		return maxTimepoint;
-	}
 
 	public static void merge( final Model mA, final Model mB, final OutputDataSet output,
 			final double distCutoff, final double mahalanobisDistCutoff, final double ratioThreshold )
 	{
 		final int minTimepoint = 0;
-		final int maxTimepoint = Math.max( getMaxNonEmptyTimepoint( mA ), getMaxNonEmptyTimepoint( mB ) );
+		final int maxTimepoint = Math.max( TreeUtils.getMaxTimepoint( mA ), TreeUtils.getMaxTimepoint( mB ) );
 		merge( mA, mB, output, minTimepoint, maxTimepoint, distCutoff, mahalanobisDistCutoff, ratioThreshold );
 	}
 

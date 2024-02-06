@@ -34,6 +34,7 @@ import org.mastodon.mamut.io.project.MamutProject;
 import org.mastodon.mamut.io.project.MamutProjectIO;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.util.TreeUtils;
 
 /**
  * Reads model from a mastodon project file.
@@ -56,16 +57,8 @@ public class Dataset
 		{
 			model.loadRaw( reader );
 		}
-		maxNonEmptyTimepoint = maxTimepoint( model );
+		maxNonEmptyTimepoint = TreeUtils.getMaxTimepoint( model );
 		verify();
-	}
-
-	private int maxTimepoint( Model model )
-	{
-		int max = 0;
-		for ( Spot spot : model.getGraph().vertices() )
-			max = Math.max( max, spot.getTimepoint() );
-		return max;
 	}
 
 	public Model model()
