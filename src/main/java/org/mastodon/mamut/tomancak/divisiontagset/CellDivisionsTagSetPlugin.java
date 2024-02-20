@@ -65,7 +65,7 @@ public class CellDivisionsTagSetPlugin implements MamutPlugin
 
 	private static final String[] KEYS = { "not mapped" };
 
-	private static final Map< String, String > menuTexts = Collections.singletonMap( ID, "Add Tag Set to Highlight Cell Divisions ..." );
+	private static final Map< String, String > menuTexts = Collections.singletonMap( ID, "Add Tag Set to Highlight Cell Divisions" );
 
 	private ProjectModel projectModel = null;
 

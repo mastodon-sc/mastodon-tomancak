@@ -45,7 +45,6 @@ import org.mastodon.mamut.tomancak.util.DefaultCancelable;
 import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.util.ColorUtils;
 import org.mastodon.util.TagSetUtils;
-import org.scijava.Cancelable;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -95,19 +94,19 @@ public class CellDivisionsTagSetCommand extends DefaultCancelable implements Com
 
 	private void createTagSet()
 	{
-		int defaultColor = this.defaultColor.getARGB();
-		int highlightColor = this.highlightColor.getARGB();
+		int defaultARGB = this.defaultColor.getARGB();
+		int highlightARGB = this.highlightColor.getARGB();
 		List< Pair< String, Integer > > tagColors = new ArrayList<>( Collections.nCopies( 2 * n + 1, null ) );
-		tagColors.set( 0, Pair.of( "default", defaultColor ) );
+		tagColors.set( 0, Pair.of( "default", defaultARGB ) );
 		for ( int i = 0; i < n; i++ )
 		{
-			int color = ColorUtils.mixColors( highlightColor, defaultColor, ( float ) i / n );
+			int color = ColorUtils.mixColors( highlightARGB, defaultARGB, ( float ) i / n );
 			String label = "T-" + ( i + 1 );
 			tagColors.set( n - i, Pair.of( label, color ) );
 		}
 		for ( int i = 0; i < n; i++ )
 		{
-			int color = ColorUtils.mixColors( highlightColor, defaultColor, ( float ) i / n );
+			int color = ColorUtils.mixColors( highlightARGB, defaultARGB, ( float ) i / n );
 			String label = "T" + ( i + 1 );
 			tagColors.set( n + i + 1, Pair.of( label, color ) );
 		}
@@ -141,8 +140,7 @@ public class CellDivisionsTagSetCommand extends DefaultCancelable implements Com
 		}
 	}
 
-	private TagSetStructure.Tag getTag( boolean dividesBefore,
-			boolean dividesAfter, int startOffset, int endOffset )
+	private TagSetStructure.Tag getTag( boolean dividesBefore, boolean dividesAfter, int startOffset, int endOffset )
 	{
 		if ( dividesAfter && ( endOffset < tagsBefore.size() ) )
 			return tagsBefore.get( endOffset );
