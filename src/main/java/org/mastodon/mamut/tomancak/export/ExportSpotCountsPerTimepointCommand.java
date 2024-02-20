@@ -1,8 +1,8 @@
 /*-
  * #%L
- * mastodon-deep-lineage
+ * mastodon-tomancak
  * %%
- * Copyright (C) 2022 - 2023 Stefan Hahmann
+ * Copyright (C) 2018 - 2024 Tobias Pietzsch
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,27 +26,33 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.mastodon.mamut.tomancak.export.spotcounts.ui;
+package org.mastodon.mamut.tomancak.export;
 
 import org.mastodon.mamut.ProjectModel;
-import org.mastodon.mamut.tomancak.export.spotcounts.ExportSpotCountsController;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.util.TreeUtils;
 import org.scijava.Context;
 import org.scijava.ItemVisibility;
+import org.scijava.app.StatusService;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import com.opencsv.CSVWriter;
+
+import sun.tools.java.ClassNotFound;
 
 @Plugin( type = Command.class, label = "Export spot counts per timepoint" )
-public class ExportSpotCountsView implements Command
+public class ExportSpotCountsPerTimepointCommand implements Command
 {
-	private static final int WIDTH = 15;
 
-	@SuppressWarnings( "all" )
 	@Parameter( visibility = ItemVisibility.MESSAGE, required = false, persist = false )
 	private String documentation = "<html>\n"
-			+ "<body width=" + WIDTH + "cm align=left>\n"
+			+ "<body width=15cm align=left>\n"
 			+ "<h1>Export spot counts per timepoint</h1>\n"
 			+ "<p>This command writes the timepoint and the number of spots at each timepoint to a single CSV file.</p>\n"
 			+ "<p>The format is: \"timepoint\", \"number of spots\".</p>\n"
@@ -54,22 +60,53 @@ public class ExportSpotCountsView implements Command
 			+ "</body>\n"
 			+ "</html>\n";
 
-	@SuppressWarnings( "unused" )
 	@Parameter( label = "Save to" )
 	private File saveTo;
 
-	@SuppressWarnings( "unused" )
 	@Parameter
 	private ProjectModel projectModel;
 
-	@SuppressWarnings( "unused" )
 	@Parameter
 	private Context context;
 
 	@Override
 	public void run()
 	{
-		ExportSpotCountsController controller = new ExportSpotCountsController( projectModel, context );
-		controller.writeSpotCountsToFile( saveTo );
+		try
+		{
+			writeSpotCountsToFile( projectModel.getModel(), saveTo, context.service( StatusService.class ) );
+		}
+		catch ( IOException e )
+		{
+			System.err.println( "Could not write spot counts to file: " + saveTo.getAbsolutePath() + ". Error message: " + e.getMessage() );
+		}
+	}
+
+	/**
+	 * Writes all timepoints and the number of spots for each timepoint to the given file.
+	 * <ul>
+	 *     <li>The file will be overwritten if it already exists.</li>
+	 *     <li>The file will be created if it does not exist.</li>
+	 *     <li>The format is: "timepoint", "number of spots".</li>
+	 *     <li>The first line is the header.</li>
+	 * </ul>
+	 */
+	public static void writeSpotCountsToFile( final Model model, final File file, final StatusService statusService ) throws IOException
+	{
+		if ( file == null )
+			throw new IllegalArgumentException( "Cannot write spot counts to file. Given file is null." );
+
+		try (CSVWriter csvWriter = new CSVWriter( new FileWriter( file ) ))
+		{
+			csvWriter.writeNext( new String[] { "timepoint", "spots" } );
+			int minTimepoint = TreeUtils.getMinTimepoint( model );
+			int maxTimepoint = TreeUtils.getMaxTimepoint( model );
+			for ( int timepoint = minTimepoint; timepoint <= maxTimepoint; timepoint++ )
+			{
+				int spots = model.getSpatioTemporalIndex().getSpatialIndex( timepoint ).size();
+				csvWriter.writeNext( new String[] { String.valueOf( timepoint ), String.valueOf( spots ) }, false );
+				statusService.showProgress( timepoint, maxTimepoint );
+			}
+		}
 	}
 }

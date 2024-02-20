@@ -54,7 +54,7 @@ import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
 import org.mastodon.mamut.tomancak.export.ExportCounts;
 import org.mastodon.mamut.tomancak.export.LineageLengthExporter;
 import org.mastodon.mamut.tomancak.export.MakePhyloXml;
-import org.mastodon.mamut.tomancak.export.spotcounts.ui.ExportSpotCountsView;
+import org.mastodon.mamut.tomancak.export.ExportSpotCountsPerTimepointCommand;
 import org.mastodon.mamut.tomancak.label_systematically.LabelSpotsSystematicallyDialog;
 import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
@@ -94,9 +94,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String LABEL_SPOTS_SYSTEMATICALLY = "[tomancak] label spots systematically";
 	private static final String REMOVE_SOLISTS_SPOTS = "[tomancak] remove solists spots";
 	private static final String EXPORTS_LINEAGE_LENGTHS = "[tomancak] export lineage lengths";
-
 	private static final String EXPORT_SPOTS_COUNTS_PER_LINEAGE = "[tomancak] export spots counts per lineage";
-
 	private static final String EXPORT_SPOTS_COUNTS_PER_TIMEPOINT = "[tomancak] export spots counts per timepoint";
 	private static final String MERGE_PROJECTS = "[tomancak] merge projects";
 	private static final String TWEAK_DATASET_PATH = "[tomancak] fix project image path";
@@ -116,9 +114,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] LABEL_SPOTS_SYSTEMATICALLY_KEYS = { "not mapped" };
 	private static final String[] REMOVE_SOLISTS_SPOTS_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_LINEAGE_LENGTHS_KEYS = { "not mapped" };
-
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS = { "not mapped" };
-
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS = { "not mapped" };
 	private static final String[] MERGE_PROJECTS_KEYS = { "not mapped" };
 	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
@@ -400,7 +396,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private void exportCountsPerTimepoint()
 	{
 		this.getContext().getService( CommandService.class ).run(
-				ExportSpotCountsView.class, true,
+				ExportSpotCountsPerTimepointCommand.class, true,
 				"projectModel", pluginAppModel, "context", pluginAppModel.getContext() );
 	}
 
