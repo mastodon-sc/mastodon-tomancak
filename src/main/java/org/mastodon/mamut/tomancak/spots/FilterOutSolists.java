@@ -60,6 +60,7 @@ import org.mastodon.collection.RefList;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.collection.ref.RefArrayList;
+import org.mastodon.mamut.tomancak.util.DefaultCancelable;
 import org.mastodon.mamut.tomancak.util.SpotsIterator;
 import org.mastodon.mamut.ProjectModel;
 import org.scijava.ItemVisibility;
@@ -70,7 +71,7 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 @Plugin( type = Command.class, name = "Filter lineage and remove solists spots" )
-public class FilterOutSolists implements Command
+public class FilterOutSolists extends DefaultCancelable implements Command
 {
 	@Parameter(visibility = ItemVisibility.MESSAGE, persist = false, required = false)
 	final String hintMsg = "A spot-solist has no ancestors and no descendants, plus the optional conditions below:";

@@ -258,8 +258,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	{
 		return Arrays.asList(
 				menu( "Plugins",
-						item( COPY_TAG ),
-						item( MIRROR_SPOTS ),
+						menu( "Tags",
+								item( COPY_TAG ) ),
 						menu( "Auxiliary Displays",
 								item( COMPACT_LINEAGE_VIEW ) ),
 						menu( "Trees Management",
@@ -278,10 +278,11 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 										item( EXPORT_SPOTS_COUNTS_PER_LINEAGE ),
 										item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ),
 								item( EXPORTS_LINEAGE_LENGTHS ),
-								item( EXPORT_PHYLOXML ) ) ),
+								item( EXPORT_PHYLOXML ) ),
+						item( MIRROR_SPOTS ) ),
 				menu( "File",
 						item( TWEAK_DATASET_PATH ),
-						item( MERGE_PROJECTS )) );
+						item( MERGE_PROJECTS ) ) );
 	}
 
 	@Override
