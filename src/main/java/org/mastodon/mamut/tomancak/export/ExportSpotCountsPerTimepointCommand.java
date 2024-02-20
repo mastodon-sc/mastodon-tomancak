@@ -44,8 +44,6 @@ import java.io.IOException;
 
 import com.opencsv.CSVWriter;
 
-import sun.tools.java.ClassNotFound;
-
 @Plugin( type = Command.class, label = "Export spot counts per timepoint" )
 public class ExportSpotCountsPerTimepointCommand implements Command
 {
