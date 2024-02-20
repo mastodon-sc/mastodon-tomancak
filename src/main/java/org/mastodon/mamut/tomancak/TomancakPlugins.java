@@ -54,6 +54,7 @@ import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
 import org.mastodon.mamut.tomancak.export.ExportCounts;
 import org.mastodon.mamut.tomancak.export.LineageLengthExporter;
 import org.mastodon.mamut.tomancak.export.MakePhyloXml;
+import org.mastodon.mamut.tomancak.export.ExportSpotCountsPerTimepointCommand;
 import org.mastodon.mamut.tomancak.label_systematically.LabelSpotsSystematicallyDialog;
 import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
@@ -93,7 +94,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String LABEL_SPOTS_SYSTEMATICALLY = "[tomancak] label spots systematically";
 	private static final String REMOVE_SOLISTS_SPOTS = "[tomancak] remove solists spots";
 	private static final String EXPORTS_LINEAGE_LENGTHS = "[tomancak] export lineage lengths";
-	private static final String EXPORTS_SPOTS_COUNTS = "[tomancak] export spots counts";
+	private static final String EXPORT_SPOTS_COUNTS_PER_LINEAGE = "[tomancak] export spots counts per lineage";
+	private static final String EXPORT_SPOTS_COUNTS_PER_TIMEPOINT = "[tomancak] export spots counts per timepoint";
 	private static final String MERGE_PROJECTS = "[tomancak] merge projects";
 	private static final String TWEAK_DATASET_PATH = "[tomancak] fix project image path";
 	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spot";
@@ -112,7 +114,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] LABEL_SPOTS_SYSTEMATICALLY_KEYS = { "not mapped" };
 	private static final String[] REMOVE_SOLISTS_SPOTS_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_LINEAGE_LENGTHS_KEYS = { "not mapped" };
-	private static final String[] EXPORTS_SPOTS_COUNTS_KEYS = { "not mapped" };
+	private static final String[] EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS = { "not mapped" };
+	private static final String[] EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS = { "not mapped" };
 	private static final String[] MERGE_PROJECTS_KEYS = { "not mapped" };
 	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
@@ -135,7 +138,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( LABEL_SPOTS_SYSTEMATICALLY, "Systematically Label Spots (Extern-Intern)" );
 		menuTexts.put( REMOVE_SOLISTS_SPOTS, "Remove Spots Solists" );
 		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export Lineage Lengths" );
-		menuTexts.put( EXPORTS_SPOTS_COUNTS, "Export Spots Counts" );
+		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export Spots Counts per Lineage" );
+		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export Spots Counts per Timepoint" );
 		menuTexts.put( MERGE_PROJECTS, "Merge Two Projects" );
 		menuTexts.put( TWEAK_DATASET_PATH, "Fix Image Path" );
 		menuTexts.put( ADD_CENTER_SPOTS, "Add Center Spot" );
@@ -169,7 +173,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( LABEL_SPOTS_SYSTEMATICALLY, LABEL_SPOTS_SYSTEMATICALLY_KEYS, "Child cells are named after their parent cell, with a \"1\" or \"2\" appended to the label.");
 			descriptions.add( REMOVE_SOLISTS_SPOTS, REMOVE_SOLISTS_SPOTS_KEYS, "Finds and removes isolated spots from the lineage, based on conditions." );
 			descriptions.add( EXPORTS_LINEAGE_LENGTHS, EXPORTS_LINEAGE_LENGTHS_KEYS, "Exports lineage lengths into CSV-like files to be imported in data processors." );
-			descriptions.add( EXPORTS_SPOTS_COUNTS, EXPORTS_SPOTS_COUNTS_KEYS, "Exports counts of spots into CSV-like files to be imported in data processors." );
+			descriptions.add( EXPORT_SPOTS_COUNTS_PER_LINEAGE, EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS,
+					"Exports counts of spots into CSV-like files to be imported in data processors. One file per lineage." );
+			descriptions.add( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS,
+					"Exports counts of spots per timepoint into CSV-like files to be imported in data processors. One file." );
 			descriptions.add( MERGE_PROJECTS, MERGE_PROJECTS_KEYS, "Merge two Mastodon projects into one." );
 			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Allows to insert new path to the BDV data and whether it is relative or absolute." );
 			descriptions.add( ADD_CENTER_SPOTS, ADD_CENTER_SPOTS_KEYS, "On each timepoint with selected spots, add a new spot that is in the center (average position)." );
@@ -203,7 +210,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction exportLineageLengthsAction;
 
-	private final AbstractNamedAction exportSpotsCountsAction;
+	private final AbstractNamedAction exportSpotsCountsPerLineageAction;
+
+	private final AbstractNamedAction exportSpotsCountsPerTimepointAction;
 
 	private final AbstractNamedAction mergeProjectsAction;
 
@@ -230,7 +239,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		labelSpotsSystematicallyAction = new RunnableAction( LABEL_SPOTS_SYSTEMATICALLY, this::labelSpotsSystematically );
 		removeSolistsAction = new RunnableAction( REMOVE_SOLISTS_SPOTS, this::filterOutSolists );
 		exportLineageLengthsAction = new RunnableAction( EXPORTS_LINEAGE_LENGTHS, this::exportLengths );
-		exportSpotsCountsAction = new RunnableAction( EXPORTS_SPOTS_COUNTS, this::exportCounts );
+		exportSpotsCountsPerLineageAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_LINEAGE, this::exportCountsPerLineage );
+		exportSpotsCountsPerTimepointAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, this::exportCountsPerTimepoint );
 		mergeProjectsAction = new RunnableAction( MERGE_PROJECTS, this::mergeProjects );
 		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		addCenterSpots = new RunnableAction( ADD_CENTER_SPOTS, this::addCenterSpots );
@@ -264,8 +274,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 								item( SORT_TREE_LIFETIME ),
 								item( LABEL_SPOTS_SYSTEMATICALLY ) ),
 						menu( "Exports",
+								menu( "Spot Counts",
+										item( EXPORT_SPOTS_COUNTS_PER_LINEAGE ),
+										item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ),
 								item( EXPORTS_LINEAGE_LENGTHS ),
-								item( EXPORTS_SPOTS_COUNTS ),
 								item( EXPORT_PHYLOXML ) ) ),
 				menu( "File",
 						item( TWEAK_DATASET_PATH ),
@@ -294,7 +306,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( labelSpotsSystematicallyAction, LABEL_SPOTS_SYSTEMATICALLY_KEYS );
 		actions.namedAction( removeSolistsAction, REMOVE_SOLISTS_SPOTS_KEYS );
 		actions.namedAction( exportLineageLengthsAction, EXPORTS_LINEAGE_LENGTHS_KEYS );
-		actions.namedAction( exportSpotsCountsAction, EXPORTS_SPOTS_COUNTS_KEYS );
+		actions.namedAction( exportSpotsCountsPerLineageAction, EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS );
+		actions.namedAction( exportSpotsCountsPerTimepointAction, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS );
 		actions.namedAction( mergeProjectsAction, MERGE_PROJECTS_KEYS );
 		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 		actions.namedAction( addCenterSpots, ADD_CENTER_SPOTS_KEYS );
@@ -373,11 +386,18 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 				"appModel", pluginAppModel);
 	}
 
-	private void exportCounts()
+	private void exportCountsPerLineage()
 	{
 		this.getContext().getService(CommandService.class).run(
 				ExportCounts.class, true,
 				"appModel", pluginAppModel);
+	}
+
+	private void exportCountsPerTimepoint()
+	{
+		this.getContext().getService( CommandService.class ).run(
+				ExportSpotCountsPerTimepointCommand.class, true,
+				"projectModel", pluginAppModel, "context", pluginAppModel.getContext() );
 	}
 
 	private MergingDialog mergingDialog;
