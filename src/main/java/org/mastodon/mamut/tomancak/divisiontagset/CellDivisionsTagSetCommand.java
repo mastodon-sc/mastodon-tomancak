@@ -41,6 +41,7 @@ import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.model.branch.BranchSpot;
 import org.mastodon.mamut.model.branch.ModelBranchGraph;
+import org.mastodon.mamut.tomancak.util.DefaultCancelable;
 import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.util.ColorUtils;
 import org.mastodon.util.TagSetUtils;
@@ -58,7 +59,7 @@ import org.scijava.util.ColorRGB;
  * background colors.
  */
 @Plugin( type = Command.class, label = "Add a Tag Set to Highlight Cell Divisions", visible = false )
-public class CellDivisionsTagSetCommand implements Command, Cancelable
+public class CellDivisionsTagSetCommand extends DefaultCancelable implements Command
 {
 	@Parameter
 	private ProjectModel projectModel;
@@ -148,23 +149,5 @@ public class CellDivisionsTagSetCommand implements Command, Cancelable
 		if ( dividesBefore && ( startOffset < tagsAfter.size() ) )
 			return tagsAfter.get( startOffset );
 		return backgroundTag;
-	}
-
-	@Override
-	public boolean isCanceled()
-	{
-		return false;
-	}
-
-	@Override
-	public void cancel( String reason )
-	{
-
-	}
-
-	@Override
-	public String getCancelReason()
-	{
-		return null;
 	}
 }

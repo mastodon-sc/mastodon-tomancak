@@ -57,6 +57,7 @@ package org.mastodon.mamut.tomancak.export;
 
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.util.DefaultCancelable;
 import org.mastodon.mamut.tomancak.util.SpotsIterator;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
@@ -75,7 +76,7 @@ import java.io.PrintWriter;
 import java.io.IOException;
 
 @Plugin( type = Command.class, name = "Export spots counts per lineage per time point" )
-public class ExportCounts implements Command
+public class ExportCounts extends DefaultCancelable implements Command
 {
 	@Parameter(visibility = ItemVisibility.MESSAGE)
 	private final String selectionInfoMsg = "...also of only selected sub-trees.";
