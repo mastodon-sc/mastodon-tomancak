@@ -26,6 +26,7 @@ import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.model.NavigationHandler;
+import org.mastodon.model.SelectionModel;
 import org.mastodon.model.tag.ObjTagMap;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
@@ -143,18 +144,21 @@ public class LocateTagsDialog extends JFrame
 		@Override
 		public String toString()
 		{
-			return String.format( "tag: %s  track: %s  spot: %s", tag.label(), root, spot.getLabel() );
+			return String.format( "time: %d  tag: %s  track: %s  spot: %s", spot.getTimepoint(), tag.label(), root, spot.getLabel() );
 		}
 	}
 
 	private void onSpotItemSelectionChanged()
 	{
-		final SpotItem spot = list.getSelectedValue();
+		final SpotItem item = list.getSelectedValue();
 		final GroupHandle groupHandle = projectModel.getGroupManager().createGroupHandle();
 		groupHandle.setGroupId( 0 );
 		final NavigationHandler< Spot, Link > navigateTo = groupHandle.getModel( projectModel.NAVIGATION );
-		navigateTo.notifyNavigateToVertex( spot.spot );
-		projectModel.getFocusModel().focusVertex( spot.spot );
-
+		navigateTo.notifyNavigateToVertex( item.spot );
+		projectModel.getFocusModel().focusVertex( item.spot );
+		final SelectionModel< Spot, Link > selectionModel = projectModel.getSelectionModel();
+		selectionModel.clearSelection();
+		for ( final SpotItem item1 : list.getSelectedValuesList() )
+			selectionModel.setSelected( item1.spot, true );
 	}
 }

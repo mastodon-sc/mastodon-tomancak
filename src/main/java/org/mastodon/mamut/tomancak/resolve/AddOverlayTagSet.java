@@ -28,6 +28,7 @@ import org.mastodon.spatial.SpatialIndex;
 import org.mastodon.util.TagSetUtils;
 import org.mastodon.util.TreeUtils;
 
+import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 
@@ -42,7 +43,7 @@ public class AddOverlayTagSet
 		{
 			final RefIntMap< Spot > branchIds = getBranchIdMap( model );
 			final Map< TIntSet, RefList< Spot > > conflictGroups = computeConflictGroups( model, branchIds );
-			addTagSets( model, conflictGroups );
+			addTagSets( model, conflictGroups, branchIds );
 		}
 		finally
 		{
@@ -77,18 +78,30 @@ public class AddOverlayTagSet
 		sets.addAll( conflict );
 	}
 
-	private static void addTagSets( final Model model, final Map< TIntSet, RefList< Spot > > conflictGroups )
+	private static void addTagSets( final Model model, final Map< TIntSet, RefList< Spot > > conflictGroups, RefIntMap< Spot > branchIds )
 	{
 
 		final ArrayList< Pair< String, Integer > > tagsAndColors = new ArrayList<>();
-		final int num = conflictGroups.size();
-		for ( int i = 0; i < num; i++ )
-			tagsAndColors.add( Pair.of( "Conflict " + i, Glasbey.GLASBEY[ i + 4 ] ) );
+		final List< TIntSet > keys = new ArrayList<>( conflictGroups.keySet() );
+		int j = 0;
+		for ( int i = 0; i < keys.size(); i++ )
+		{
+			final TIntSet key = keys.get( i );
+			for ( int k = 0; k < key.size(); k++ )
+				tagsAndColors.add( Pair.of( "Conflict " + i + " " + "ABCDEFGHIJKLMNOPQRSTUVXYZ".charAt( k ), Glasbey.GLASBEY[ j++ % 255 + 5 ] ) );
+		}
 		final TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( model, "Overlapping Spots", tagsAndColors );
 		final List< TagSetStructure.Tag > tags = tagSet.getTags();
-		final List< RefList< Spot > > conflicts = new ArrayList<>( conflictGroups.values() );
-		for ( int i = 0; i < conflicts.size(); i++ )
-			TagSetUtils.tagSpots( model, tagSet, tags.get( i ), conflicts.get( i ) );
+		j = 0;
+		for ( final TIntSet key : keys )
+		{
+			final TIntObjectHashMap< TagSetStructure.Tag > branchIdToTag = new TIntObjectHashMap<>();
+			for ( final int branchId : key.toArray() )
+				branchIdToTag.put( branchId, tags.get( j++ ) );
+
+			for ( final Spot spot : conflictGroups.get( key ) )
+				TagSetUtils.tagSpot( model, tagSet, branchIdToTag.get( branchIds.get( spot ) ), spot );
+		}
 	}
 
 	private static RefIntMap< Spot > getBranchIdMap( final Model model )
