@@ -16,7 +16,7 @@ public class LocateTagsDialogDemo
 		try (final Context context = new Context())
 		{
 			final ProjectModel projectModel = ProjectLoader.open( "/home/arzt/Datasets/DeepLineage/Trackathon/try_resolve_conflicts.mastodon", context );
-			AddOverlayTagSet.run( projectModel.getModel() );
+			DetectOverlappingSpots.run( projectModel.getModel() );
 			MainWindow mainWindow = new MainWindow( projectModel );
 			mainWindow.setDefaultCloseOperation( MainWindow.DISPOSE_ON_CLOSE );
 			mainWindow.setVisible( true );

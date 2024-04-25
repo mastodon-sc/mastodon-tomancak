@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.mastodon.collection.RefCollections;
 import org.mastodon.collection.RefIntMap;
 import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefObjectMap;
@@ -32,7 +33,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 
-public class AddOverlayTagSet
+public class DetectOverlappingSpots
 {
 	public static void run( final Model model )
 	{
@@ -167,13 +168,15 @@ public class AddOverlayTagSet
 
 	private static void mergeGroups( final RefSet< Spot > group, final RefObjectMap< Spot, Set< Spot > > conflicts )
 	{
+		final RefSet< Spot > combined = RefCollections.createRefSet( group );
+		combined.addAll( group );
 		for ( final Spot a : group )
 		{
 			final Set< Spot > c = conflicts.get( a );
 			if ( c != null )
-				group.addAll( c );
+				combined.addAll( c );
 		}
-		for ( final Spot a : group )
-			conflicts.put( a, group );
+		for ( final Spot a : combined )
+			conflicts.put( a, combined );
 	}
 }
