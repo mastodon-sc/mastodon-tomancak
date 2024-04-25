@@ -18,7 +18,8 @@ public class AddOverlayTagSetTest
 		addShortTack( model, 5, 3, 4, 5.1, 3.1, 4.1 );
 		addShortTack( model, 5, 3.2, 4, 5.1, 3.2, 4.1 );
 		AddOverlayTagSet.run( model );
-		assertEquals( 4, new TagHelper( model, "Overlapping Spots", "Conflict 0" ).getTaggedSpots().size() );
+		assertEquals( 2, new TagHelper( model, "Overlapping Spots", "Conflict 0 A" ).getTaggedSpots().size() );
+		assertEquals( 2, new TagHelper( model, "Overlapping Spots", "Conflict 0 B" ).getTaggedSpots().size() );
 	}
 
 	private void addShortTack( final Model model, final double x1, final double y1, final double z1, final double x2, final double y2, final double z2 )
