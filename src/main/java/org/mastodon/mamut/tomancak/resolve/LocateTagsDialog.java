@@ -56,6 +56,13 @@ public class LocateTagsDialog extends JFrame
 		tagSetComboBox.addActionListener( e -> fillList() );
 	}
 
+	public static void run( final ProjectModel pluginAppModel )
+	{
+		final LocateTagsDialog locateTagsDialog = new LocateTagsDialog( pluginAppModel );
+		locateTagsDialog.setSize( 400, 600 );
+		locateTagsDialog.setVisible( true );
+	}
+
 	private void fillList()
 	{
 		list.removeAll();
@@ -82,7 +89,7 @@ public class LocateTagsDialog extends JFrame
 		}
 		items.sort( Comparator.comparing( SpotItem::toString ) );
 		DefaultListModel< SpotItem > listModel = new DefaultListModel<>();
-		listModel.addAll( items );
+		items.forEach( listModel::addElement );
 		list.setModel( listModel );
 		list.addListSelectionListener( e -> onSpotItemSelectionChanged() );
 	}

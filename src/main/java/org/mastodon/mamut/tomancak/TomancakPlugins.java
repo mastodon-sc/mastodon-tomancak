@@ -59,6 +59,9 @@ import org.mastodon.mamut.tomancak.label_systematically.LabelSpotsSystematically
 import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
 import org.mastodon.mamut.tomancak.merging.MergingDialog;
+import org.mastodon.mamut.tomancak.resolve.DetectOverlappingSpots;
+import org.mastodon.mamut.tomancak.resolve.AverageSpots;
+import org.mastodon.mamut.tomancak.resolve.LocateTagsDialog;
 import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
 import org.mastodon.mamut.tomancak.sort_tree.SortTree;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeExternInternDialog;
@@ -101,6 +104,12 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spot";
 	private static final String MIRROR_SPOTS = "[tomancak] mirror spots";
 
+	private static final String DETECT_OVERLAPPING_SPOTS = "[tomancak] detect overlapping spots";
+
+	private static final String COMBINE_SELECTED_SPOTS = "[tomancak] combine selected spots";
+
+	private static final String LOCATE_TAGS = "[tomancak] find tags";
+
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "ctrl E" };
 	private static final String[] COPY_TAG_KEYS = { "not mapped" };
@@ -120,6 +129,12 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
 	private static final String[] MIRROR_SPOTS_KEYS = { "not mapped" };
+
+	private static final String[] DETECT_OVERLAPPING_SPOTS_KEYS = { "not mapped" };
+
+	private static final String[] COMBINE_SELECTED_SPOTS_KEYS = { "not mapped" };
+
+	private static final String[] LOCATE_TAGS_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -144,6 +159,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( TWEAK_DATASET_PATH, "Fix Image Path" );
 		menuTexts.put( ADD_CENTER_SPOTS, "Add Center Spot" );
 		menuTexts.put( MIRROR_SPOTS, "Mirror Spots Along X-Axis" );
+		menuTexts.put( DETECT_OVERLAPPING_SPOTS, "Detect Overlapping Spots" );
+		menuTexts.put( COMBINE_SELECTED_SPOTS, "Combine Selected Spots" );
+		menuTexts.put( LOCATE_TAGS, "Find Tags" );
 	}
 
 	/*
@@ -181,6 +199,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Allows to insert new path to the BDV data and whether it is relative or absolute." );
 			descriptions.add( ADD_CENTER_SPOTS, ADD_CENTER_SPOTS_KEYS, "On each timepoint with selected spots, add a new spot that is in the center (average position)." );
 			descriptions.add( MIRROR_SPOTS, MIRROR_SPOTS_KEYS, "Mirror spots along x-axis." );
+			descriptions.add( DETECT_OVERLAPPING_SPOTS, DETECT_OVERLAPPING_SPOTS_KEYS, "Search spots that overlap and create a tag set that highlights these conflicts." );
+			descriptions.add( COMBINE_SELECTED_SPOTS, COMBINE_SELECTED_SPOTS_KEYS, "Combine selected spots into a single spot. Average spot position and shape." );
+			descriptions.add( LOCATE_TAGS, LOCATE_TAGS_KEYS, "Open a dialog that allows to jump to specific tags." );
 		}
 	}
 
@@ -222,6 +243,12 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction mirrorSpots;
 
+	private final AbstractNamedAction detectOverlappingSpots;
+
+	private final AbstractNamedAction combineSelectedSpots;
+
+	private final AbstractNamedAction locateTags;
+
 	private ProjectModel pluginAppModel;
 
 	public TomancakPlugins()
@@ -245,6 +272,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		addCenterSpots = new RunnableAction( ADD_CENTER_SPOTS, this::addCenterSpots );
 		mirrorSpots = new RunnableAction( MIRROR_SPOTS, this::mirrorSpots );
+		detectOverlappingSpots = new RunnableAction( DETECT_OVERLAPPING_SPOTS, this::detectOverlappingSpots );
+		combineSelectedSpots = new RunnableAction( COMBINE_SELECTED_SPOTS, this::combineSelectedSpots );
+		locateTags = new RunnableAction( LOCATE_TAGS, this::locateTags );
 	}
 
 	@Override
@@ -279,6 +309,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 										item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ),
 								item( EXPORTS_LINEAGE_LENGTHS ),
 								item( EXPORT_PHYLOXML ) ),
+						menu( "Conflict Resolution",
+								item( DETECT_OVERLAPPING_SPOTS ),
+								item( COMBINE_SELECTED_SPOTS ),
+								item( LOCATE_TAGS ) ),
 						item( MIRROR_SPOTS ) ),
 				menu( "File",
 						item( TWEAK_DATASET_PATH ),
@@ -313,6 +347,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 		actions.namedAction( addCenterSpots, ADD_CENTER_SPOTS_KEYS );
 		actions.namedAction( mirrorSpots, MIRROR_SPOTS_KEYS );
+		actions.namedAction( detectOverlappingSpots, DETECT_OVERLAPPING_SPOTS_KEYS );
+		actions.namedAction( combineSelectedSpots, COMBINE_SELECTED_SPOTS_KEYS );
+		actions.namedAction( locateTags, LOCATE_TAGS_KEYS );
 	}
 
 	private void exportPhyloXml()
@@ -471,5 +508,20 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private void mirrorSpots()
 	{
 		MirrorEmbryo.run( pluginAppModel );
+	}
+
+	private void detectOverlappingSpots()
+	{
+		DetectOverlappingSpots.run( pluginAppModel.getModel() );
+	}
+
+	private void combineSelectedSpots()
+	{
+		AverageSpots.run( pluginAppModel );
+	}
+
+	private void locateTags()
+	{
+		LocateTagsDialog.run( pluginAppModel );
 	}
 }
