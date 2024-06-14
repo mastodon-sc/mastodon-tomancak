@@ -185,11 +185,11 @@ public class LineageRegistrationFrame extends JFrame
 		add( newOperationButton( "project A", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeAClicked ), "split 2" );
 		add( newOperationButton( "project B", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeBClicked ), "wrap" );
 		add( new JLabel( "Copy spot labels:" ) );
-		add( newOperationButton( "from A to B ...", COPY_LABELS_TOOLTIP, listener::onCopyLabelsAtoB ), "split 2" );
-		add( newOperationButton( "from B to A ...", COPY_LABELS_TOOLTIP, listener::onCopyLabelsBtoA ), "wrap" );
+		add( newOperationButton( "labels from A to B ...", COPY_LABELS_TOOLTIP, listener::onCopyLabelsAtoB ), "split 2" );
+		add( newOperationButton( "labels from B to A ...", COPY_LABELS_TOOLTIP, listener::onCopyLabelsBtoA ), "wrap" );
 		add( new JLabel( "Copy tag set:" ) );
-		add( newOperationButton( "from A to B ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetAtoB ), "split 2" );
-		add( newOperationButton( "from B to A ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetBtoA ), "wrap" );
+		add( newOperationButton( "tags from A to B ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetAtoB ), "split 2" );
+		add( newOperationButton( "tags from B to A ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetBtoA ), "wrap" );
 		add( new JLabel( "Cell division angles:") );
 		add( newOperationButton( "plot angles", PLOT_ANGLES_TOOLTIP, listener::onPlotAnglesClicked ), "split 2" );
 		add( newOperationButton( "add angles to table", ANGLES_FEATURE_TOOLTIP, listener::onAddAnglesFeatureClicked ), "wrap" );
