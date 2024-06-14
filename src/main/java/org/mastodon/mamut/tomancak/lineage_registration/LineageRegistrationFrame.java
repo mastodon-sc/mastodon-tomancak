@@ -85,6 +85,14 @@ public class LineageRegistrationFrame extends JFrame
 			+ "</ul>"
 			+ "</body></html>";
 
+	private static final String COPY_LABELS_TOOLTIP = "<html><body>"
+			+ "Use the found correspondences to copy spot labels from one project to the other.<br>"
+			+ "<br>"
+			+ "The correspondences are on a level of cells / branches.<br>"
+			+ "That is why the all the spots that belong to a cell / branch will get the same label.<br>"
+			+ "Labels on individual spot can not copied."
+			+ "</body></html>";
+
 	private static final String COPY_TAGSET_TOOLTIP = "<html><body>"
 			+ "Use the found correspondences to copy a tag set from one project to the other.<br>"
 			+ "<br>"
@@ -176,6 +184,9 @@ public class LineageRegistrationFrame extends JFrame
 		add( new JLabel( "Sort TrackScheme:" ) );
 		add( newOperationButton( "project A", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeAClicked ), "split 2" );
 		add( newOperationButton( "project B", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeBClicked ), "wrap" );
+		add( new JLabel( "Copy spot labels:" ) );
+		add( newOperationButton( "from A to B ...", COPY_LABELS_TOOLTIP, listener::onCopyLabelsAtoB ), "split 2" );
+		add( newOperationButton( "from B to A ...", COPY_LABELS_TOOLTIP, listener::onCopyLabelsBtoA ), "wrap" );
 		add( new JLabel( "Copy tag set:" ) );
 		add( newOperationButton( "from A to B ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetAtoB ), "split 2" );
 		add( newOperationButton( "from B to A ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetBtoA ), "wrap" );
@@ -408,6 +419,10 @@ public class LineageRegistrationFrame extends JFrame
 
 		void onColorLineagesClicked();
 
+		void onCopyLabelsAtoB();
+
+		void onCopyLabelsBtoA();
+
 		void onCopyTagSetAtoB();
 
 		void onCopyTagSetBtoA();
@@ -442,6 +457,18 @@ public class LineageRegistrationFrame extends JFrame
 
 		@Override
 		public void onColorLineagesClicked()
+		{
+
+		}
+
+		@Override
+		public void onCopyLabelsAtoB()
+		{
+
+		}
+
+		@Override
+		public void onCopyLabelsBtoA()
 		{
 
 		}

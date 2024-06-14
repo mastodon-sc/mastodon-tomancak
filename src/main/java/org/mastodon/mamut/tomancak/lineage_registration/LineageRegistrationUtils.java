@@ -318,4 +318,28 @@ public class LineageRegistrationUtils
 		frame.pack();
 		frame.setVisible( true );
 	}
+
+	public static void copySpotLabelsFromAtoB( final RegisteredGraphs registration )
+	{
+		final ModelGraph graphB = registration.graphB;
+		final Spot refB = graphB.vertexRef();
+		try
+		{
+			for ( final Spot spotA : registration.mapAB.keySet() )
+			{
+				boolean hasLabel = !Integer.toString( spotA.getInternalPoolIndex() ).equals( spotA.getLabel() );
+				if ( hasLabel )
+				{
+					final Spot spotB = registration.mapAB.get( spotA, refB );
+					final RefList< Spot > spotsOfBranchB = BranchGraphUtils.getBranchSpotsAndLinks( graphB, spotB ).getA();
+					for ( final Spot spot : spotsOfBranchB )
+						spot.setLabel( spotA.getLabel() );
+				}
+			}
+		}
+		finally
+		{
+			graphB.releaseRef( refB );
+		}
+	}
 }

@@ -158,6 +158,31 @@ public class LineageRegistrationControlService extends AbstractService implement
 		}
 
 		@Override
+		public void onCopyLabelsAtoB()
+		{
+			copyLabelsFromTo( dialog.getProjectA(), dialog.getProjectB() );
+		}
+
+		@Override
+		public void onCopyLabelsBtoA()
+		{
+			copyLabelsFromTo( dialog.getProjectB(), dialog.getProjectA() );
+		}
+
+		private void copyLabelsFromTo( SelectedProject fromProject, SelectedProject toProject )
+		{
+			executeTask( true, fromProject, toProject, () -> {
+				dialog.clearLog();
+				dialog.log( "Copy labels from project \"%s\" to project \"%s\"...",
+						fromProject.getName(), toProject.getName() );
+				RegisteredGraphs registration = runRegistrationAlgorithm( fromProject, toProject );
+				LineageRegistrationUtils.copySpotLabelsFromAtoB( registration );
+				toProject.getModel().setUndoPoint();
+				dialog.log( "done." );
+			} );
+		}
+
+		@Override
 		public void onCopyTagSetAtoB()
 		{
 			copyTagSetFromTo( dialog.getProjectA(), dialog.getProjectB() );
