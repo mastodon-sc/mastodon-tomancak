@@ -101,7 +101,10 @@ public class DetectOverlappingSpots
 				branchIdToTag.put( branchId, tags.get( j++ ) );
 
 			for ( final Spot spot : conflictGroups.get( key ) )
-				TagSetUtils.tagSpot( model, tagSet, branchIdToTag.get( branchIds.get( spot ) ), spot );
+			{
+				final TagSetStructure.Tag tag = branchIdToTag.get( branchIds.get( spot ) );
+				TagSetUtils.tagSpotAndIncomingEdges( model, spot, tagSet, tag );
+			}
 		}
 	}
 
