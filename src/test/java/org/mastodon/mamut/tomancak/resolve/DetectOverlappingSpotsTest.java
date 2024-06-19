@@ -29,4 +29,20 @@ public class DetectOverlappingSpotsTest
 		final Spot b = graph.addVertex().init( 1, new double[] { x1, y1, z1 }, 1 );
 		graph.addEdge( a, b ).init();
 	}
+
+	@Test
+	public void testGetLetters()
+	{
+		assertEquals( "A", DetectOverlappingSpots.getLetters( 0 ) );
+		assertEquals( "B", DetectOverlappingSpots.getLetters( 1 ) );
+		assertEquals( "Z", DetectOverlappingSpots.getLetters( 25 ) );
+		assertEquals( "AA", DetectOverlappingSpots.getLetters( 26 ) );
+		assertEquals( "AZ", DetectOverlappingSpots.getLetters( 51 ) );
+		assertEquals( "BA", DetectOverlappingSpots.getLetters( 52 ) );
+		assertEquals( "BZ", DetectOverlappingSpots.getLetters( 77 ) );
+		assertEquals( "CA", DetectOverlappingSpots.getLetters( 78 ) );
+		assertEquals( "ZZ", DetectOverlappingSpots.getLetters( 701 ) );
+		assertEquals( "AAA", DetectOverlappingSpots.getLetters( 702 ) );
+		assertEquals( "AAZ", DetectOverlappingSpots.getLetters( 727 ) );
+	}
 }

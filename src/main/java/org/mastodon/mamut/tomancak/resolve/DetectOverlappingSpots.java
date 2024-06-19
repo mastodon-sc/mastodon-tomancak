@@ -89,7 +89,7 @@ public class DetectOverlappingSpots
 		{
 			final TIntSet key = keys.get( i );
 			for ( int k = 0; k < key.size(); k++ )
-				tagsAndColors.add( Pair.of( "Conflict " + i + " " + "ABCDEFGHIJKLMNOPQRSTUVXYZ".charAt( k ), Glasbey.GLASBEY[ j++ % 255 + 5 ] ) );
+				tagsAndColors.add( Pair.of( "Conflict " + i + " " + getLetters( k ), getColor( j++ ) ) );
 		}
 		final TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( model, "Overlapping Spots", tagsAndColors );
 		final List< TagSetStructure.Tag > tags = tagSet.getTags();
@@ -103,6 +103,32 @@ public class DetectOverlappingSpots
 			for ( final Spot spot : conflictGroups.get( key ) )
 				TagSetUtils.tagSpot( model, tagSet, branchIdToTag.get( branchIds.get( spot ) ), spot );
 		}
+	}
+
+	/**
+	 * Return the (i+1)th entry in a infinite list starting with A, B, ..., Z, AA, AB, ..., AZ, BA, BB, ...
+	 */
+	static String getLetters( int index )
+	{
+		if ( index == 0 )
+			return "A";
+		final StringBuilder sb = new StringBuilder();
+		while ( index >= 0 )
+		{
+			sb.append( ( char ) ( 'A' + index % 26 ) );
+			index /= 26;
+			index--;
+		}
+		return sb.reverse().toString();
+	}
+
+	/**
+	 * Return a color from the Glasbey color set. This omits the first 5 colors because they don't really fit
+	 * well with the rest of the set.
+	 */
+	private static int getColor( int index )
+	{
+		return Glasbey.GLASBEY[ index % 251 + 5 ];
 	}
 
 	private static RefIntMap< Spot > getBranchIdMap( final Model model )
