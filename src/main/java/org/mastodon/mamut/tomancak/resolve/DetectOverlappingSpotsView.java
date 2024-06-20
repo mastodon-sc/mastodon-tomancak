@@ -10,24 +10,30 @@ import org.scijava.plugin.Plugin;
 @Plugin( type = Command.class, name = "Create Conflict Tag Set" )
 public class DetectOverlappingSpotsView extends DefaultCancelable implements Command
 {
-	private static final double STRICT_THRESHOLD = 0.2;
+	/**
+	 * Only spheres that strongly overlap are considered to be in conflict.
+	 */
+	private static final double FEW_CONFLICTS_THRESHOLD = 0.3;
 
-	private static final String STRICT = "find less conflicts (threshold = 0.2)";
+	private static final String FEW_CONFLICTS = "find less conflicts (threshold = 0.3)";
 
-	private static final double DEFAULT_THRESHOLD = 0.4;
+	private static final double DEFAULT_THRESHOLD = 0.5;
 
-	private static final String DEFAULT = "default (threshold = 0.4)";
+	private static final String DEFAULT = "default (threshold = 0.5)";
 
-	private static final double LOOSE_THRESHOLD = 0.6;
+	/**
+	 * Two spheres that slightly touch are considered to be in conflict.
+	 */
+	private static final double MANY_CONFLICTS_THRESHOLD = 0.7;
 
-	private static final String LOOSE = "find more conflicts (threshold = 0.6)";
+	private static final String MANY_CONFLICTS = "find more conflicts (threshold = 0.7)";
 
 	private static final String CUSTOM = "Use custom threshold";
 
 	@Parameter
 	private ProjectModel projectModel;
 
-	@Parameter( label = "Predefined Threshold:", choices = { STRICT, DEFAULT, LOOSE, CUSTOM }, style = "radioButtonVertical" )
+	@Parameter( label = "Predefined Threshold:", choices = { FEW_CONFLICTS, DEFAULT, MANY_CONFLICTS, CUSTOM }, style = "radioButtonVertical" )
 	private String choice = DEFAULT;
 
 	@Parameter( label = "Custom Threshold:", min = "0.0", max = "1.0", stepSize = "0.05" )
@@ -51,12 +57,12 @@ public class DetectOverlappingSpotsView extends DefaultCancelable implements Com
 	{
 		switch ( choice )
 		{
-		case STRICT:
-			return STRICT_THRESHOLD;
+		case FEW_CONFLICTS:
+			return FEW_CONFLICTS_THRESHOLD;
 		case DEFAULT:
 			return DEFAULT_THRESHOLD;
-		case LOOSE:
-			return LOOSE_THRESHOLD;
+		case MANY_CONFLICTS:
+			return MANY_CONFLICTS_THRESHOLD;
 		default:
 			return customThreshold;
 		}
