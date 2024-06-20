@@ -5,15 +5,23 @@ import java.awt.Label;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -43,7 +51,7 @@ public class LocateTagsFrame extends JFrame
 
 	private final ProjectModel projectModel;
 
-	private final JList< SpotItem > list;
+	private final JTable table;
 
 	private final CloseListener projectCloseListener = () -> dispose();
 
@@ -54,6 +62,10 @@ public class LocateTagsFrame extends JFrame
 	private final FocusModel< Spot > focusModel;
 
 	private final SelectionModel< Spot, Link > selectionModel;
+
+	private final MyTableModel dataModel = new MyTableModel();
+
+	private List< SpotItem > items = Collections.emptyList();
 
 	public LocateTagsFrame( final ProjectModel projectModel )
 	{
@@ -67,9 +79,12 @@ public class LocateTagsFrame extends JFrame
 		add( new Label( "Tag Set:" ) );
 		tagSetComboBox = new JComboBox<>();
 		add( tagSetComboBox, "grow, wrap" );
-		list = new JList<>();
-		list.setPreferredSize( new Dimension( 200, 200 ) );
-		add( new JScrollPane( list ), "span, grow" );
+		table = new JTable();
+		//table.setPreferredSize( new Dimension( 200, 200 ) );
+		table.setAutoCreateRowSorter( true );
+		table.getSelectionModel().addListSelectionListener( e -> onSpotItemSelectionChanged() );
+		table.setModel( dataModel );
+		add( new JScrollPane( table, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER ), "span, grow" );
 		fillTagSetComboBox();
 		tagSetComboBox.addActionListener( e -> fillList() );
 		navigationModel = groupHandle.getModel( this.projectModel.NAVIGATION );
@@ -77,7 +92,7 @@ public class LocateTagsFrame extends JFrame
 		selectionModel = this.projectModel.getSelectionModel();
 	}
 
-	private void initializeListeners( ProjectModel projectModel )
+	private void initializeListeners( final ProjectModel projectModel )
 	{
 		addWindowListener( new WindowAdapter()
 		{
@@ -104,7 +119,6 @@ public class LocateTagsFrame extends JFrame
 
 	private void fillList()
 	{
-		list.removeAll();
 		final Model model = projectModel.getModel();
 		final ModelGraph graph = model.getGraph();
 		// iterate over the graph in trackscheme order
@@ -127,11 +141,95 @@ public class LocateTagsFrame extends JFrame
 			}
 		}
 		items.sort( Comparator.comparing( SpotItem::toString ) );
-		DefaultListModel< SpotItem > listModel = new DefaultListModel<>();
-		items.forEach( listModel::addElement );
-		list.setModel( listModel );
-		list.addListSelectionListener( e -> onSpotItemSelectionChanged() );
+		this.items = items;
+		dataModel.fireChange();
 	}
+
+	private class MyTableModel implements TableModel
+	{
+
+		private final List< TableModelListener > listeners = new CopyOnWriteArrayList<>();
+
+		private final List< String > columns = Arrays.asList( "time point", "tag", "track", "spot" );
+
+		private final List< Class< ? > > classes = Arrays.asList( Integer.class, String.class, String.class, String.class );
+
+		@Override
+		public int getRowCount()
+		{
+			final int size = items.size();
+			System.out.println( "row count: " + size );
+			return size;
+		}
+
+		@Override
+		public int getColumnCount()
+		{
+			return columns.size();
+		}
+
+		@Override
+		public String getColumnName( final int columnIndex )
+		{
+			return columns.get( columnIndex );
+		}
+
+		@Override
+		public Class< ? > getColumnClass( final int columnIndex )
+		{
+			return classes.get( columnIndex );
+		}
+
+		@Override
+		public boolean isCellEditable( final int rowIndex, final int columnIndex )
+		{
+			return false;
+		}
+
+		@Override
+		public Object getValueAt( final int rowIndex, final int columnIndex )
+		{
+			final SpotItem item = items.get( rowIndex );
+			switch ( columnIndex )
+			{
+			case 0:
+				return item.spot.getTimepoint();
+			case 1:
+				return item.tag.label();
+			case 2:
+				return item.root;
+			case 3:
+				return item.spot.getLabel();
+			}
+			return null;
+		}
+
+		@Override
+		public void setValueAt( final Object aValue, final int rowIndex, final int columnIndex )
+		{
+
+		}
+
+		public void fireChange()
+		{
+			final TableModelEvent e = new TableModelEvent( this );
+			for ( final TableModelListener listener : listeners )
+				listener.tableChanged( e );
+		}
+
+		@Override
+		public void addTableModelListener( TableModelListener l )
+		{
+			listeners.add( l );
+		}
+
+		@Override
+		public void removeTableModelListener( TableModelListener l )
+		{
+			listeners.remove( l );
+		}
+	}
+
 
 	private boolean entryPoint( final ObjTagMap< Spot, TagSetStructure.Tag > spotToTag, final Spot spot, final TagSetStructure.Tag tag, final Spot ref )
 	{
@@ -196,12 +294,44 @@ public class LocateTagsFrame extends JFrame
 
 	private void onSpotItemSelectionChanged()
 	{
-		final SpotItem item = list.getSelectedValue();
-		groupHandle.setGroupId( 0 );
-		navigationModel.notifyNavigateToVertex( item.spot );
-		focusModel.focusVertex( item.spot );
+		updateLeadSelection();
+		updateMultiSelection();
+	}
+
+	private void updateMultiSelection()
+	{
+		final ListSelectionModel selection = table.getSelectionModel();
+		final int min = selection.getMinSelectionIndex();
+		final int max = selection.getMaxSelectionIndex();
+		if ( min < 0 || max < 0 )
+			return;
+
 		selectionModel.clearSelection();
-		for ( final SpotItem item1 : list.getSelectedValuesList() )
-			selectionModel.setSelected( item1.spot, true );
+		for ( int i = min; i <= max; i++ )
+			if ( selection.isSelectedIndex( i ) )
+			{
+				final Spot spot = items.get( table.convertRowIndexToModel( i ) ).spot;
+				selectionModel.setSelected( spot, true );
+			}
+	}
+
+	private void updateLeadSelection()
+	{
+		try
+		{
+			final ListSelectionModel selection = table.getSelectionModel();
+			final int leadSelectionIndex = selection.getLeadSelectionIndex();
+			if ( leadSelectionIndex < 0 )
+				return;
+			final SpotItem item = items.get( table.convertRowIndexToModel( leadSelectionIndex ) );
+			groupHandle.setGroupId( 0 );
+			navigationModel.notifyNavigateToVertex( item.spot );
+			focusModel.focusVertex( item.spot );
+			selectionModel.clearSelection();
+		}
+		catch ( IndexOutOfBoundsException e )
+		{
+
+		}
 	}
 }
