@@ -17,6 +17,7 @@ import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.mastodon.app.ui.GroupLocksPanel;
 import org.mastodon.collection.RefSet;
 import org.mastodon.graph.algorithm.RootFinder;
 import org.mastodon.graph.algorithm.traversal.DepthFirstIterator;
@@ -28,6 +29,7 @@ import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.model.FocusModel;
 import org.mastodon.model.NavigationHandler;
 import org.mastodon.model.SelectionModel;
 import org.mastodon.model.tag.ObjTagMap;
@@ -45,10 +47,38 @@ public class LocateTagsFrame extends JFrame
 
 	private final CloseListener projectCloseListener = () -> dispose();
 
+	private final GroupHandle groupHandle;
+
+	private final NavigationHandler< Spot, Link > navigationModel;
+
+	private final FocusModel< Spot > focusModel;
+
+	private final SelectionModel< Spot, Link > selectionModel;
+
 	public LocateTagsFrame( final ProjectModel projectModel )
 	{
 		this.projectModel = projectModel;
 		setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
+		initializeListeners( projectModel );
+		groupHandle = this.projectModel.getGroupManager().createGroupHandle();
+		setTitle( "Locate Tags" );
+		setLayout( new MigLayout( "insets dialog", "[][][grow]", "[][grow]" ) );
+		add( new GroupLocksPanel( groupHandle ) );
+		add( new Label( "Tag Set:" ) );
+		tagSetComboBox = new JComboBox<>();
+		add( tagSetComboBox, "grow, wrap" );
+		list = new JList<>();
+		list.setPreferredSize( new Dimension( 200, 200 ) );
+		add( new JScrollPane( list ), "span, grow" );
+		fillTagSetComboBox();
+		tagSetComboBox.addActionListener( e -> fillList() );
+		navigationModel = groupHandle.getModel( this.projectModel.NAVIGATION );
+		focusModel = this.projectModel.getFocusModel();
+		selectionModel = this.projectModel.getSelectionModel();
+	}
+
+	private void initializeListeners( ProjectModel projectModel )
+	{
 		addWindowListener( new WindowAdapter()
 		{
 			@Override
@@ -58,16 +88,6 @@ public class LocateTagsFrame extends JFrame
 			}
 		} );
 		projectModel.projectClosedListeners().add( projectCloseListener );
-		setTitle( "Locate Tags" );
-		setLayout( new MigLayout( "insets dialog", "[][grow]", "[][grow]" ) );
-		add( new Label( "Tag Set:" ) );
-		tagSetComboBox = new JComboBox<>();
-		add( tagSetComboBox, "grow, wrap" );
-		list = new JList<>();
-		list.setPreferredSize( new Dimension( 200, 200 ) );
-		add( new JScrollPane( list ), "span, grow" );
-		fillTagSetComboBox();
-		tagSetComboBox.addActionListener( e -> fillList() );
 	}
 
 	private void onClose()
@@ -177,12 +197,9 @@ public class LocateTagsFrame extends JFrame
 	private void onSpotItemSelectionChanged()
 	{
 		final SpotItem item = list.getSelectedValue();
-		final GroupHandle groupHandle = projectModel.getGroupManager().createGroupHandle();
 		groupHandle.setGroupId( 0 );
-		final NavigationHandler< Spot, Link > navigateTo = groupHandle.getModel( projectModel.NAVIGATION );
-		navigateTo.notifyNavigateToVertex( item.spot );
-		projectModel.getFocusModel().focusVertex( item.spot );
-		final SelectionModel< Spot, Link > selectionModel = projectModel.getSelectionModel();
+		navigationModel.notifyNavigateToVertex( item.spot );
+		focusModel.focusVertex( item.spot );
 		selectionModel.clearSelection();
 		for ( final SpotItem item1 : list.getSelectedValuesList() )
 			selectionModel.setSelected( item1.spot, true );
