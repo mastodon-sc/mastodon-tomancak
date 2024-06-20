@@ -59,8 +59,8 @@ import org.mastodon.mamut.tomancak.label_systematically.LabelSpotsSystematically
 import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
 import org.mastodon.mamut.tomancak.merging.MergingDialog;
-import org.mastodon.mamut.tomancak.resolve.DetectOverlappingSpots;
 import org.mastodon.mamut.tomancak.resolve.AverageSpots;
+import org.mastodon.mamut.tomancak.resolve.DetectOverlappingSpotsView;
 import org.mastodon.mamut.tomancak.resolve.LocateTagsDialog;
 import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
 import org.mastodon.mamut.tomancak.sort_tree.SortTree;
@@ -512,7 +512,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private void detectOverlappingSpots()
 	{
-		DetectOverlappingSpots.run( pluginAppModel.getModel() );
+		DetectOverlappingSpotsView.run( pluginAppModel );
 	}
 
 	private void combineSelectedSpots()

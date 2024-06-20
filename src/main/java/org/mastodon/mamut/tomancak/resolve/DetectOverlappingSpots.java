@@ -35,25 +35,29 @@ import gnu.trove.set.hash.TIntHashSet;
 
 public class DetectOverlappingSpots
 {
-	public static void run( final Model model )
+	public static void run( final Model model, final String tagSetName, final double threshold )
 	{
 		final ModelGraph graph = model.getGraph();
 		final ReentrantReadWriteLock.WriteLock lock = graph.getLock().writeLock();
 		lock.lock();
 		try
 		{
-			final RefIntMap< Spot > branchIds = getBranchIdMap( model );
-			final Map< TIntSet, RefList< Spot > > conflictGroups = computeConflictGroups( model, branchIds );
-			addTagSets( model, conflictGroups, branchIds );
+			createTagSet( model, tagSetName, threshold );
 		}
 		finally
 		{
 			lock.unlock();
 		}
-		// do we need: graph.notifyGraphChanged();
 	}
 
-	private static Map< TIntSet, RefList< Spot > > computeConflictGroups( Model model, RefIntMap< Spot > branchIds )
+	private static void createTagSet( final Model model, final String tagSetName, final double threshold )
+	{
+		final RefIntMap< Spot > branchIds = getBranchIdMap( model );
+		final Map< TIntSet, RefList< Spot > > conflictGroups = computeConflictGroups( model, branchIds, threshold );
+		addTagSets( model, tagSetName, conflictGroups, branchIds );
+	}
+
+	private static Map< TIntSet, RefList< Spot > > computeConflictGroups( final Model model, final RefIntMap< Spot > branchIds, final double threshold )
 	{
 		final int maxTimepoint = TreeUtils.getMaxTimepoint( model );
 		final int minTimepoint = TreeUtils.getMinTimepoint( model );
@@ -61,7 +65,7 @@ public class DetectOverlappingSpots
 		for ( int timepoint = minTimepoint; timepoint <= maxTimepoint; timepoint++ )
 		{
 			final SpatialIndex< Spot > frame = model.getSpatioTemporalIndex().getSpatialIndex( timepoint );
-			for ( final Set< Spot > conflict : findConflicts( model.getGraph(), frame ) )
+			for ( final Set< Spot > conflict : findConflicts( model.getGraph(), frame, threshold ) )
 				addConflict( model, conflict, branchIds, conflictGroups );
 		}
 		return conflictGroups;
@@ -79,7 +83,7 @@ public class DetectOverlappingSpots
 		sets.addAll( conflict );
 	}
 
-	private static void addTagSets( final Model model, final Map< TIntSet, RefList< Spot > > conflictGroups, RefIntMap< Spot > branchIds )
+	private static void addTagSets( final Model model, final String tagSetName, final Map< TIntSet, RefList< Spot > > conflictGroups, final RefIntMap< Spot > branchIds )
 	{
 
 		final ArrayList< Pair< String, Integer > > tagsAndColors = new ArrayList<>();
@@ -91,7 +95,7 @@ public class DetectOverlappingSpots
 			for ( int k = 0; k < key.size(); k++ )
 				tagsAndColors.add( Pair.of( "Conflict " + i + " " + getLetters( k ), getColor( j++ ) ) );
 		}
-		final TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( model, "Overlapping Spots", tagsAndColors );
+		final TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( model, tagSetName, tagsAndColors );
 		final List< TagSetStructure.Tag > tags = tagSet.getTags();
 		j = 0;
 		for ( final TIntSet key : keys )
@@ -129,7 +133,7 @@ public class DetectOverlappingSpots
 	 * Return a color from the Glasbey color set. This omits the first 5 colors because they don't really fit
 	 * well with the rest of the set.
 	 */
-	private static int getColor( int index )
+	private static int getColor( final int index )
 	{
 		return Glasbey.GLASBEY[ index % 251 + 5 ];
 	}
@@ -156,9 +160,8 @@ public class DetectOverlappingSpots
 		return branchIdsInConflict;
 	}
 
-	private static List< Set< Spot > > findConflicts( final ModelGraph graph, final SpatialIndex< Spot > frame )
+	private static List< Set< Spot > > findConflicts( final ModelGraph graph, final SpatialIndex< Spot > frame, final double threshold )
 	{
-		final double threshold = 0.4;
 		final IncrementalNearestNeighborSearch< Spot > nearestNeighbors = frame.getIncrementalNearestNeighborSearch();
 		final RefObjectMap< Spot, Set< Spot > > conflicts = new RefObjectHashMap<>( graph.vertices().getRefPool() );
 		for ( final Spot spot : frame )
