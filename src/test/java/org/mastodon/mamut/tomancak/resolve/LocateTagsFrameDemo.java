@@ -10,7 +10,7 @@ import org.scijava.ui.UIService;
 
 import mpicbg.spim.data.SpimDataException;
 
-public class LocateTagsDialogDemo
+public class LocateTagsFrameDemo
 {
 	public static void main( final String[] args ) throws SpimDataException, IOException
 	{
@@ -21,7 +21,7 @@ public class LocateTagsDialogDemo
 		final MainWindow mainWindow = new MainWindow( projectModel );
 		mainWindow.setDefaultCloseOperation( MainWindow.DISPOSE_ON_CLOSE );
 		mainWindow.setVisible( true );
-		final LocateTagsDialog dialog = new LocateTagsDialog( projectModel );
+		final LocateTagsFrame dialog = new LocateTagsFrame( projectModel );
 		dialog.setSize( 400, 600 );
 		dialog.setVisible( true );
 	}

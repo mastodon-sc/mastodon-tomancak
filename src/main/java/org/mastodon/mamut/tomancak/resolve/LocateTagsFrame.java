@@ -31,7 +31,7 @@ import org.mastodon.model.tag.ObjTagMap;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 
-public class LocateTagsDialog extends JFrame
+public class LocateTagsFrame extends JFrame
 {
 
 	private final JComboBox< TagSetItem > tagSetComboBox;
@@ -40,7 +40,7 @@ public class LocateTagsDialog extends JFrame
 
 	private final JList< SpotItem > list;
 
-	public LocateTagsDialog( final ProjectModel projectModel )
+	public LocateTagsFrame( final ProjectModel projectModel )
 	{
 		this.projectModel = projectModel;
 		setTitle( "Locate Tags" );
@@ -58,9 +58,9 @@ public class LocateTagsDialog extends JFrame
 
 	public static void run( final ProjectModel pluginAppModel )
 	{
-		final LocateTagsDialog locateTagsDialog = new LocateTagsDialog( pluginAppModel );
-		locateTagsDialog.setSize( 400, 600 );
-		locateTagsDialog.setVisible( true );
+		final LocateTagsFrame locateTagsFrame = new LocateTagsFrame( pluginAppModel );
+		locateTagsFrame.setSize( 400, 600 );
+		locateTagsFrame.setVisible( true );
 	}
 
 	private void fillList()
