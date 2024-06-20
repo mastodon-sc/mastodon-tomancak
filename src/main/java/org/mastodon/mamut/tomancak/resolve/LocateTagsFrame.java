@@ -2,6 +2,8 @@ package org.mastodon.mamut.tomancak.resolve;
 
 import java.awt.Dimension;
 import java.awt.Label;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -20,6 +22,7 @@ import org.mastodon.graph.algorithm.RootFinder;
 import org.mastodon.graph.algorithm.traversal.DepthFirstIterator;
 import org.mastodon.graph.ref.IncomingEdges;
 import org.mastodon.grouping.GroupHandle;
+import org.mastodon.mamut.CloseListener;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
@@ -40,11 +43,22 @@ public class LocateTagsFrame extends JFrame
 
 	private final JList< SpotItem > list;
 
+	private final CloseListener projectCloseListener = () -> dispose();
+
 	public LocateTagsFrame( final ProjectModel projectModel )
 	{
 		this.projectModel = projectModel;
-		setTitle( "Locate Tags" );
 		setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
+		addWindowListener( new WindowAdapter()
+		{
+			@Override
+			public void windowClosed( final WindowEvent e )
+			{
+				onClose();
+			}
+		} );
+		projectModel.projectClosedListeners().add( projectCloseListener );
+		setTitle( "Locate Tags" );
 		setLayout( new MigLayout( "insets dialog", "[][grow]", "[][grow]" ) );
 		add( new Label( "Tag Set:" ) );
 		tagSetComboBox = new JComboBox<>();
@@ -54,6 +68,11 @@ public class LocateTagsFrame extends JFrame
 		add( new JScrollPane( list ), "span, grow" );
 		fillTagSetComboBox();
 		tagSetComboBox.addActionListener( e -> fillList() );
+	}
+
+	private void onClose()
+	{
+		projectModel.projectClosedListeners().remove( projectCloseListener );
 	}
 
 	public static void run( final ProjectModel pluginAppModel )
