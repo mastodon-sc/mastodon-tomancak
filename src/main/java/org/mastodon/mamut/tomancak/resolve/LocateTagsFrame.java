@@ -1,5 +1,7 @@
 package org.mastodon.mamut.tomancak.resolve;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Label;
 import java.awt.event.WindowAdapter;
@@ -20,7 +22,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
@@ -74,17 +76,21 @@ public class LocateTagsFrame extends JFrame
 		initializeListeners( projectModel );
 		groupHandle = this.projectModel.getGroupManager().createGroupHandle();
 		setTitle( "Locate Tags" );
-		setLayout( new MigLayout( "insets dialog", "[][][grow]", "[][grow]" ) );
-		add( new GroupLocksPanel( groupHandle ) );
+		setLayout( new MigLayout( "insets dialog", "[grow]", "[][grow]" ) );
+		add( new GroupLocksPanel( groupHandle ), "split" );
 		add( new Label( "Tag Set:" ) );
 		tagSetComboBox = new JComboBox<>();
-		add( tagSetComboBox, "grow, wrap" );
+		add( tagSetComboBox, "grow, wrap, wmin 0" );
 		table = new JTable();
-		//table.setPreferredSize( new Dimension( 200, 200 ) );
 		table.setAutoCreateRowSorter( true );
 		table.getSelectionModel().addListSelectionListener( e -> onSpotItemSelectionChanged() );
 		table.setModel( dataModel );
-		add( new JScrollPane( table, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER ), "span, grow" );
+		table.getColumnModel().getColumn( 2 ).setWidth( 20 );
+		table.getColumnModel().getColumn( 2 ).setMaxWidth( 20 );
+		table.setDefaultRenderer( Color.class, new ColorRenderer() );
+		final JScrollPane scrollPane = new JScrollPane( table, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER );
+		scrollPane.setPreferredSize( new Dimension( 200, 200 ) );
+		add( scrollPane, "span, grow" );
 		fillTagSetComboBox();
 		tagSetComboBox.addActionListener( e -> fillList() );
 		navigationModel = groupHandle.getModel( this.projectModel.NAVIGATION );
@@ -150,9 +156,9 @@ public class LocateTagsFrame extends JFrame
 
 		private final List< TableModelListener > listeners = new CopyOnWriteArrayList<>();
 
-		private final List< String > columns = Arrays.asList( "time point", "tag", "track", "spot" );
+		private final List< String > columns = Arrays.asList( "time point", "tag", "", "track", "spot" );
 
-		private final List< Class< ? > > classes = Arrays.asList( Integer.class, String.class, String.class, String.class );
+		private final List< Class< ? > > classes = Arrays.asList( Integer.class, String.class, Color.class, String.class, String.class );
 
 		@Override
 		public int getRowCount()
@@ -195,8 +201,10 @@ public class LocateTagsFrame extends JFrame
 			case 1:
 				return item.tag.label();
 			case 2:
-				return item.root;
+				return new Color( item.tag.color() );
 			case 3:
+				return item.root;
+			case 4:
 				return item.spot.getLabel();
 			}
 			return null;
@@ -216,15 +224,26 @@ public class LocateTagsFrame extends JFrame
 		}
 
 		@Override
-		public void addTableModelListener( TableModelListener l )
+		public void addTableModelListener( final TableModelListener l )
 		{
 			listeners.add( l );
 		}
 
 		@Override
-		public void removeTableModelListener( TableModelListener l )
+		public void removeTableModelListener( final TableModelListener l )
 		{
 			listeners.remove( l );
+		}
+	}
+
+	private static class ColorRenderer extends DefaultTableCellRenderer
+	{
+		@Override
+		public Component getTableCellRendererComponent( final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column )
+		{
+			final Component component = super.getTableCellRendererComponent( table, "", isSelected, hasFocus, row, column );
+			component.setBackground( ( Color ) value );
+			return component;
 		}
 	}
 
