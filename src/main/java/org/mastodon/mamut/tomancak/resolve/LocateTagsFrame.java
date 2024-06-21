@@ -53,7 +53,7 @@ public class LocateTagsFrame extends JFrame
 
 	private final JTable table;
 
-	private final CloseListener projectCloseListener = () -> dispose();
+	private final CloseListener projectCloseListener = this::dispose;
 
 	private final GroupHandle groupHandle;
 
@@ -157,9 +157,7 @@ public class LocateTagsFrame extends JFrame
 		@Override
 		public int getRowCount()
 		{
-			final int size = items.size();
-			System.out.println( "row count: " + size );
-			return size;
+			return items.size();
 		}
 
 		@Override
@@ -329,9 +327,9 @@ public class LocateTagsFrame extends JFrame
 			focusModel.focusVertex( item.spot );
 			selectionModel.clearSelection();
 		}
-		catch ( IndexOutOfBoundsException e )
+		catch ( final IndexOutOfBoundsException e )
 		{
-
+			// ignore
 		}
 	}
 }
