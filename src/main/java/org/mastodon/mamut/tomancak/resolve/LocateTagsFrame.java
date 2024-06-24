@@ -56,8 +56,6 @@ public class LocateTagsFrame extends JFrame
 
 	private final ProjectModel projectModel;
 
-	private final JTable table;
-
 	private final GroupHandle groupHandle;
 
 	private final NavigationHandler< Spot, Link > navigationModel;
@@ -66,11 +64,13 @@ public class LocateTagsFrame extends JFrame
 
 	private final SelectionModel< Spot, Link > selectionModel;
 
-	private final MyTableModel dataModel = new MyTableModel();
+	private final JTable table;
 
-	private List< SpotItem > items = Collections.emptyList();
+	private final MyTableModel tableModel = new MyTableModel();
 
-	private final RefObjectMap< Spot, SpotItem > itemMap;
+	private List< Row > rows = Collections.emptyList();
+
+	private final RefObjectMap< Spot, Row > spotToRow;
 
 	public LocateTagsFrame( final ProjectModel projectModel )
 	{
@@ -87,7 +87,7 @@ public class LocateTagsFrame extends JFrame
 		table = new JTable();
 		table.setAutoCreateRowSorter( true );
 		table.getSelectionModel().addListSelectionListener( e -> onSpotItemSelectionChanged() );
-		table.setModel( dataModel );
+		table.setModel( tableModel );
 		table.getColumnModel().getColumn( 2 ).setWidth( 20 );
 		table.getColumnModel().getColumn( 2 ).setMaxWidth( 20 );
 		table.setDefaultRenderer( Color.class, new ColorRenderer() );
@@ -99,7 +99,7 @@ public class LocateTagsFrame extends JFrame
 		navigationModel = groupHandle.getModel( this.projectModel.NAVIGATION );
 		focusModel = this.projectModel.getFocusModel();
 		selectionModel = this.projectModel.getSelectionModel();
-		itemMap = new RefObjectHashMap<>( projectModel.getModel().getGraph().vertices().getRefPool() );
+		spotToRow = new RefObjectHashMap<>( projectModel.getModel().getGraph().vertices().getRefPool() );
 	}
 
 	private void initializeListeners( final ProjectModel projectModel )
@@ -136,7 +136,7 @@ public class LocateTagsFrame extends JFrame
 		final DepthFirstIterator< Spot, Link > depthFirstIterator = new DepthFirstIterator<>( graph );
 		final ObjTagMap< Spot, TagSetStructure.Tag > spotToTag = model.getTagSetModel().getVertexTags().tags( item.tagSet );
 		final Spot ref = graph.vertexRef();
-		final List< SpotItem > items = new ArrayList<>();
+		final List< Row > rows = new ArrayList<>();
 		for ( final Spot root : roots )
 		{
 			depthFirstIterator.reset( root );
@@ -146,17 +146,17 @@ public class LocateTagsFrame extends JFrame
 				final TagSetStructure.Tag tag = spotToTag.get( spot );
 				if ( !entryPoint( spotToTag, spot, tag, ref ) )
 					continue;
-				items.add( new SpotItem( tag, spot, root.getLabel() ) );
+				rows.add( new Row( tag, spot, root.getLabel() ) );
 			}
 		}
 		// TODO fix sorting
-		items.sort( Comparator.comparing( SpotItem::toString ) );
-		// fill itemMap
-		itemMap.clear();
-		for ( final SpotItem spotItem : items )
-			itemMap.put( spotItem.spot, spotItem );
-		this.items = items;
-		dataModel.fireChange();
+		rows.sort( Comparator.comparing( Row::toString ) );
+		// fill spotToRow
+		spotToRow.clear();
+		for ( final Row row : rows )
+			spotToRow.put( row.spot, row );
+		this.rows = rows;
+		tableModel.fireChange();
 	}
 
 	private class MyGraphListener implements GraphListener< Spot, Link >
@@ -176,12 +176,12 @@ public class LocateTagsFrame extends JFrame
 		@Override
 		public void vertexRemoved( Spot spot )
 		{
-			final SpotItem item = itemMap.get( spot );
-			if ( item != null )
+			final Row row = spotToRow.get( spot );
+			if ( row != null )
 			{
-				items.remove( item );
-				itemMap.remove( spot );
-				dataModel.fireChange();
+				rows.remove( row );
+				spotToRow.remove( spot );
+				tableModel.fireChange();
 			}
 		}
 
@@ -211,7 +211,7 @@ public class LocateTagsFrame extends JFrame
 		@Override
 		public int getRowCount()
 		{
-			return items.size();
+			return rows.size();
 		}
 
 		@Override
@@ -241,19 +241,19 @@ public class LocateTagsFrame extends JFrame
 		@Override
 		public Object getValueAt( final int rowIndex, final int columnIndex )
 		{
-			final SpotItem item = items.get( rowIndex );
+			final Row row = rows.get( rowIndex );
 			switch ( columnIndex )
 			{
 			case 0:
-				return item.spot.getTimepoint();
+				return row.spot.getTimepoint();
 			case 1:
-				return item.tag.label();
+				return row.tag.label();
 			case 2:
-				return new Color( item.tag.color() );
+				return new Color( row.tag.color() );
 			case 3:
-				return item.root;
+				return row.root;
 			case 4:
-				return item.spot.getLabel();
+				return row.spot.getLabel();
 			}
 			return null;
 		}
@@ -333,7 +333,7 @@ public class LocateTagsFrame extends JFrame
 		}
 	}
 
-	private class SpotItem
+	private class Row
 	{
 
 		private final TagSetStructure.Tag tag;
@@ -342,7 +342,7 @@ public class LocateTagsFrame extends JFrame
 
 		private final String root;
 
-		public SpotItem( final TagSetStructure.Tag tag, final Spot spot, final String root )
+		public Row( final TagSetStructure.Tag tag, final Spot spot, final String root )
 		{
 			this.tag = Objects.requireNonNull( tag );
 			this.spot = projectModel.getModel().getGraph().vertices().createRef();
@@ -375,7 +375,7 @@ public class LocateTagsFrame extends JFrame
 		for ( int i = min; i <= max; i++ )
 			if ( selection.isSelectedIndex( i ) )
 			{
-				final Spot spot = items.get( table.convertRowIndexToModel( i ) ).spot;
+				final Spot spot = rows.get( table.convertRowIndexToModel( i ) ).spot;
 				selectionModel.setSelected( spot, true );
 			}
 	}
@@ -388,10 +388,10 @@ public class LocateTagsFrame extends JFrame
 			final int leadSelectionIndex = selection.getLeadSelectionIndex();
 			if ( leadSelectionIndex < 0 )
 				return;
-			final SpotItem item = items.get( table.convertRowIndexToModel( leadSelectionIndex ) );
+			final Row row = rows.get( table.convertRowIndexToModel( leadSelectionIndex ) );
 			groupHandle.setGroupId( 0 );
-			navigationModel.notifyNavigateToVertex( item.spot );
-			focusModel.focusVertex( item.spot );
+			navigationModel.notifyNavigateToVertex( row.spot );
+			focusModel.focusVertex( row.spot );
 			selectionModel.clearSelection();
 		}
 		catch ( final IndexOutOfBoundsException e )
