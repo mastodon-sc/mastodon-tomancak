@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -80,11 +81,14 @@ public class LocateTagsFrame extends JFrame
 		initializeListeners( projectModel );
 		groupHandle = this.projectModel.getGroupManager().createGroupHandle();
 		setTitle( "Locate Tags" );
-		setLayout( new MigLayout( "insets dialog", "[grow]", "[][grow]" ) );
+		setLayout( new MigLayout( "insets dialog", "[grow]", "[][][grow]" ) );
 		add( new GroupLocksPanel( groupHandle ), "split" );
 		add( new Label( "Tag Set:" ) );
 		tagSetComboBox = new JComboBox<>();
 		add( tagSetComboBox, "grow, wrap, wmin 0" );
+		final JButton updateButton = new JButton( "update" );
+		updateButton.addActionListener( e -> SwingUtilities.invokeLater( this::fillList ) );
+		add( updateButton, "wrap" );
 		table = new JTable();
 		table.setAutoCreateRowSorter( true );
 		table.getSelectionModel().addListSelectionListener( e -> onSpotItemSelectionChanged() );
