@@ -20,6 +20,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -95,19 +96,22 @@ public class LocateTagsFrame extends JFrame
 		scrollPane.setPreferredSize( new Dimension( 200, 200 ) );
 		add( scrollPane, "span, grow" );
 		fillTagSetComboBox();
-		tagSetComboBox.addActionListener( e -> fillList() );
+		tagSetComboBox.addActionListener( e -> SwingUtilities.invokeLater( this::fillList ) );
 		navigationModel = groupHandle.getModel( this.projectModel.NAVIGATION );
 		focusModel = this.projectModel.getFocusModel();
 		selectionModel = this.projectModel.getSelectionModel();
 		spotToRow = new RefObjectHashMap<>( projectModel.getModel().getGraph().vertices().getRefPool() );
+		fillList();
 	}
 
 	private void initializeListeners( final ProjectModel projectModel )
 	{
 		final CloseListener projectCloseListener = this::dispose;
 		final MyGraphListener graphListener = new MyGraphListener();
+		final TagSetModel.TagSetModelListener tagSetListener = () -> SwingUtilities.invokeLater( this::fillTagSetComboBox );
 		projectModel.projectClosedListeners().add( projectCloseListener );
 		projectModel.getModel().getGraph().addGraphListener( graphListener );
+		projectModel.getModel().getTagSetModel().listeners().add( tagSetListener );
 		addWindowListener( new WindowAdapter()
 		{
 			@Override
@@ -115,6 +119,7 @@ public class LocateTagsFrame extends JFrame
 			{
 				projectModel.projectClosedListeners().remove( projectCloseListener );
 				projectModel.getModel().getGraph().removeGraphListener( graphListener );
+				projectModel.getModel().getTagSetModel().listeners().remove( tagSetListener );
 			}
 		} );
 	}
@@ -164,7 +169,7 @@ public class LocateTagsFrame extends JFrame
 		@Override
 		public void graphRebuilt()
 		{
-			fillList();
+			SwingUtilities.invokeLater( LocateTagsFrame.this::fillList );
 		}
 
 		@Override
@@ -313,8 +318,12 @@ public class LocateTagsFrame extends JFrame
 		final Model model = projectModel.getModel();
 		final TagSetModel< Spot, Link > tagSetModel = model.getTagSetModel();
 		final List< TagSetStructure.TagSet > tagSets = tagSetModel.getTagSetStructure().getTagSets();
+		final TagSetItem selectedItem = ( TagSetItem ) tagSetComboBox.getSelectedItem();
+		tagSetComboBox.removeAllItems();
 		for ( final TagSetStructure.TagSet tagSet : tagSets )
 			tagSetComboBox.addItem( new TagSetItem( tagSet ) );
+		if ( selectedItem != null )
+			tagSetComboBox.setSelectedItem( selectedItem );
 	}
 
 	private static class TagSetItem
@@ -330,6 +339,20 @@ public class LocateTagsFrame extends JFrame
 		public String toString()
 		{
 			return tagSet.getName();
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return tagSet.hashCode();
+		}
+
+		@Override
+		public boolean equals( final Object obj )
+		{
+			if ( obj instanceof TagSetItem )
+				return tagSet.equals( ( ( TagSetItem ) obj ).tagSet );
+			return false;
 		}
 	}
 
