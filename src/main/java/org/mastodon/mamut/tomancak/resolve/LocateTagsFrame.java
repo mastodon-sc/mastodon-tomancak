@@ -28,7 +28,10 @@ import javax.swing.table.TableModel;
 import net.miginfocom.swing.MigLayout;
 
 import org.mastodon.app.ui.GroupLocksPanel;
+import org.mastodon.collection.RefObjectMap;
 import org.mastodon.collection.RefSet;
+import org.mastodon.collection.ref.RefObjectHashMap;
+import org.mastodon.graph.GraphListener;
 import org.mastodon.graph.algorithm.RootFinder;
 import org.mastodon.graph.algorithm.traversal.DepthFirstIterator;
 import org.mastodon.graph.ref.IncomingEdges;
@@ -55,8 +58,6 @@ public class LocateTagsFrame extends JFrame
 
 	private final JTable table;
 
-	private final CloseListener projectCloseListener = this::dispose;
-
 	private final GroupHandle groupHandle;
 
 	private final NavigationHandler< Spot, Link > navigationModel;
@@ -68,6 +69,8 @@ public class LocateTagsFrame extends JFrame
 	private final MyTableModel dataModel = new MyTableModel();
 
 	private List< SpotItem > items = Collections.emptyList();
+
+	private final RefObjectMap< Spot, SpotItem > itemMap;
 
 	public LocateTagsFrame( final ProjectModel projectModel )
 	{
@@ -96,24 +99,24 @@ public class LocateTagsFrame extends JFrame
 		navigationModel = groupHandle.getModel( this.projectModel.NAVIGATION );
 		focusModel = this.projectModel.getFocusModel();
 		selectionModel = this.projectModel.getSelectionModel();
+		itemMap = new RefObjectHashMap<>( projectModel.getModel().getGraph().vertices().getRefPool() );
 	}
 
 	private void initializeListeners( final ProjectModel projectModel )
 	{
+		final CloseListener projectCloseListener = this::dispose;
+		final MyGraphListener graphListener = new MyGraphListener();
+		projectModel.projectClosedListeners().add( projectCloseListener );
+		projectModel.getModel().getGraph().addGraphListener( graphListener );
 		addWindowListener( new WindowAdapter()
 		{
 			@Override
 			public void windowClosed( final WindowEvent e )
 			{
-				onClose();
+				projectModel.projectClosedListeners().remove( projectCloseListener );
+				projectModel.getModel().getGraph().removeGraphListener( graphListener );
 			}
 		} );
-		projectModel.projectClosedListeners().add( projectCloseListener );
-	}
-
-	private void onClose()
-	{
-		projectModel.projectClosedListeners().remove( projectCloseListener );
 	}
 
 	public static void run( final ProjectModel pluginAppModel )
@@ -146,10 +149,55 @@ public class LocateTagsFrame extends JFrame
 				items.add( new SpotItem( tag, spot, root.getLabel() ) );
 			}
 		}
+		// TODO fix sorting
 		items.sort( Comparator.comparing( SpotItem::toString ) );
+		// fill itemMap
+		itemMap.clear();
+		for ( final SpotItem spotItem : items )
+			itemMap.put( spotItem.spot, spotItem );
 		this.items = items;
 		dataModel.fireChange();
 	}
+
+	private class MyGraphListener implements GraphListener< Spot, Link >
+	{
+		@Override
+		public void graphRebuilt()
+		{
+			fillList();
+		}
+
+		@Override
+		public void vertexAdded( Spot spot )
+		{
+
+		}
+
+		@Override
+		public void vertexRemoved( Spot spot )
+		{
+			final SpotItem item = itemMap.get( spot );
+			if ( item != null )
+			{
+				items.remove( item );
+				itemMap.remove( spot );
+				dataModel.fireChange();
+			}
+		}
+
+		@Override
+		public void edgeAdded( Link link )
+		{
+
+		}
+
+		@Override
+		public void edgeRemoved( Link link )
+		{
+
+		}
+	}
+
 
 	private class MyTableModel implements TableModel
 	{
