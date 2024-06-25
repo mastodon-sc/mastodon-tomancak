@@ -15,18 +15,18 @@ public class DetectOverlappingSpotsView extends DefaultCancelable implements Com
 	 */
 	private static final double FEW_CONFLICTS_THRESHOLD = 0.3;
 
-	private static final String FEW_CONFLICTS = "find less conflicts (threshold = 0.3)";
+	private static final String FEW_CONFLICTS = "Find less conflicts (threshold = 0.3)";
 
 	private static final double DEFAULT_THRESHOLD = 0.5;
 
-	private static final String DEFAULT = "default (threshold = 0.5)";
+	private static final String DEFAULT = "Default (threshold = 0.5)";
 
 	/**
 	 * Two spheres that slightly touch are considered to be in conflict.
 	 */
 	private static final double MANY_CONFLICTS_THRESHOLD = 0.7;
 
-	private static final String MANY_CONFLICTS = "find more conflicts (threshold = 0.7)";
+	private static final String MANY_CONFLICTS = "Find more conflicts (threshold = 0.7)";
 
 	private static final String CUSTOM = "Use custom threshold";
 
