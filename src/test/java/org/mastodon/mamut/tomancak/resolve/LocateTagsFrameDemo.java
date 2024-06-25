@@ -17,7 +17,7 @@ public class LocateTagsFrameDemo
 		final Context context = new Context();
 		context.service( UIService.class ).showUI();
 		final ProjectModel projectModel = ProjectLoader.open( "/home/arzt/Datasets/DeepLineage/Trackathon/try_resolve_conflicts.mastodon", context );
-		DetectOverlappingSpots.run( projectModel.getModel(), "Overlapping Spots", 0.4 );
+		CreateConflictTagSet.run( projectModel.getModel(), "Conflicting Spots", 0.5 );
 		final MainWindow mainWindow = new MainWindow( projectModel );
 		mainWindow.setDefaultCloseOperation( MainWindow.DISPOSE_ON_CLOSE );
 		mainWindow.setVisible( true );

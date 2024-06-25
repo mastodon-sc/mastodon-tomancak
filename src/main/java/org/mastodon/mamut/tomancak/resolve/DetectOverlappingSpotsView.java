@@ -49,7 +49,7 @@ public class DetectOverlappingSpotsView extends DefaultCancelable implements Com
 	public void run()
 	{
 		final double threshold = getThreshold();
-		final String tagSetName = String.format( "Overlapping Spots (threshold=%1.2f)", threshold );
+		final String tagSetName = String.format( "Conflicting Spots (threshold=%1.2f)", threshold );
 		DetectOverlappingSpots.run( projectModel.getModel(), tagSetName, threshold );
 	}
 

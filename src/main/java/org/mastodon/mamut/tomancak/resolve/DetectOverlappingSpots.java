@@ -65,7 +65,7 @@ public class DetectOverlappingSpots
 		for ( int timepoint = minTimepoint; timepoint <= maxTimepoint; timepoint++ )
 		{
 			final SpatialIndex< Spot > frame = model.getSpatioTemporalIndex().getSpatialIndex( timepoint );
-			for ( final Set< Spot > conflict : findConflicts( model.getGraph(), frame, threshold ) )
+			for ( final Set< Spot > conflict : findConflictsForFrame( model.getGraph(), frame, threshold ) )
 				addConflict( model, conflict, branchIds, conflictGroups );
 		}
 		return conflictGroups;
@@ -93,7 +93,7 @@ public class DetectOverlappingSpots
 		{
 			final TIntSet key = keys.get( i );
 			for ( int k = 0; k < key.size(); k++ )
-				tagsAndColors.add( Pair.of( "Conflict " + i + " " + getLetters( k ), getColor( j++ ) ) );
+				tagsAndColors.add( Pair.of( "Conflict " + i + " (" + getLetters( k ) + ")", getColor( j++ ) ) );
 		}
 		final TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( model, tagSetName, tagsAndColors );
 		final List< TagSetStructure.Tag > tags = tagSet.getTags();
@@ -118,11 +118,11 @@ public class DetectOverlappingSpots
 	static String getLetters( int index )
 	{
 		if ( index == 0 )
-			return "A";
+			return "a";
 		final StringBuilder sb = new StringBuilder();
 		while ( index >= 0 )
 		{
-			sb.append( ( char ) ( 'A' + index % 26 ) );
+			sb.append( ( char ) ( 'a' + index % 26 ) );
 			index /= 26;
 			index--;
 		}
@@ -160,13 +160,19 @@ public class DetectOverlappingSpots
 		return branchIdsInConflict;
 	}
 
-	private static List< Set< Spot > > findConflicts( final ModelGraph graph, final SpatialIndex< Spot > frame, final double threshold )
+	/**
+	 * For the given frame, return a list of sets of spots that are in conflict.
+	 * Two spots are in conflict if their Hellinger distance is less than the threshold.
+	 */
+	private static List< Set< Spot > > findConflictsForFrame( final ModelGraph graph, final SpatialIndex< Spot > frame, final double threshold )
 	{
+		// This method returns the connected components of the conflict graph.
+		// Reimplementing this method with a proper connected components algorithm would be a good idea.
 		final IncrementalNearestNeighborSearch< Spot > nearestNeighbors = frame.getIncrementalNearestNeighborSearch();
 		final RefObjectMap< Spot, Set< Spot > > conflicts = new RefObjectHashMap<>( graph.vertices().getRefPool() );
 		for ( final Spot spot : frame )
 		{
-			final RefSet< Spot > group = findOverlaps( graph, spot, nearestNeighbors, threshold );
+			final RefSet< Spot > group = findConflictsForSpot( graph, spot, nearestNeighbors, threshold );
 			if ( group != null && !group.isEmpty() )
 			{
 				group.add( spot );
@@ -176,8 +182,18 @@ public class DetectOverlappingSpots
 		return new ArrayList<>( conflicts.values() );
 	}
 
-	private static RefSet< Spot > findOverlaps( final ModelGraph graph, final Spot spot, final IncrementalNearestNeighborSearch< Spot > nearestNeighbors, final double threshold )
+	/**
+	 * Return a set of spots that the given spot is in conflict with.
+	 * Two spots are in conflict if their Hellinger distance is less than the threshold.
+	 * <p>
+	 * For efficiency, we only check the 10 nearest neighbors.
+	 */
+	private static RefSet< Spot > findConflictsForSpot( final ModelGraph graph, final Spot spot, final IncrementalNearestNeighborSearch< Spot > nearestNeighbors, final double threshold )
 	{
+		// NB: Having a fixed number of neighbors to check is a bad idea.
+		//    This is a quick hack to make the method run in reasonable time.
+		//    It would be better to derive a distance threshold from the Hellinger
+		//    distance equation, Hellinger distance threshold and the spot radius.
 		RefSet< Spot > group = null;
 		nearestNeighbors.search( spot );
 		for ( int i = 0; i < 10; i++ )
@@ -187,8 +203,8 @@ public class DetectOverlappingSpots
 			final Spot neighbor = nearestNeighbors.next();
 			if ( spot.equals( neighbor ) )
 				continue;
-			final boolean overlap = HellingerDistance.hellingerDistance( spot, neighbor ) < threshold;
-			if ( overlap )
+			final boolean conflict = HellingerDistance.hellingerDistance( spot, neighbor ) < threshold;
+			if ( conflict )
 			{
 				if ( null == group )
 					group = new RefSetImp<>( graph.vertices().getRefPool() );
