@@ -108,7 +108,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private static final String FUSE_SPOTS = "[tomancak] fuse selected spots";
 
-	private static final String LOCATE_TAGS = "[tomancak] find tags";
+	private static final String LOCATE_TAGS = "[tomancak] locate tags";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "ctrl E" };
@@ -161,7 +161,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( MIRROR_SPOTS, "Mirror Spots Along X-Axis" );
 		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create Conflict Tag Set" );
 		menuTexts.put( FUSE_SPOTS, "Fuse Selected Spots" );
-		menuTexts.put( LOCATE_TAGS, "Find Tags" );
+		menuTexts.put( LOCATE_TAGS, "Locate Tags" );
 	}
 
 	/*
