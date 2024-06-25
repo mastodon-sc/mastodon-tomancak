@@ -33,7 +33,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 
-public class DetectOverlappingSpots
+public class CreateConflictTagSet
 {
 	public static void run( final Model model, final String tagSetName, final double threshold )
 	{

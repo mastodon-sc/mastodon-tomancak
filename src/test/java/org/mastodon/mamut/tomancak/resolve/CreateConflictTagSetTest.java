@@ -8,7 +8,7 @@ import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.util.TagHelper;
 
-public class DetectOverlappingSpotsTest
+public class CreateConflictTagSetTest
 {
 	@Test
 	public void test()
@@ -17,7 +17,7 @@ public class DetectOverlappingSpotsTest
 		addShortTack( model, 1, 2, 3, 1.1, 2.1, 3.1 );
 		addShortTack( model, 5, 3, 4, 5.1, 3.1, 4.1 );
 		addShortTack( model, 5, 3.2, 4, 5.1, 3.2, 4.1 );
-		DetectOverlappingSpots.run( model, "Conflicting Spots", 0.4 );
+		CreateConflictTagSet.run( model, "Conflicting Spots", 0.4 );
 		assertEquals( 2, new TagHelper( model, "Conflicting Spots", "Conflict 0 (a)" ).getTaggedSpots().size() );
 		assertEquals( 2, new TagHelper( model, "Conflicting Spots", "Conflict 0 (b)" ).getTaggedSpots().size() );
 	}
@@ -33,16 +33,16 @@ public class DetectOverlappingSpotsTest
 	@Test
 	public void testGetLetters()
 	{
-		assertEquals( "a", DetectOverlappingSpots.getLetters( 0 ) );
-		assertEquals( "b", DetectOverlappingSpots.getLetters( 1 ) );
-		assertEquals( "z", DetectOverlappingSpots.getLetters( 25 ) );
-		assertEquals( "aa", DetectOverlappingSpots.getLetters( 26 ) );
-		assertEquals( "az", DetectOverlappingSpots.getLetters( 51 ) );
-		assertEquals( "ba", DetectOverlappingSpots.getLetters( 52 ) );
-		assertEquals( "bz", DetectOverlappingSpots.getLetters( 77 ) );
-		assertEquals( "ca", DetectOverlappingSpots.getLetters( 78 ) );
-		assertEquals( "zz", DetectOverlappingSpots.getLetters( 701 ) );
-		assertEquals( "aaa", DetectOverlappingSpots.getLetters( 702 ) );
-		assertEquals( "aaz", DetectOverlappingSpots.getLetters( 727 ) );
+		assertEquals( "a", CreateConflictTagSet.getLetters( 0 ) );
+		assertEquals( "b", CreateConflictTagSet.getLetters( 1 ) );
+		assertEquals( "z", CreateConflictTagSet.getLetters( 25 ) );
+		assertEquals( "aa", CreateConflictTagSet.getLetters( 26 ) );
+		assertEquals( "az", CreateConflictTagSet.getLetters( 51 ) );
+		assertEquals( "ba", CreateConflictTagSet.getLetters( 52 ) );
+		assertEquals( "bz", CreateConflictTagSet.getLetters( 77 ) );
+		assertEquals( "ca", CreateConflictTagSet.getLetters( 78 ) );
+		assertEquals( "zz", CreateConflictTagSet.getLetters( 701 ) );
+		assertEquals( "aaa", CreateConflictTagSet.getLetters( 702 ) );
+		assertEquals( "aaz", CreateConflictTagSet.getLetters( 727 ) );
 	}
 }

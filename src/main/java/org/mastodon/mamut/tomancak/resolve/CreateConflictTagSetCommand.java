@@ -8,7 +8,7 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 @Plugin( type = Command.class, name = "Create Conflict Tag Set" )
-public class DetectOverlappingSpotsView extends DefaultCancelable implements Command
+public class CreateConflictTagSetCommand extends DefaultCancelable implements Command
 {
 	/**
 	 * Only spheres that strongly overlap are considered to be in conflict.
@@ -42,7 +42,7 @@ public class DetectOverlappingSpotsView extends DefaultCancelable implements Com
 	public static void run( final ProjectModel projectModel )
 	{
 		final CommandService cmd = projectModel.getContext().service( CommandService.class );
-		cmd.run( DetectOverlappingSpotsView.class, true, "projectModel", projectModel );
+		cmd.run( CreateConflictTagSetCommand.class, true, "projectModel", projectModel );
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class DetectOverlappingSpotsView extends DefaultCancelable implements Com
 	{
 		final double threshold = getThreshold();
 		final String tagSetName = String.format( "Conflicting Spots (threshold=%1.2f)", threshold );
-		DetectOverlappingSpots.run( projectModel.getModel(), tagSetName, threshold );
+		CreateConflictTagSet.run( projectModel.getModel(), tagSetName, threshold );
 	}
 
 	private double getThreshold()
