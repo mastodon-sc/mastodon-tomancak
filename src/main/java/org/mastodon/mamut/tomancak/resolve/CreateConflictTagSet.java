@@ -35,14 +35,14 @@ import gnu.trove.set.hash.TIntHashSet;
 
 public class CreateConflictTagSet
 {
-	public static void run( final Model model, final String tagSetName, final double threshold )
+	public static TagSetStructure.TagSet run( final Model model, final String tagSetName, final double threshold )
 	{
 		final ModelGraph graph = model.getGraph();
 		final ReentrantReadWriteLock.WriteLock lock = graph.getLock().writeLock();
 		lock.lock();
 		try
 		{
-			createTagSet( model, tagSetName, threshold );
+			return createTagSet( model, tagSetName, threshold );
 		}
 		finally
 		{
@@ -50,11 +50,11 @@ public class CreateConflictTagSet
 		}
 	}
 
-	private static void createTagSet( final Model model, final String tagSetName, final double threshold )
+	private static TagSetStructure.TagSet createTagSet( final Model model, final String tagSetName, final double threshold )
 	{
 		final RefIntMap< Spot > branchIds = getBranchIdMap( model );
 		final Map< TIntSet, RefList< Spot > > conflictGroups = computeConflictGroups( model, branchIds, threshold );
-		addTagSets( model, tagSetName, conflictGroups, branchIds );
+		return addTagSet( model, tagSetName, conflictGroups, branchIds );
 	}
 
 	private static Map< TIntSet, RefList< Spot > > computeConflictGroups( final Model model, final RefIntMap< Spot > branchIds, final double threshold )
@@ -83,7 +83,7 @@ public class CreateConflictTagSet
 		sets.addAll( conflict );
 	}
 
-	private static void addTagSets( final Model model, final String tagSetName, final Map< TIntSet, RefList< Spot > > conflictGroups, final RefIntMap< Spot > branchIds )
+	private static TagSetStructure.TagSet addTagSet( final Model model, final String tagSetName, final Map< TIntSet, RefList< Spot > > conflictGroups, final RefIntMap< Spot > branchIds )
 	{
 
 		final ArrayList< Pair< String, Integer > > tagsAndColors = new ArrayList<>();
@@ -110,6 +110,7 @@ public class CreateConflictTagSet
 				TagSetUtils.tagSpotAndIncomingEdges( model, spot, tagSet, tag );
 			}
 		}
+		return tagSet;
 	}
 
 	/**

@@ -74,6 +74,31 @@ public class LocateTagsFrame extends JFrame
 
 	private final RefObjectMap< Spot, Row > spotToRow;
 
+	public static void run( final ProjectModel projectModel )
+	{
+		run( projectModel, null );
+	}
+
+	public static void run( final ProjectModel projectModel, final TagSetStructure.TagSet tagSet )
+	{
+		final LocateTagsFrame locateTagsFrame = new LocateTagsFrame( projectModel );
+		locateTagsFrame.setSize( 400, 600 );
+		locateTagsFrame.setVisible( true );
+		if ( tagSet != null )
+			locateTagsFrame.setTagSet( tagSet );
+	}
+
+	private void setTagSet( final TagSetStructure.TagSet tagSet )
+	{
+		final int count = tagSetComboBox.getItemCount();
+		for ( int i = 0; i < count; i++ )
+			if ( tagSet.equals( tagSetComboBox.getItemAt( i ).tagSet ) )
+			{
+				tagSetComboBox.setSelectedIndex( i );
+				break;
+			}
+	}
+
 	public LocateTagsFrame( final ProjectModel projectModel )
 	{
 		this.projectModel = projectModel;
@@ -128,22 +153,21 @@ public class LocateTagsFrame extends JFrame
 		} );
 	}
 
-	public static void run( final ProjectModel pluginAppModel )
-	{
-		final LocateTagsFrame locateTagsFrame = new LocateTagsFrame( pluginAppModel );
-		locateTagsFrame.setSize( 400, 600 );
-		locateTagsFrame.setVisible( true );
-	}
-
 	private void fillList()
 	{
 		final Model model = projectModel.getModel();
-		final ModelGraph graph = model.getGraph();
-		// iterate over the graph in trackscheme order
 		final TagSetItem item = ( TagSetItem ) tagSetComboBox.getSelectedItem();
+		this.rows = item == null ? Collections.emptyList() : getRows( model, item.tagSet );
+		updateSpotToRows( this.rows );
+		tableModel.fireChange();
+	}
+
+	private static List< Row > getRows( final Model model, final TagSetStructure.TagSet tagSet )
+	{
+		final ModelGraph graph = model.getGraph();
 		final RefSet< Spot > roots = RootFinder.getRoots( graph );
 		final DepthFirstIterator< Spot, Link > depthFirstIterator = new DepthFirstIterator<>( graph );
-		final ObjTagMap< Spot, TagSetStructure.Tag > spotToTag = model.getTagSetModel().getVertexTags().tags( item.tagSet );
+		final ObjTagMap< Spot, TagSetStructure.Tag > spotToTag = model.getTagSetModel().getVertexTags().tags( tagSet );
 		final Spot ref = graph.vertexRef();
 		final List< Row > rows = new ArrayList<>();
 		for ( final Spot root : roots )
@@ -155,18 +179,21 @@ public class LocateTagsFrame extends JFrame
 				final TagSetStructure.Tag tag = spotToTag.get( spot );
 				if ( !entryPoint( spotToTag, spot, tag, ref ) )
 					continue;
-				rows.add( new Row( tag, spot, root.getLabel() ) );
+				rows.add( new Row( graph, tag, spot, root.getLabel() ) );
 			}
 		}
 		// TODO fix sorting
 		rows.sort( Comparator.comparing( Row::toString ) );
-		// fill spotToRow
+		return rows;
+	}
+
+	private void updateSpotToRows( final List< Row > rows )
+	{
 		spotToRow.clear();
 		for ( final Row row : rows )
 			spotToRow.put( row.spot, row );
-		this.rows = rows;
-		tableModel.fireChange();
 	}
+
 
 	private class MyGraphListener implements GraphListener< Spot, Link >
 	{
@@ -177,13 +204,13 @@ public class LocateTagsFrame extends JFrame
 		}
 
 		@Override
-		public void vertexAdded( Spot spot )
+		public void vertexAdded( final Spot spot )
 		{
 
 		}
 
 		@Override
-		public void vertexRemoved( Spot spot )
+		public void vertexRemoved( final Spot spot )
 		{
 			final Row row = spotToRow.get( spot );
 			if ( row != null )
@@ -195,13 +222,13 @@ public class LocateTagsFrame extends JFrame
 		}
 
 		@Override
-		public void edgeAdded( Link link )
+		public void edgeAdded( final Link link )
 		{
 
 		}
 
 		@Override
-		public void edgeRemoved( Link link )
+		public void edgeRemoved( final Link link )
 		{
 
 		}
@@ -304,8 +331,7 @@ public class LocateTagsFrame extends JFrame
 		}
 	}
 
-
-	private boolean entryPoint( final ObjTagMap< Spot, TagSetStructure.Tag > spotToTag, final Spot spot, final TagSetStructure.Tag tag, final Spot ref )
+	private static boolean entryPoint( final ObjTagMap< Spot, TagSetStructure.Tag > spotToTag, final Spot spot, final TagSetStructure.Tag tag, final Spot ref )
 	{
 		if ( tag == null )
 			return false;
@@ -360,7 +386,7 @@ public class LocateTagsFrame extends JFrame
 		}
 	}
 
-	private class Row
+	private static class Row
 	{
 
 		private final TagSetStructure.Tag tag;
@@ -369,10 +395,10 @@ public class LocateTagsFrame extends JFrame
 
 		private final String root;
 
-		public Row( final TagSetStructure.Tag tag, final Spot spot, final String root )
+		public Row( final ModelGraph graph, final TagSetStructure.Tag tag, final Spot spot, final String root )
 		{
 			this.tag = Objects.requireNonNull( tag );
-			this.spot = projectModel.getModel().getGraph().vertices().createRef();
+			this.spot = graph.vertexRef();
 			this.spot.refTo( spot );
 			this.root = root;
 		}
