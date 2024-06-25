@@ -38,16 +38,20 @@ public class CreateConflictTagSet
 	public static TagSetStructure.TagSet run( final Model model, final String tagSetName, final double threshold )
 	{
 		final ModelGraph graph = model.getGraph();
+		TagSetStructure.TagSet tagSet;
 		final ReentrantReadWriteLock.WriteLock lock = graph.getLock().writeLock();
 		lock.lock();
 		try
 		{
-			return createTagSet( model, tagSetName, threshold );
+			tagSet = createTagSet( model, tagSetName, threshold );
+			model.setUndoPoint();
 		}
 		finally
 		{
 			lock.unlock();
 		}
+		graph.notifyGraphChanged();
+		return tagSet;
 	}
 
 	private static TagSetStructure.TagSet createTagSet( final Model model, final String tagSetName, final double threshold )
