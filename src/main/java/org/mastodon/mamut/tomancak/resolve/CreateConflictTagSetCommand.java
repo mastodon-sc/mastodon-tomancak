@@ -3,6 +3,7 @@ package org.mastodon.mamut.tomancak.resolve;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.tomancak.util.DefaultCancelable;
 import org.mastodon.model.tag.TagSetStructure;
+import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
 import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
@@ -30,6 +31,26 @@ public class CreateConflictTagSetCommand extends DefaultCancelable implements Co
 	private static final String MANY_CONFLICTS = "Find more conflicts (threshold = 0.7)";
 
 	private static final String CUSTOM = "Use custom threshold";
+
+	@Parameter( visibility = ItemVisibility.MESSAGE )
+	private final String description = "<html>"
+			+ "\n<body width=15cm align=left>"
+			+ "\n<h3>Create Conflict Tag Set</h3>"
+			+ "\n<p>"
+			+ "\nSearches for conflict / overlap between the spots in the tracking data."
+			+ "\n</p>"
+			+ "\n<p>"
+			+ "\nA new tag set with the name \"Conflicting Spots\" that contains"
+			+ "\ntags for all the conflicts found is created."
+			+ "\n</p>"
+			+ "\n<p>"
+			+ "\nTwo spots are considered to be in conflict if the overlap."
+			+ "\nMore previsely, the Hellinger distance between the spots is computed."
+			+ "\nThe spots are considered to be in conflict, if the distance is below the given threshold."
+			+ "\n</p>"
+			+ "\n</body>"
+			+ "\n</html>";
+
 
 	@Parameter
 	private ProjectModel projectModel;
