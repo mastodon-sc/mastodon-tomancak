@@ -17,7 +17,7 @@ import org.mastodon.mamut.model.Spot;
 import org.mastodon.util.TagHelper;
 import org.mastodon.util.TagSetUtils;
 
-public class AverageSpotsTest
+public class FuseSpotsTest
 {
 	@Test
 	public void testRun()
@@ -47,7 +47,7 @@ public class AverageSpotsTest
 		tagB.tagLink( graph.addEdge( b2, b3 ).init() );
 		tagB.tagLink( graph.addEdge( b3, b4 ).init() );
 
-		AverageSpots.run( model, Arrays.asList( a2, a3, b2, b3 ), a2 );
+		FuseSpots.run( model, Arrays.asList( a2, a3, b2, b3 ), a2 );
 
 		assertEquals( 6, graph.vertices().size() );
 		assertArrayEquals( new double[] { 2, 1.5, 1 }, a2.positionAsDoubleArray(), 1e-10 );

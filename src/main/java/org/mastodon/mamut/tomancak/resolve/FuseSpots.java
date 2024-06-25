@@ -18,7 +18,7 @@ import org.mastodon.model.tag.ObjTags;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 
-public class AverageSpots
+public class FuseSpots
 {
 
 	public static void run( final ProjectModel projectModel ) {
