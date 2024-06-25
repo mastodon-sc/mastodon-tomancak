@@ -140,7 +140,7 @@ public class CreateConflictTagSet
 	 */
 	private static int getColor( final int index )
 	{
-		return Glasbey.GLASBEY[ index % 251 + 5 ];
+		return Glasbey.GLASBEY_LIGHT[ index % ( Glasbey.GLASBEY_LIGHT.length - 1 ) + 1 ];
 	}
 
 	private static RefIntMap< Spot > getBranchIdMap( final Model model )
