@@ -8,6 +8,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -30,6 +31,8 @@ import javax.swing.table.TableModel;
 import net.miginfocom.swing.MigLayout;
 
 import org.mastodon.app.ui.GroupLocksPanel;
+import org.mastodon.collection.RefCollections;
+import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefObjectMap;
 import org.mastodon.collection.RefSet;
 import org.mastodon.collection.ref.RefObjectHashMap;
@@ -74,6 +77,8 @@ public class LocateTagsFrame extends JFrame
 
 	private final RefObjectMap< Spot, Row > spotToRow;
 
+	private boolean pauseSelectionNotifications = false;
+
 	public static void run( final ProjectModel projectModel )
 	{
 		run( projectModel, null );
@@ -113,7 +118,10 @@ public class LocateTagsFrame extends JFrame
 		add( tagSetComboBox, "grow, wrap, wmin 0" );
 		final JButton updateButton = new JButton( "update" );
 		updateButton.addActionListener( e -> SwingUtilities.invokeLater( this::fillList ) );
-		add( updateButton, "wrap" );
+		add( updateButton, "span, split" );
+		final JButton removeTagButton = new JButton( "remove selected tags" );
+		removeTagButton.addActionListener( e -> removeSelectedTagsClicked( projectModel ) );
+		add( removeTagButton, "wrap" );
 		table = new JTable();
 		table.setAutoCreateRowSorter( true );
 		table.getSelectionModel().addListSelectionListener( e -> onSpotItemSelectionChanged() );
@@ -131,6 +139,17 @@ public class LocateTagsFrame extends JFrame
 		selectionModel = this.projectModel.getSelectionModel();
 		spotToRow = new RefObjectHashMap<>( projectModel.getModel().getGraph().vertices().getRefPool() );
 		fillList();
+	}
+
+	private void removeSelectedTagsClicked( final ProjectModel projectModel )
+	{
+		final TagSetItem selectedItem = ( TagSetItem ) tagSetComboBox.getSelectedItem();
+		if ( selectedItem == null )
+			return;
+		final Collection< Spot > selectedVertices = getSpotSelectedInTable();
+		if ( selectedVertices.isEmpty() )
+			return;
+		RemoveTagComponents.run( projectModel, selectedItem.tagSet, selectedVertices );
 	}
 
 	private void initializeListeners( final ProjectModel projectModel )
@@ -302,9 +321,17 @@ public class LocateTagsFrame extends JFrame
 
 		public void fireChange()
 		{
-			final TableModelEvent e = new TableModelEvent( this );
-			for ( final TableModelListener listener : listeners )
-				listener.tableChanged( e );
+			pauseSelectionNotifications = true;
+			try
+			{
+				final TableModelEvent e = new TableModelEvent( this );
+				for ( final TableModelListener listener : listeners )
+					listener.tableChanged( e );
+			}
+			finally
+			{
+				pauseSelectionNotifications = false;
+			}
 		}
 
 		@Override
@@ -412,25 +439,34 @@ public class LocateTagsFrame extends JFrame
 
 	private void onSpotItemSelectionChanged()
 	{
+		if ( pauseSelectionNotifications )
+			return;
 		updateLeadSelection();
 		updateMultiSelection();
 	}
 
 	private void updateMultiSelection()
 	{
+		final Collection< Spot > spots = getSpotSelectedInTable();
+		if ( spots.isEmpty() )
+			return;
+		selectionModel.clearSelection();
+		selectionModel.setVerticesSelected( spots, true );
+	}
+
+	private Collection< Spot > getSpotSelectedInTable()
+	{
 		final ListSelectionModel selection = table.getSelectionModel();
 		final int min = selection.getMinSelectionIndex();
 		final int max = selection.getMaxSelectionIndex();
 		if ( min < 0 || max < 0 )
-			return;
+			return Collections.emptyList();
 
-		selectionModel.clearSelection();
+		final RefList< Spot > spots = RefCollections.createRefList( projectModel.getModel().getGraph().vertices() );
 		for ( int i = min; i <= max; i++ )
 			if ( selection.isSelectedIndex( i ) )
-			{
-				final Spot spot = rows.get( table.convertRowIndexToModel( i ) ).spot;
-				selectionModel.setSelected( spot, true );
-			}
+				spots.add( rows.get( table.convertRowIndexToModel( i ) ).spot );
+		return spots;
 	}
 
 	private void updateLeadSelection()
