@@ -36,6 +36,7 @@ import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefObjectMap;
 import org.mastodon.collection.RefSet;
 import org.mastodon.collection.ref.RefObjectHashMap;
+import org.mastodon.graph.GraphChangeListener;
 import org.mastodon.graph.GraphListener;
 import org.mastodon.graph.algorithm.RootFinder;
 import org.mastodon.graph.algorithm.traversal.DepthFirstIterator;
@@ -156,9 +157,11 @@ public class LocateTagsFrame extends JFrame
 	{
 		final CloseListener projectCloseListener = this::dispose;
 		final MyGraphListener graphListener = new MyGraphListener();
+		final GraphChangeListener graphChangeListener = () -> SwingUtilities.invokeLater( this::fillList );
 		final TagSetModel.TagSetModelListener tagSetListener = () -> SwingUtilities.invokeLater( this::fillTagSetComboBox );
 		projectModel.projectClosedListeners().add( projectCloseListener );
 		projectModel.getModel().getGraph().addGraphListener( graphListener );
+		projectModel.getModel().getGraph().addGraphChangeListener( graphChangeListener );
 		projectModel.getModel().getTagSetModel().listeners().add( tagSetListener );
 		addWindowListener( new WindowAdapter()
 		{
@@ -167,6 +170,7 @@ public class LocateTagsFrame extends JFrame
 			{
 				projectModel.projectClosedListeners().remove( projectCloseListener );
 				projectModel.getModel().getGraph().removeGraphListener( graphListener );
+				projectModel.getModel().getGraph().removeGraphChangeListener( graphChangeListener );
 				projectModel.getModel().getTagSetModel().listeners().remove( tagSetListener );
 			}
 		} );
