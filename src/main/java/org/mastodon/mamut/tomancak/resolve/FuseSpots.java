@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.swing.JOptionPane;
+
 import net.imglib2.util.LinAlgHelpers;
 
 import org.mastodon.collection.RefList;
@@ -26,20 +28,39 @@ public class FuseSpots
 	public static void run( final ProjectModel projectModel ) {
 		final Model model = projectModel.getModel();
 		final ModelGraph graph = projectModel.getModel().getGraph();
-		final ReentrantReadWriteLock.WriteLock lock = graph.getLock().writeLock();
-		lock.lock();
+		final RefSet< Spot > spots = projectModel.getSelectionModel().getSelectedVertices();
+
+		if ( spots.isEmpty() )
+		{
+			JOptionPane.showMessageDialog( null, "Please select at least two spots to fuse." );
+			return;
+		}
+
 		try
 		{
-			final RefSet< Spot > spots = projectModel.getSelectionModel().getSelectedVertices();
-			final Spot focus = projectModel.getFocusModel().getFocusedVertex( graph.vertexRef() );
-			run( model, spots, focus );
-			model.setUndoPoint();
+			final ReentrantReadWriteLock.WriteLock lock = graph.getLock().writeLock();
+			lock.lock();
+			try
+			{
+				final Spot focus = projectModel.getFocusModel().getFocusedVertex( graph.vertexRef() );
+				run( model, spots, focus );
+				model.setUndoPoint();
+			}
+			finally
+			{
+				lock.unlock();
+			}
+			graph.notifyGraphChanged();
 		}
-		finally
+		catch ( final FuseSpotSelectionException e )
 		{
-			lock.unlock();
+			JOptionPane.showMessageDialog( null,
+					"The selection of spots does not fulfill the requirement for \"fuse spots\".\n\n"
+							+ "Make sure to only select branches with no division and no merging events.\n"
+							+ "All selected branches must have the same number of spots and the same timepoints.",
+					"Fuse Spots: Invalid Selection",
+					JOptionPane.ERROR_MESSAGE );
 		}
-		graph.notifyGraphChanged();
 	}
 
 	public static void run( final Model model, final Collection< Spot > spots, final Spot focus )
