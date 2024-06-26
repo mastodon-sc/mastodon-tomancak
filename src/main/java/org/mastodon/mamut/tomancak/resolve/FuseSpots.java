@@ -8,7 +8,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.imglib2.util.LinAlgHelpers;
 
 import org.mastodon.collection.RefList;
+import org.mastodon.collection.RefSet;
 import org.mastodon.collection.ref.RefArrayList;
+import org.mastodon.graph.ref.OutgoingEdges;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
@@ -28,7 +30,7 @@ public class FuseSpots
 		lock.lock();
 		try
 		{
-			final Collection< Spot > spots = projectModel.getSelectionModel().getSelectedVertices();
+			final RefSet< Spot > spots = projectModel.getSelectionModel().getSelectedVertices();
 			final Spot focus = projectModel.getFocusModel().getFocusedVertex( graph.vertexRef() );
 			run( model, spots, focus );
 			model.setUndoPoint();
@@ -43,10 +45,8 @@ public class FuseSpots
 	public static void run( final Model model, final Collection< Spot > spots, final Spot focus )
 	{
 		final ModelGraph graph = model.getGraph();
-		final int minTimepoint = spots.stream().mapToInt( Spot::getTimepoint ).min().orElse( Integer.MAX_VALUE );
-		final int maxTimepoint = spots.stream().mapToInt( Spot::getTimepoint ).max().orElse( Integer.MIN_VALUE );
 
-		final List< RefList< Spot > > tracks = extractTracks( graph, spots, minTimepoint, maxTimepoint );
+		final List< RefList< Spot > > tracks = extractTracks( graph, spots );
 		RefList< Spot > focusedTrack = focus == null ? tracks.get( 0 ) : findFocusedTrack( tracks, focus );
 		focusedTrack = focusedTrack == null ? tracks.get( 0 ) : focusedTrack;
 		final ArrayList< RefList< Spot > > nonFocusedTracks = new ArrayList<>( tracks );
@@ -90,9 +90,18 @@ public class FuseSpots
 	private static void copyEdge( final Model model, final Link edge, final Spot source, final Spot target )
 	{
 		final ModelGraph graph = model.getGraph();
-		final Link newEdge = graph.addEdge( source, target ).init();
-		copyTags( model, edge, newEdge );
-		graph.releaseRef( newEdge );
+		final Link eref = graph.edgeRef();
+		try
+		{
+			if ( graph.getEdge( source, target, eref ) != null )
+				return;
+			final Link newEdge = graph.addEdge( source, target, eref ).init();
+			copyTags( model, edge, newEdge );
+		}
+		finally
+		{
+			graph.releaseRef( eref );
+		}
 	}
 
 	private static void copyTags( final Model model, final Link oldEdge, final Link newEdge )
@@ -106,16 +115,21 @@ public class FuseSpots
 		}
 	}
 
-	private static List< RefList< Spot > > extractTracks( final ModelGraph graph, final Collection< Spot > spots, final int minTimepoint, final int maxTimepoint )
+	private static List< RefList< Spot > > extractTracks( final ModelGraph graph, final Collection< Spot > spots )
 	{
+		final int minTimepoint = spots.stream().mapToInt( Spot::getTimepoint ).min().orElse( Integer.MAX_VALUE );
+		final int maxTimepoint = spots.stream().mapToInt( Spot::getTimepoint ).max().orElse( Integer.MIN_VALUE );
+
 		final RefList< Spot > starts = new RefArrayList<>( graph.vertices().getRefPool() );
 		for ( final Spot spot : spots )
+		{
 			if ( spot.getTimepoint() == minTimepoint )
 				starts.add( spot );
+		}
 
 		final List< RefList< Spot > > tracks = new ArrayList<>();
 		for ( final Spot start : starts )
-			tracks.add( extractTrack( graph, start, minTimepoint, maxTimepoint ) );
+			tracks.add( extractTrack( graph, spots, start, minTimepoint, maxTimepoint ) );
 		return tracks;
 	}
 
@@ -126,7 +140,7 @@ public class FuseSpots
 				graph.remove( spot );
 	}
 
-	private static RefList< Spot > extractTrack( final ModelGraph graph, final Spot start, final int minTimepoint, final int maxTimepoint )
+	private static RefList< Spot > extractTrack( final ModelGraph graph, final Collection< Spot > spots, final Spot start, final int minTimepoint, final int maxTimepoint )
 	{
 		final Spot ref = graph.vertexRef();
 		final RefList< Spot > track = new RefArrayList<>( graph.vertices().getRefPool() );
@@ -134,12 +148,20 @@ public class FuseSpots
 		Spot current = start;
 		for ( int t = minTimepoint + 1; t <= maxTimepoint; ++t )
 		{
-			current = current.outgoingEdges().iterator().next().getTarget( ref );
-			if ( current.getTimepoint() != t )
-				throw new AssertionError( "Expected parallel tracks selected." );
+			final OutgoingEdges< Link > outgoingEdges = current.outgoingEdges();
+			if ( outgoingEdges.size() != 1 )
+				throwException();
+			current = outgoingEdges.iterator().next().getTarget( ref );
+			if ( current.incomingEdges().size() != 1 || !spots.contains( current ) || current.getTimepoint() != t )
+				throwException();
 			track.add( current );
 		}
 		return track;
+	}
+
+	private static void throwException()
+	{
+		throw new FuseSpotSelectionException();
 	}
 
 	private static RefList< Spot > findFocusedTrack( final List< RefList< Spot > > tracks, final Spot focus )
