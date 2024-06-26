@@ -21,8 +21,6 @@ public class LocateTagsFrameDemo
 		final MainWindow mainWindow = new MainWindow( projectModel );
 		mainWindow.setDefaultCloseOperation( MainWindow.DISPOSE_ON_CLOSE );
 		mainWindow.setVisible( true );
-		final LocateTagsFrame dialog = new LocateTagsFrame( projectModel );
-		dialog.setSize( 400, 600 );
-		dialog.setVisible( true );
+		LocateTagsFrame.run( projectModel );
 	}
 }

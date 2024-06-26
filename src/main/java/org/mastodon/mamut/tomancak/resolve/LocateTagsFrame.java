@@ -88,7 +88,7 @@ public class LocateTagsFrame extends JFrame
 	public static void run( final ProjectModel projectModel, final TagSetStructure.TagSet tagSet )
 	{
 		final LocateTagsFrame locateTagsFrame = new LocateTagsFrame( projectModel );
-		locateTagsFrame.setSize( 400, 600 );
+		locateTagsFrame.pack();
 		locateTagsFrame.setVisible( true );
 		if ( tagSet != null )
 			locateTagsFrame.setTagSet( tagSet );
@@ -131,7 +131,7 @@ public class LocateTagsFrame extends JFrame
 		table.getColumnModel().getColumn( 2 ).setMaxWidth( 20 );
 		table.setDefaultRenderer( Color.class, new ColorRenderer() );
 		final JScrollPane scrollPane = new JScrollPane( table, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER );
-		scrollPane.setPreferredSize( new Dimension( 200, 200 ) );
+		scrollPane.setPreferredSize( new Dimension( 500, 400 ) );
 		add( scrollPane, "span, grow" );
 		fillTagSetComboBox();
 		tagSetComboBox.addActionListener( e -> SwingUtilities.invokeLater( this::fillList ) );
