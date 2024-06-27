@@ -40,11 +40,11 @@ public class Glasbey
 
 	/**
 	 * Returns a color supplier for light Glasbey colors.
-	 * <p>
+	 * <br>
 	 * Each call to {@link IntSupplier#getAsInt()} returns the next color from the table.
 	 * The table contains 256 different colors, which are repeated if the supplier is
 	 * called more than 256 times. The colors are meant to be distinguishable from each
-	 * other. All colors are light colors, they have gut contrast to black background
+	 * other. All colors are light colors, they have good contrast to black background
 	 * or text.
 	 */
 	public static IntSupplier getGlasbeyLightColorSupplier()

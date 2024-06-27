@@ -55,6 +55,14 @@ import org.mastodon.model.tag.ObjTagMap;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 
+/**
+ * Shows a window with a list of locations where the tags of a given tag set are
+ * found in the tracking data. The user can select a location in the list and
+ * the linked views will navigate to the corresponding spot.
+ * <br>
+ * Additionally, the selection of locations in the list will be reflected in the
+ * selection of spots. And tags can be removed from the selected spots.
+ */
 public class LocateTagsFrame extends JFrame
 {
 

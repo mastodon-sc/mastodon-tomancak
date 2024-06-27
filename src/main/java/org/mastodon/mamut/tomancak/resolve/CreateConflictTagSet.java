@@ -34,8 +34,26 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 
+/**
+ * Class that holds the code for creating a conflict tag set. Uses
+ * {@link HellingerDistance} to figure out which spots overlap
+ * significantly.
+ */
 public class CreateConflictTagSet
 {
+	/**
+	 * Add a new tag set to the model, with all conflicts between spots tagged.
+	 * A conflict is defined as two spots whose Hellinger distance is less than the
+	 * threshold.
+	 *
+	 * @param model      the model that contains the spot graph and to which the tag set
+	 *                   will be added.
+	 * @param tagSetName the name of the tag set to be created.
+	 * @param threshold  the Hellinger distance threshold. Two spot are considered in
+	 *                   conflict if their Hellinger distance is less than or equal to
+	 *                   this value.
+	 * @return the tag set that was created.
+	 */
 	public static TagSetStructure.TagSet run( final Model model, final String tagSetName, final double threshold )
 	{
 		final ModelGraph graph = model.getGraph();

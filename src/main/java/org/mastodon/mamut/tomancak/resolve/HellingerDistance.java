@@ -4,8 +4,19 @@ import net.imglib2.util.LinAlgHelpers;
 
 import org.mastodon.mamut.model.Spot;
 
+/**
+ * Compute the Hellinger distance.
+ */
 public class HellingerDistance
 {
+	/**
+	 * @return The Hellinger distance of the two gaussian distributions associated
+	 * with the two specified spots. The distance is in [0,1], where 0 means the
+	 * two spots are identical, and 1 means they are completely different.
+	 * <br>
+	 * The Hellinger distance can be used as an indicator of roughly how much two
+	 * spots overlap.
+	 */
 	public static double hellingerDistance( final Spot a, final Spot b )
 	{
 		return hellingerDistance( a.positionAsDoubleArray(), covariance( a ), b.positionAsDoubleArray(), covariance( b ) );

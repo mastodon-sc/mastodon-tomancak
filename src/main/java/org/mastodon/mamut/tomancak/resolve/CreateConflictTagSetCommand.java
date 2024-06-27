@@ -9,6 +9,9 @@ import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
+/**
+ * The GUI command to create a conflict tag set.
+ */
 @Plugin( type = Command.class, name = "Create Conflict Tag Set" )
 public class CreateConflictTagSetCommand extends DefaultCancelable implements Command
 {

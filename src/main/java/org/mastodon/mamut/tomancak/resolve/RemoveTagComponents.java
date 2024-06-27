@@ -14,8 +14,16 @@ import org.mastodon.model.tag.ObjTagMap;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 
+/**
+ * Class for removing a "connected component of tags" from a model.
+ */
 public class RemoveTagComponents
 {
+	/**
+	 * For the given tag set remove the tag from the given spots and all the
+	 * spots that are connected to them by edges and have the same tag. The
+	 * tag for connected edges is also removed.
+	 */
 	public static void run( final ProjectModel projectModel, final TagSetStructure.TagSet tagSet, final Collection< Spot > spots )
 	{
 		final Model model = projectModel.getModel();

@@ -22,9 +22,23 @@ import org.mastodon.model.tag.ObjTags;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 
+/**
+ * Code for fusing spots in a {@link ProjectModel}.
+ */
 public class FuseSpots
 {
 
+	/**
+	 * Run the "fuse spots" operation on the specified {@link ProjectModel}.
+	 * <br>
+	 * The currently selected spots are fused into a single track. For
+	 * each timepoint, the position and covariance of the selected spots
+	 * are averaged. And assigned to a fused spot.
+	 * <br>
+	 * This method is meant to be called from the GUI. It takes care of
+	 * setting locks, undo points, and notifying listeners. Message dialogs
+	 * are shown in case of errors.
+	 */
 	public static void run( final ProjectModel projectModel ) {
 		final Model model = projectModel.getModel();
 		final ModelGraph graph = projectModel.getModel().getGraph();
@@ -63,6 +77,19 @@ public class FuseSpots
 		}
 	}
 
+	/**
+	 * Fuse the specified spots into a single track.
+	 * <p>
+	 * This method is independent of the GUI and can be used in other contexts.
+	 * @param model the model to operate on. The graph is modified, some spots and links
+	 *              are removed. New edges are added, and the tags of the new edges are
+	 *              set.
+	 * @param spots the set of spots to fuse.
+	 * @param focus this selected spots that are connected to this spot are kept. Their
+	 *              position and covariance are updated.
+	 *
+	 * @see #run(ProjectModel)
+	 */
 	public static void run( final Model model, final Collection< Spot > spots, final Spot focus )
 	{
 		final ModelGraph graph = model.getGraph();
