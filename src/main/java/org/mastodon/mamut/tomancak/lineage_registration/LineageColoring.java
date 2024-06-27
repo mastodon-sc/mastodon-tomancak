@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
 
 import org.mastodon.collection.RefCollection;
@@ -40,6 +41,7 @@ import org.mastodon.graph.algorithm.traversal.DepthFirstIterator;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.tomancak.util.Glasbey;
 import org.mastodon.model.tag.ObjTagMap;
 import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.util.TagSetUtils;
@@ -95,9 +97,9 @@ public class LineageColoring
 	private static Map< String, Integer > createColorMap( Collection< String > labels )
 	{
 		Map< String, Integer > colors = new HashMap<>();
-		int count = 4;
+		final IntSupplier colorSupplier = Glasbey.getGlasbeyLightColorSupplier();
 		for ( String label : labels )
-			colors.put( label, Glasbey.GLASBEY[ count++ ] );
+			colors.put( label, colorSupplier.getAsInt() );
 		return colors;
 	}
 

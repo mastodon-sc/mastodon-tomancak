@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.IntSupplier;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.mastodon.collection.RefCollections;
@@ -23,7 +24,7 @@ import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.model.branch.BranchSpot;
 import org.mastodon.mamut.model.branch.ModelBranchGraph;
-import org.mastodon.mamut.tomancak.lineage_registration.Glasbey;
+import org.mastodon.mamut.tomancak.util.Glasbey;
 import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.spatial.SpatialIndex;
 import org.mastodon.util.TagSetUtils;
@@ -92,16 +93,16 @@ public class CreateConflictTagSet
 
 		final ArrayList< Pair< String, Integer > > tagsAndColors = new ArrayList<>();
 		final List< TIntSet > keys = new ArrayList<>( conflictGroups.keySet() );
-		int j = 0;
+		final IntSupplier colorSupplier = Glasbey.getGlasbeyLightColorSupplier();
 		for ( int i = 0; i < keys.size(); i++ )
 		{
 			final TIntSet key = keys.get( i );
 			for ( int k = 0; k < key.size(); k++ )
-				tagsAndColors.add( Pair.of( "Conflict " + i + " (" + getLetters( k ) + ")", getColor( j++ ) ) );
+				tagsAndColors.add( Pair.of( "Conflict " + i + " (" + getLetters( k ) + ")", colorSupplier.getAsInt() ) );
 		}
 		final TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( model, tagSetName, tagsAndColors );
 		final List< TagSetStructure.Tag > tags = tagSet.getTags();
-		j = 0;
+		int j = 0;
 		for ( final TIntSet key : keys )
 		{
 			final TIntObjectHashMap< TagSetStructure.Tag > branchIdToTag = new TIntObjectHashMap<>();
@@ -132,15 +133,6 @@ public class CreateConflictTagSet
 			index--;
 		}
 		return sb.reverse().toString();
-	}
-
-	/**
-	 * Return a color from the Glasbey color set. This omits the first 5 colors because they don't really fit
-	 * well with the rest of the set.
-	 */
-	private static int getColor( final int index )
-	{
-		return Glasbey.GLASBEY_LIGHT[ index % ( Glasbey.GLASBEY_LIGHT.length - 1 ) + 1 ];
 	}
 
 	private static RefIntMap< Spot > getBranchIdMap( final Model model )
