@@ -103,11 +103,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String TWEAK_DATASET_PATH = "[tomancak] fix project image path";
 	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spot";
 	private static final String MIRROR_SPOTS = "[tomancak] mirror spots";
-
 	private static final String CREATE_CONFLICT_TAG_SET = "[tomancak] create conflict tag set";
-
 	private static final String FUSE_SPOTS = "[tomancak] fuse selected spots";
-
 	private static final String LOCATE_TAGS = "[tomancak] locate tags";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
@@ -129,11 +126,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
 	private static final String[] MIRROR_SPOTS_KEYS = { "not mapped" };
-
 	private static final String[] CREATE_CONFLICT_TAG_SET_KEYS = { "not mapped" };
-
 	private static final String[] FUSE_SPOTS_KEYS = { "not mapped" };
-
 	private static final String[] LOCATE_TAGS_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
