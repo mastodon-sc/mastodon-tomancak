@@ -75,7 +75,7 @@ public class Glasbey
 	 * A Glasbey color table with only light colors. It is taken from "colorcet", in the python package the color table is called
 	 * "glasbey_light".
 	 *
-	 * @See <a href="https://colorcet.holoviz.org/user_guide/Categorical.html">https://colorcet.holoviz.org/user_guide/Categorical.html</a>
+	 * @see <a href="https://colorcet.holoviz.org/user_guide/Categorical.html">https://colorcet.holoviz.org/user_guide/Categorical.html</a>
 	 */
 	public static final int[] GLASBEY_LIGHT = { 0xffd60000, 0xff018700, 0xffb500ff, 0xff05acc6, 0xff97ff00, 0xffffa52f, 0xffff8ec8,
 			0xff79525e, 0xff00fdcf, 0xffafa5ff, 0xff93ac83, 0xff9a6900, 0xff366962, 0xffd3008c, 0xfffdf490, 0xffc86e66, 0xff9ee2ff,
