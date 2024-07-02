@@ -85,18 +85,21 @@ public class LineageRegistrationFrame extends JFrame
 			+ "</ul>"
 			+ "</body></html>";
 
-	private static final String COPY_LABELS_TOOLTIP = "<html><body>"
-			+ "Use the found correspondences to copy spot labels from one project to the other.<br>"
+	private static final String COPY_LABELS_TOOLTIP = "<html><body width=15cm align=left>"
+			+ "Use the found correspondences to copy cell names from one project to the other.<br>"
 			+ "<br>"
-			+ "The correspondences are on a level of cells / branches.<br>"
-			+ "That is why the all the spots that belong to a cell / branch will get the same label.<br>"
-			+ "Labels on individual spot can not copied."
+			+ "The correspondences are on the level of cells. That is why all the spots that"
+			+ "belong to a cell will get the same label. Labels of individual spots can"
+			+ "not be copied.<br>"
+			+ "The label of the first spot of a cell is assumed to be the cell name."
+			+ "This assumption is different from the TrackScheme Branch. Which actually shows the"
+			+ "label of the last spot as the label of the branch."
 			+ "</body></html>";
 
 	private static final String COPY_TAGSET_TOOLTIP = "<html><body>"
 			+ "Use the found correspondences to copy a tag set from one project to the other.<br>"
 			+ "<br>"
-			+ "The correspondences are on a level of cells / branches.<br>"
+			+ "The correspondences are on the level of cells / branches.<br>"
 			+ "That is why the tags are only copied if the entire cell / branch is tagged.<br>"
 			+ "Tags on individual spot are therefor not copied."
 			+ "</body></html>";
@@ -184,9 +187,9 @@ public class LineageRegistrationFrame extends JFrame
 		add( new JLabel( "Sort TrackScheme:" ) );
 		add( newOperationButton( "project A", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeAClicked ), "split 2" );
 		add( newOperationButton( "project B", SORT_TRACKSCHEME_TOOLTIP, listener::onSortTrackSchemeBClicked ), "wrap" );
-		add( new JLabel( "Copy spot labels:" ) );
-		add( newOperationButton( "labels from A to B ...", COPY_LABELS_TOOLTIP, listener::onCopyLabelsAtoB ), "split 2" );
-		add( newOperationButton( "labels from B to A ...", COPY_LABELS_TOOLTIP, listener::onCopyLabelsBtoA ), "wrap" );
+		add( new JLabel( "Copy cell names:" ) );
+		add( newOperationButton( "names from A to B ...", COPY_LABELS_TOOLTIP, listener::onCopyLabelsAtoB ), "split 2" );
+		add( newOperationButton( "names from B to A ...", COPY_LABELS_TOOLTIP, listener::onCopyLabelsBtoA ), "wrap" );
 		add( new JLabel( "Copy tag set:" ) );
 		add( newOperationButton( "tags from A to B ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetAtoB ), "split 2" );
 		add( newOperationButton( "tags from B to A ...", COPY_TAGSET_TOOLTIP, listener::onCopyTagSetBtoA ), "wrap" );
