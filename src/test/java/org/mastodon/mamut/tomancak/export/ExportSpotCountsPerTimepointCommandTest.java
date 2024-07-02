@@ -32,7 +32,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.mastodon.mamut.feature.branch.exampleGraph.ExampleGraph2;
 import org.mastodon.mamut.model.Model;
-import org.mastodon.mamut.tomancak.export.ExportSpotCountsPerTimepointCommand;
 import org.scijava.Context;
 import org.scijava.app.StatusService;
 
