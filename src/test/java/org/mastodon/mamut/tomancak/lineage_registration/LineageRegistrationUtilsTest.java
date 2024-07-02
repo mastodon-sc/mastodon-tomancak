@@ -116,6 +116,27 @@ public class LineageRegistrationUtilsTest
 		assertEquals( set( "B~2 -> B2" ), getTaggedEdges( barB ) );
 	}
 
+	@Test
+	public void testCopyLabels()
+	{
+		// setup: labels for embryoA
+		for ( Spot spot : embryoA.graph.vertices() )
+			spot.setLabel( spot.getLabel() + "_test" );
+		// process
+		LineageRegistrationUtils.copySpotLabelsFromAtoB( registration );
+		// test: labels for embryoB
+		assertEquals( "A_test", embryoB.a.getLabel() );
+		assertEquals( "A_test", embryoB.a.outgoingEdges().get( 0 ).getTarget().getLabel() );
+		assertEquals( "A1_test", embryoB.a1.getLabel() );
+		assertEquals( "A2_test", embryoB.a2.getLabel() );
+		assertEquals( "B_test", embryoB.b.getLabel() );
+		assertEquals( "B2_test", embryoB.b1.getLabel() );
+		assertEquals( "B1_test", embryoB.b2.getLabel() );
+		assertEquals( "C_test", embryoB.c.getLabel() );
+		assertEquals( "C1_test", embryoB.c1.getLabel() );
+		assertEquals( "C2_test", embryoB.c2.getLabel() );
+	}
+
 	private static < T > Set< T > set( T... values )
 	{
 		return new HashSet<>( Arrays.asList( values ) );
