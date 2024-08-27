@@ -125,10 +125,10 @@ public class LocateTagsFrame extends JFrame
 		add( new Label( "Tag Set:" ) );
 		tagSetComboBox = new JComboBox<>();
 		add( tagSetComboBox, "grow, wrap, wmin 0" );
-		final JButton updateButton = new JButton( "update" );
+		final JButton updateButton = new JButton( "refresh view" );
 		updateButton.addActionListener( e -> SwingUtilities.invokeLater( this::fillList ) );
 		add( updateButton, "span, split" );
-		final JButton removeTagButton = new JButton( "remove selected tags" );
+		final JButton removeTagButton = new JButton( "remove selected tag(s) from selected track(s)" );
 		removeTagButton.addActionListener( e -> removeSelectedTagsClicked( projectModel ) );
 		add( removeTagButton, "wrap" );
 		table = new JTable();
@@ -271,7 +271,7 @@ public class LocateTagsFrame extends JFrame
 
 		private final List< TableModelListener > listeners = new CopyOnWriteArrayList<>();
 
-		private final List< String > columns = Arrays.asList( "time point", "tag", "", "track", "spot" );
+		private final List< String > columns = Arrays.asList( "time point", "tag", "", "track", "first spot" );
 
 		private final List< Class< ? > > classes = Arrays.asList( Integer.class, String.class, Color.class, String.class, String.class );
 
