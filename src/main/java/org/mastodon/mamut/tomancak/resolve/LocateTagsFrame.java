@@ -213,8 +213,7 @@ public class LocateTagsFrame extends JFrame
 				rows.add( new Row( graph, tag, spot, root.getLabel() ) );
 			}
 		}
-		// TODO fix sorting
-		rows.sort( Comparator.comparing( Row::toString ) );
+		rows.sort( Row.defaultComparator() );
 		return rows;
 	}
 
@@ -440,6 +439,18 @@ public class LocateTagsFrame extends JFrame
 			this.spot = graph.vertexRef();
 			this.spot.refTo( spot );
 			this.root = root;
+		}
+
+		private static Comparator< Row > defaultComparator()
+		{
+			final Comparator< Row > timepointComparator = Comparator.comparing( row -> row.spot.getTimepoint() );
+			final Comparator< Row > tagComparator = Comparator.comparing( row -> row.tag.label() );
+			final Comparator< Row > rootComparator = Comparator.comparing( row -> row.root );
+			final Comparator< Row > spotComparator = Comparator.comparing( row -> row.spot.getLabel() );
+			return timepointComparator
+					.thenComparing( tagComparator )
+					.thenComparing( rootComparator )
+					.thenComparing( spotComparator );
 		}
 
 		@Override
