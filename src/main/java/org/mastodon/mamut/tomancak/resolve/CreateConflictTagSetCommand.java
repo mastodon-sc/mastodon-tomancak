@@ -38,8 +38,6 @@ public class CreateConflictTagSetCommand extends DefaultCancelable implements Co
 	@Parameter( visibility = ItemVisibility.MESSAGE )
 	private final String description = "<html>"
 			+ "\n<body width=15cm align=left>"
-			+ "\n<h3>Create Conflict Tag Set</h3>"
-			+ "\n<p>"
 			+ "\nSearches for conflict / overlap between spots in the tracking data."
 			+ "\n</p>"
 			+ "\n<p>"
@@ -56,7 +54,6 @@ public class CreateConflictTagSetCommand extends DefaultCancelable implements Co
 			+ "\n</p>"
 			+ "\n</body>"
 			+ "\n</html>";
-
 
 	@Parameter
 	private ProjectModel projectModel;
