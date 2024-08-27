@@ -137,6 +137,7 @@ public class LocateTagsFrame extends JFrame
 		table.setModel( tableModel );
 		table.getColumnModel().getColumn( 2 ).setWidth( 20 );
 		table.getColumnModel().getColumn( 2 ).setMaxWidth( 20 );
+		table.getColumnModel().getColumn( 0 ).setCellRenderer( createLeftAlignedCellRenderer() );
 		table.setDefaultRenderer( Color.class, new ColorRenderer() );
 		final JScrollPane scrollPane = new JScrollPane( table, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER );
 		scrollPane.setPreferredSize( new Dimension( 500, 400 ) );
@@ -148,6 +149,13 @@ public class LocateTagsFrame extends JFrame
 		selectionModel = this.projectModel.getSelectionModel();
 		spotToRow = new RefObjectHashMap<>( projectModel.getModel().getGraph().vertices().getRefPool() );
 		fillList();
+	}
+
+	private static DefaultTableCellRenderer createLeftAlignedCellRenderer()
+	{
+		final DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
+		cellRenderer.setHorizontalAlignment( DefaultTableCellRenderer.LEFT );
+		return cellRenderer;
 	}
 
 	private void removeSelectedTagsClicked( final ProjectModel projectModel )
