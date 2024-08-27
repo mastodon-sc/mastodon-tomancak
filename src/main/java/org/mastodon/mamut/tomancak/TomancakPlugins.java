@@ -283,6 +283,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		return Arrays.asList(
 				menu( "Plugins",
 						menu( "Tags",
+								item( LOCATE_TAGS ),
 								item( COPY_TAG ) ),
 						menu( "Auxiliary Displays",
 								item( COMPACT_LINEAGE_VIEW ) ),
@@ -305,7 +306,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 								item( EXPORT_PHYLOXML ) ),
 						menu( "Conflict Resolution",
 								item( CREATE_CONFLICT_TAG_SET ),
-								item( LOCATE_TAGS ),
 								item( FUSE_SPOTS ) ),
 						item( MIRROR_SPOTS ) ),
 				menu( "File",
