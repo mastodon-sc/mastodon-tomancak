@@ -1,7 +1,13 @@
 package org.mastodon.mamut.tomancak.resolve;
 
+import java.util.List;
+
 import org.mastodon.mamut.ProjectModel;
+import org.mastodon.mamut.model.Link;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.util.DefaultCancelable;
+import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
@@ -75,6 +81,7 @@ public class CreateConflictTagSetCommand extends DefaultCancelable implements Co
 	{
 		final double threshold = getThreshold();
 		final String tagSetName = String.format( "Conflicting Spots (threshold=%1.2f)", threshold );
+		removeTagSetIfExists( projectModel.getModel(), tagSetName );
 		final TagSetStructure.TagSet tagSet = CreateConflictTagSet.run( projectModel.getModel(), tagSetName, threshold );
 		LocateTagsFrame.run( projectModel, tagSet );
 	}
@@ -94,4 +101,28 @@ public class CreateConflictTagSetCommand extends DefaultCancelable implements Co
 		}
 	}
 
+	private static void removeTagSetIfExists( final Model model, final String tagSetName )
+	{
+		final TagSetModel< Spot, Link > tagSetModel = model.getTagSetModel();
+		final TagSetStructure original = tagSetModel.getTagSetStructure();
+		final TagSetStructure.TagSet lastTagSet = findLastTagSet( original, tagSetName );
+		if ( lastTagSet == null )
+			return;
+		final TagSetStructure replacement = new TagSetStructure();
+		replacement.set( original );
+		replacement.remove( lastTagSet );
+		tagSetModel.setTagSetStructure( replacement );
+	}
+
+	private static TagSetStructure.TagSet findLastTagSet( final TagSetStructure tss, final String tagSetName )
+	{
+		final List< TagSetStructure.TagSet > list = tss.getTagSets();
+		for ( int i = list.size() - 1; i >= 0; i-- )
+		{
+			final TagSetStructure.TagSet tagSet = list.get( i );
+			if ( tagSet.getName().equals( tagSetName ) )
+				return tagSet;
+		}
+		return null;
+	}
 }
