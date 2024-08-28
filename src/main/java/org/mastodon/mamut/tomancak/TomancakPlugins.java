@@ -127,7 +127,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
 	private static final String[] MIRROR_SPOTS_KEYS = { "not mapped" };
 	private static final String[] CREATE_CONFLICT_TAG_SET_KEYS = { "not mapped" };
-	private static final String[] FUSE_SPOTS_KEYS = { "not mapped" };
+	private static final String[] FUSE_SPOTS_KEYS = { "ctrl shift F" };
 	private static final String[] LOCATE_TAGS_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
