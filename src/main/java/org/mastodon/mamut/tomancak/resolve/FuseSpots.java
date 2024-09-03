@@ -39,9 +39,35 @@ public class FuseSpots
 	 * each timepoint, the position and covariance of the selected spots
 	 * are averaged and assigned to a fused spot.
 	 * <br>
-	 * This method is meant to be called from the GUI. It takes care of
+	 * <b>Detailed description:</b>
+	 * <br>
+	 * The selected spots must fulfill very specific requirements. As shown here:
+	 * <pre>
+	 *     before:                                 after fusion:
+	 *     (selected spots are marked with *)
+	 *
+	 *     A1      B1      C1                      A1   B1  C1
+	 *     |       |       |                         \  |  /
+	 *     A2*     B2*     C2*                          A2
+	 *     |       |       |           ---&gt;             |
+	 *     A3*     B3*     C3*                          A3
+	 *     |       |       |                         /  |  \
+	 *     A4      B4      C4                      A4   B4  C4
+	 * </pre>
+	 * The selected spots must belong to a fixed number of branches. And in each
+	 * branch, the same number of spots must be selected and the spots must be at
+	 * the same timepoints.
+	 * <br>
+	 * One of the branches is considered to be the "focused" branch. (If a spot is
+	 * focused that containing branch will be that "focused" branch.) The spots in
+	 * the focused branch are kept. Their position and covariance are updated to
+	 * the average of the selected spots of the same timepoint. The other selected
+	 * spots, that are not in the focused branch, are removed. New edges are added
+	 * as if the spots were actually fused.
+	 * <br>
+	 * (This method is meant to be called from the GUI. It takes care of
 	 * setting locks, undo points, and notifying listeners. Message dialogs
-	 * are shown in case of errors.
+	 * are shown in case of errors.)
 	 */
 	public static void run( final ProjectModel projectModel ) {
 		final Model model = projectModel.getModel();
