@@ -24,7 +24,7 @@ public class CreateConflictTagSetTest
 
 	private void addShortTack( final Model model, final double x1, final double y1, final double z1, final double x2, final double y2, final double z2 )
 	{
-		ModelGraph graph = model.getGraph();
+		final ModelGraph graph = model.getGraph();
 		final Spot a = graph.addVertex().init( 0, new double[] { x1, y1, z1 }, 1 );
 		final Spot b = graph.addVertex().init( 1, new double[] { x2, y2, z2 }, 1 );
 		graph.addEdge( a, b ).init();
