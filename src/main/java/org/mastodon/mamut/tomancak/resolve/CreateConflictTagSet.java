@@ -212,10 +212,10 @@ public class CreateConflictTagSet
 		//    distance equation, Hellinger distance threshold and the spot radius.
 		RefSet< Spot > group = null;
 		nearestNeighbors.search( spot );
-		for ( int i = 0; i < 10; i++ )
+		int i = 0;
+		while ( nearestNeighbors.hasNext() && i < 10 )
 		{
-			if ( !nearestNeighbors.hasNext() )
-				break;
+			i++;
 			final Spot neighbor = nearestNeighbors.next();
 			if ( spot.equals( neighbor ) )
 				continue;
