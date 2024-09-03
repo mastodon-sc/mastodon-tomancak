@@ -27,13 +27,17 @@ import org.mastodon.model.tag.TagSetStructure;
  */
 public class FuseSpots
 {
+	private FuseSpots()
+	{
+		// prevent instantiation of utility class.
+	}
 
 	/**
 	 * Run the "fuse spots" operation on the specified {@link ProjectModel}.
 	 * <br>
 	 * The currently selected spots are fused into a single track. For
 	 * each timepoint, the position and covariance of the selected spots
-	 * are averaged. And assigned to a fused spot.
+	 * are averaged and assigned to a fused spot.
 	 * <br>
 	 * This method is meant to be called from the GUI. It takes care of
 	 * setting locks, undo points, and notifying listeners. Message dialogs

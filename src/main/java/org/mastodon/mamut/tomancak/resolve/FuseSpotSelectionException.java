@@ -7,7 +7,7 @@ import org.mastodon.mamut.model.Spot;
 
 /**
  * Exception that is thrown by {@link FuseSpots#run(Model, Collection, Spot)} whenever
- * the set of spots don't fulfill the very specific requirements of the algorithm. The
+ * the set of spots doesn't fulfill the very specific requirements of the algorithm. The
  * exception is meant to be caught and communicated to the user.
  */
 public class FuseSpotSelectionException extends RuntimeException

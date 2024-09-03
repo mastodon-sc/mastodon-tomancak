@@ -47,7 +47,7 @@ public class FuseSpotsTest
 	private Spot b4;
 
 	/**
-	 * Set up a graph with two tracks, each with 4 spots. Fuse the middle spots of both tracks:
+	 * Set up a graph with two tracks, each with 4 spots.
 	 **/
 	@Before
 	public void before()
@@ -105,8 +105,10 @@ public class FuseSpotsTest
 		a3.getCovariance( cov );
 		assertArrayEquals( diagonal( 3, 3.5, 4 ), cov );
 
-		assertTrue( tagB.isTagged( graph.getEdge( b1, a2 ) ) );
+		assertTrue( tagA.isTagged( graph.getEdge( a1, a2 ) ) );
 		assertTrue( tagA.isTagged( graph.getEdge( a2, a3 ) ) );
+		assertTrue( tagA.isTagged( graph.getEdge( a3, a4 ) ) );
+		assertTrue( tagB.isTagged( graph.getEdge( b1, a2 ) ) );
 		assertTrue( tagB.isTagged( graph.getEdge( a3, b4 ) ) );
 	}
 
@@ -151,7 +153,7 @@ public class FuseSpotsTest
 	}
 
 	@Test
-	public void testNonParallelBranches2()
+	public void testInterconnectedBranches()
 	{
 		graph.remove( graph.getEdge( b3, b4 ) );
 		graph.addEdge( a2, b4 ).init();

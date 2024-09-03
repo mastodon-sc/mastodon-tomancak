@@ -38,6 +38,11 @@ import java.util.function.IntSupplier;
 public class Glasbey
 {
 
+	private Glasbey()
+	{
+		// prevent instantiation
+	}
+
 	/**
 	 * Returns a color supplier for light Glasbey colors.
 	 * <br>
@@ -77,7 +82,7 @@ public class Glasbey
 	 *
 	 * @see <a href="https://colorcet.holoviz.org/user_guide/Categorical.html">https://colorcet.holoviz.org/user_guide/Categorical.html</a>
 	 */
-	public static final int[] GLASBEY_LIGHT = { 0xffd60000, 0xff018700, 0xffb500ff, 0xff05acc6, 0xff97ff00, 0xffffa52f, 0xffff8ec8,
+	private static final int[] GLASBEY_LIGHT = { 0xffd60000, 0xff018700, 0xffb500ff, 0xff05acc6, 0xff97ff00, 0xffffa52f, 0xffff8ec8,
 			0xff79525e, 0xff00fdcf, 0xffafa5ff, 0xff93ac83, 0xff9a6900, 0xff366962, 0xffd3008c, 0xfffdf490, 0xffc86e66, 0xff9ee2ff,
 			0xff00c846, 0xffa877ac, 0xffb8ba01, 0xfff4bfb1, 0xffff28fd, 0xfff2cdff, 0xff009e7c, 0xffff6200, 0xff56642a, 0xff953f1f,
 			0xff90318e, 0xffff3464, 0xffa0e491, 0xff8c9ab1, 0xff829026, 0xffae083f, 0xff77c6ba, 0xffbc9157, 0xffe48eff, 0xff72b8ff,

@@ -23,6 +23,7 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -122,7 +123,7 @@ public class LocateTagsFrame extends JFrame
 	public LocateTagsFrame( final ProjectModel projectModel )
 	{
 		this.projectModel = projectModel;
-		setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
+		setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
 		initializeListeners( projectModel );
 		groupHandle = this.projectModel.getGroupManager().createGroupHandle();
 		setTitle( "Locate Tags" );
@@ -266,7 +267,7 @@ public class LocateTagsFrame extends JFrame
 		@Override
 		public void vertexAdded( final Spot spot )
 		{
-
+			// ignore
 		}
 
 		@Override
@@ -284,13 +285,13 @@ public class LocateTagsFrame extends JFrame
 		@Override
 		public void edgeAdded( final Link link )
 		{
-
+			// ignore
 		}
 
 		@Override
 		public void edgeRemoved( final Link link )
 		{
-
+			// ignore
 		}
 	}
 
@@ -357,7 +358,7 @@ public class LocateTagsFrame extends JFrame
 		@Override
 		public void setValueAt( final Object aValue, final int rowIndex, final int columnIndex )
 		{
-
+			// ignore, a read only table does not need to implement this method
 		}
 
 		public void fireChange()

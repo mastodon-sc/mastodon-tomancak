@@ -9,6 +9,11 @@ import org.mastodon.mamut.model.Spot;
  */
 public class HellingerDistance
 {
+	private HellingerDistance()
+	{
+		// prevent instantiation
+	}
+
 	/**
 	 * @return The Hellinger distance of the two gaussian distributions associated
 	 * with the two specified spots. The distance is in [0,1], where 0 means the
@@ -16,6 +21,9 @@ public class HellingerDistance
 	 * <br>
 	 * The Hellinger distance can be used as an indicator of roughly how much two
 	 * spots overlap.
+	 *
+	 * @see <a href="https://en.wikipedia.org/wiki/Hellinger_distance">Hellinger distance - Wikipedia</a>
+	 * @see <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3582582/figure/F11/">Hellinger distance illustration</a>
 	 */
 	public static double hellingerDistance( final Spot a, final Spot b )
 	{
@@ -27,7 +35,7 @@ public class HellingerDistance
 		return Math.sqrt( 1 - bhattacharyyaCoefficient( mean1, cov1, mean2, cov2 ) );
 	}
 
-	private static double bhattacharyyaCoefficient( double[] mean1, double[][] cov1, double[] mean2, double[][] cov2 )
+	private static double bhattacharyyaCoefficient( final double[] mean1, final double[][] cov1, final double[] mean2, final double[][] cov2 )
 	{
 		check3( mean1 );
 		check3( mean2 );

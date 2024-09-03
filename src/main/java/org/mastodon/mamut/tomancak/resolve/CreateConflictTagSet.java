@@ -41,6 +41,11 @@ import gnu.trove.set.hash.TIntHashSet;
  */
 public class CreateConflictTagSet
 {
+	private CreateConflictTagSet()
+	{
+		// prevent instantiation of utility class.
+	}
+
 	/**
 	 * Add a new tag set to the model, with all conflicts between spots tagged.
 	 * A conflict is defined as two spots whose Hellinger distance is less than the
@@ -97,12 +102,8 @@ public class CreateConflictTagSet
 	private static void addConflict( final Model model, final Set< Spot > conflict, final RefIntMap< Spot > branchIds, final Map< TIntSet, RefList< Spot > > conflictGroups )
 	{
 		final TIntSet conflictBranchIds = mapToBranchIds( conflict, branchIds );
-		RefList< Spot > sets = conflictGroups.get( conflictBranchIds );
-		if ( sets == null )
-		{
-			sets = new RefArrayList<>( model.getGraph().vertices().getRefPool() );
-			conflictGroups.put( conflictBranchIds, sets );
-		}
+		final RefList< Spot > sets = conflictGroups.computeIfAbsent( conflictBranchIds,
+				ignore -> new RefArrayList<>( model.getGraph().vertices().getRefPool() ) );
 		sets.addAll( conflict );
 	}
 

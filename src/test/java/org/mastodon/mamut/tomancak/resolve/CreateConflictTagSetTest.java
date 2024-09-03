@@ -11,7 +11,7 @@ import org.mastodon.util.TagHelper;
 public class CreateConflictTagSetTest
 {
 	@Test
-	public void test()
+	public void testRun()
 	{
 		final Model model = new Model();
 		addShortTack( model, 1, 2, 3, 1.1, 2.1, 3.1 );
@@ -26,7 +26,7 @@ public class CreateConflictTagSetTest
 	{
 		ModelGraph graph = model.getGraph();
 		final Spot a = graph.addVertex().init( 0, new double[] { x1, y1, z1 }, 1 );
-		final Spot b = graph.addVertex().init( 1, new double[] { x1, y1, z1 }, 1 );
+		final Spot b = graph.addVertex().init( 1, new double[] { x2, y2, z2 }, 1 );
 		graph.addEdge( a, b ).init();
 	}
 
