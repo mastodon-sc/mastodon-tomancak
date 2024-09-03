@@ -32,7 +32,7 @@ public class RemoveTagComponents
 		lock.lock();
 		try
 		{
-			run( model, spots, tagSet );
+			run( model, tagSet, spots );
 			model.setUndoPoint();
 		}
 		finally
@@ -42,7 +42,7 @@ public class RemoveTagComponents
 		graph.notifyGraphChanged();
 	}
 
-	private static void run( final Model model, final Collection< Spot > spots, final TagSetStructure.TagSet tagSet )
+	static void run( final Model model, final TagSetStructure.TagSet tagSet, final Collection< Spot > spots )
 	{
 		final TagSetModel< Spot, Link > tagSetModel = model.getTagSetModel();
 		final ObjTagMap< Spot, TagSetStructure.Tag > spotTags = tagSetModel.getVertexTags().tags( tagSet );
@@ -57,27 +57,41 @@ public class RemoveTagComponents
 		final TagSetStructure.Tag tag = vertexTags.get( spot );
 		if ( tag == null )
 			return;
-		final RefStack< Spot > spotStack = RefCollections.createRefStack( graph.vertices() );
-		spotStack.push( spot );
-		while ( !spotStack.isEmpty() )
+		// Perform a depth-first search visiting all the spots that have the same "tag"
+		// as the given "spot". The tag is removed from all the visited spots. Removing
+		// the tag at the same time helps to depth-first search to prevent visiting the
+		// same spot multiple times.
+		final Spot ref1 = graph.vertexRef();
+		final Spot ref2 = graph.vertexRef();
+		try
 		{
-			final Spot s = spotStack.pop();
-			if ( tag.equals( vertexTags.get( s ) ) )
+			final RefStack< Spot > spotStack = RefCollections.createRefStack( graph.vertices() );
+			spotStack.push( spot );
+			while ( !spotStack.isEmpty() )
 			{
-				vertexTags.remove( s );
-				for ( final Link link : s.incomingEdges() )
+				final Spot s = spotStack.pop( ref1 );
+				if ( tag.equals( vertexTags.get( s ) ) )
 				{
-					if ( tag.equals( linkTags.get( link ) ) )
-						linkTags.remove( link );
-					spotStack.push( link.getSource( graph.vertexRef() ) );
-				}
-				for ( final Link link : s.outgoingEdges() )
-				{
-					if ( tag.equals( linkTags.get( link ) ) )
-						linkTags.remove( link );
-					spotStack.push( link.getTarget( graph.vertexRef() ) );
+					vertexTags.remove( s );
+					for ( final Link link : s.incomingEdges() )
+					{
+						if ( tag.equals( linkTags.get( link ) ) )
+							linkTags.remove( link );
+						spotStack.push( link.getSource( ref2 ) );
+					}
+					for ( final Link link : s.outgoingEdges() )
+					{
+						if ( tag.equals( linkTags.get( link ) ) )
+							linkTags.remove( link );
+						spotStack.push( link.getTarget( ref2 ) );
+					}
 				}
 			}
+		}
+		finally
+		{
+			graph.releaseRef( ref1 );
+			graph.releaseRef( ref2 );
 		}
 	}
 }
