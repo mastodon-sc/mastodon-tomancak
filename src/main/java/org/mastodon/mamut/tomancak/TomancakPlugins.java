@@ -59,6 +59,9 @@ import org.mastodon.mamut.tomancak.label_systematically.LabelSpotsSystematically
 import org.mastodon.mamut.tomancak.merging.Dataset;
 import org.mastodon.mamut.tomancak.merging.MergeDatasets;
 import org.mastodon.mamut.tomancak.merging.MergingDialog;
+import org.mastodon.mamut.tomancak.resolve.FuseSpots;
+import org.mastodon.mamut.tomancak.resolve.CreateConflictTagSetCommand;
+import org.mastodon.mamut.tomancak.resolve.LocateTagsFrame;
 import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
 import org.mastodon.mamut.tomancak.sort_tree.SortTree;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeExternInternDialog;
@@ -100,6 +103,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String TWEAK_DATASET_PATH = "[tomancak] fix project image path";
 	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spot";
 	private static final String MIRROR_SPOTS = "[tomancak] mirror spots";
+	private static final String CREATE_CONFLICT_TAG_SET = "[tomancak] create conflict tag set";
+	private static final String FUSE_SPOTS = "[tomancak] fuse selected spots";
+	private static final String LOCATE_TAGS = "[tomancak] locate tags";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "ctrl E" };
@@ -120,6 +126,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
 	private static final String[] MIRROR_SPOTS_KEYS = { "not mapped" };
+	private static final String[] CREATE_CONFLICT_TAG_SET_KEYS = { "not mapped" };
+	private static final String[] FUSE_SPOTS_KEYS = { "ctrl shift F" };
+	private static final String[] LOCATE_TAGS_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -144,6 +153,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( TWEAK_DATASET_PATH, "Fix Image Path" );
 		menuTexts.put( ADD_CENTER_SPOTS, "Add Center Spot" );
 		menuTexts.put( MIRROR_SPOTS, "Mirror Spots Along X-Axis" );
+		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create Conflict Tag Set" );
+		menuTexts.put( FUSE_SPOTS, "Fuse Selected Spots" );
+		menuTexts.put( LOCATE_TAGS, "Locate Tags" );
 	}
 
 	/*
@@ -181,6 +193,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Allows to insert new path to the BDV data and whether it is relative or absolute." );
 			descriptions.add( ADD_CENTER_SPOTS, ADD_CENTER_SPOTS_KEYS, "On each timepoint with selected spots, add a new spot that is in the center (average position)." );
 			descriptions.add( MIRROR_SPOTS, MIRROR_SPOTS_KEYS, "Mirror spots along x-axis." );
+			descriptions.add( CREATE_CONFLICT_TAG_SET, CREATE_CONFLICT_TAG_SET_KEYS, "Search spots that overlap and create a tag set that highlights these conflicts." );
+			descriptions.add( FUSE_SPOTS, FUSE_SPOTS_KEYS, "Fuse selected spots into a single spot. Average spot position and shape." );
+			descriptions.add( LOCATE_TAGS, LOCATE_TAGS_KEYS, "Open a dialog that allows to jump to specific tags." );
 		}
 	}
 
@@ -222,6 +237,12 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction mirrorSpots;
 
+	private final AbstractNamedAction createConflictTagSet;
+
+	private final AbstractNamedAction fuseSpots;
+
+	private final AbstractNamedAction locateTags;
+
 	private ProjectModel pluginAppModel;
 
 	public TomancakPlugins()
@@ -245,6 +266,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		addCenterSpots = new RunnableAction( ADD_CENTER_SPOTS, this::addCenterSpots );
 		mirrorSpots = new RunnableAction( MIRROR_SPOTS, this::mirrorSpots );
+		createConflictTagSet = new RunnableAction( CREATE_CONFLICT_TAG_SET, this::createConflictTagSet );
+		fuseSpots = new RunnableAction( FUSE_SPOTS, this::fuseSpots );
+		locateTags = new RunnableAction( LOCATE_TAGS, this::locateTags );
 	}
 
 	@Override
@@ -259,6 +283,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		return Arrays.asList(
 				menu( "Plugins",
 						menu( "Tags",
+								item( LOCATE_TAGS ),
 								item( COPY_TAG ) ),
 						menu( "Auxiliary Displays",
 								item( COMPACT_LINEAGE_VIEW ) ),
@@ -279,6 +304,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 										item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ),
 								item( EXPORTS_LINEAGE_LENGTHS ),
 								item( EXPORT_PHYLOXML ) ),
+						menu( "Conflict Resolution",
+								item( CREATE_CONFLICT_TAG_SET ),
+								item( FUSE_SPOTS ) ),
 						item( MIRROR_SPOTS ) ),
 				menu( "File",
 						item( TWEAK_DATASET_PATH ),
@@ -313,6 +341,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 		actions.namedAction( addCenterSpots, ADD_CENTER_SPOTS_KEYS );
 		actions.namedAction( mirrorSpots, MIRROR_SPOTS_KEYS );
+		actions.namedAction( createConflictTagSet, CREATE_CONFLICT_TAG_SET_KEYS );
+		actions.namedAction( fuseSpots, FUSE_SPOTS_KEYS );
+		actions.namedAction( locateTags, LOCATE_TAGS_KEYS );
 	}
 
 	private void exportPhyloXml()
@@ -471,5 +502,20 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private void mirrorSpots()
 	{
 		MirrorEmbryo.run( pluginAppModel );
+	}
+
+	private void createConflictTagSet()
+	{
+		CreateConflictTagSetCommand.run( pluginAppModel );
+	}
+
+	private void fuseSpots()
+	{
+		FuseSpots.run( pluginAppModel );
+	}
+
+	private void locateTags()
+	{
+		LocateTagsFrame.run( pluginAppModel );
 	}
 }
