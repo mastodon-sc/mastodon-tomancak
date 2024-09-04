@@ -50,6 +50,7 @@ import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.model.FocusModel;
 import org.mastodon.model.NavigationHandler;
+import org.mastodon.model.SelectionListener;
 import org.mastodon.model.SelectionModel;
 import org.mastodon.model.tag.ObjTagMap;
 import org.mastodon.model.tag.TagSetModel;
@@ -86,7 +87,12 @@ public class LocateTagsFrame extends JFrame
 
 	private final RefObjectMap< Spot, Row > spotToRow;
 
-	private boolean pauseSelectionNotifications = false;
+	/**
+	 * This flag prevents an infinite loop of updates between the
+	 * two synchronized selection models:
+	 * {@link ProjectModel#getSelectionModel()} and {@link JTable#getSelectionModel()}
+	 */
+	private volatile boolean pauseSelectionNotifications = false;
 
 	public static void run( final ProjectModel projectModel )
 	{
@@ -133,7 +139,10 @@ public class LocateTagsFrame extends JFrame
 		add( removeTagButton, "wrap" );
 		table = new JTable();
 		table.setAutoCreateRowSorter( true );
-		table.getSelectionModel().addListSelectionListener( e -> onSpotItemSelectionChanged() );
+		table.getSelectionModel().addListSelectionListener( e -> {
+			if ( !e.getValueIsAdjusting() && !pauseSelectionNotifications )
+				onTableSelectionChanged();
+		} );
 		table.setModel( tableModel );
 		table.getColumnModel().getColumn( 2 ).setWidth( 20 );
 		table.getColumnModel().getColumn( 2 ).setMaxWidth( 20 );
@@ -149,6 +158,19 @@ public class LocateTagsFrame extends JFrame
 		selectionModel = this.projectModel.getSelectionModel();
 		spotToRow = new RefObjectHashMap<>( projectModel.getModel().getGraph().vertices().getRefPool() );
 		fillList();
+		final SelectionListener selectionListener = () -> {
+			if ( !pauseSelectionNotifications )
+				SwingUtilities.invokeLater( this::onGraphSelectionChanged );
+		};
+		selectionModel.listeners().add( selectionListener );
+		addWindowListener( new WindowAdapter()
+		{
+			@Override
+			public void windowClosed( final WindowEvent e )
+			{
+				selectionModel.listeners().remove( selectionListener ); // listener must be removed to allow garbage collection
+			}
+		} );
 	}
 
 	private static DefaultTableCellRenderer createLeftAlignedCellRenderer()
@@ -468,12 +490,39 @@ public class LocateTagsFrame extends JFrame
 		}
 	}
 
-	private void onSpotItemSelectionChanged()
+	private void onTableSelectionChanged()
 	{
-		if ( pauseSelectionNotifications )
-			return;
-		updateLeadSelection();
-		updateMultiSelection();
+		pauseSelectionNotifications = true;
+		try
+		{
+			// Copy selection from the JTable to the mastodon core SelectionModel.
+			updateLeadSelection();
+			updateMultiSelection();
+		}
+		finally
+		{
+			pauseSelectionNotifications = false;
+		}
+	}
+
+	private void updateLeadSelection()
+	{
+		try
+		{
+			final ListSelectionModel selection = table.getSelectionModel();
+			final int leadSelectionIndex = selection.getLeadSelectionIndex();
+			if ( leadSelectionIndex < 0 )
+				return;
+			final Row row = rows.get( table.convertRowIndexToModel( leadSelectionIndex ) );
+			groupHandle.setGroupId( 0 );
+			navigationModel.notifyNavigateToVertex( row.spot );
+			focusModel.focusVertex( row.spot );
+			selectionModel.clearSelection();
+		}
+		catch ( final IndexOutOfBoundsException e )
+		{
+			// ignore
+		}
 	}
 
 	private void updateMultiSelection()
@@ -500,23 +549,25 @@ public class LocateTagsFrame extends JFrame
 		return spots;
 	}
 
-	private void updateLeadSelection()
+	private void onGraphSelectionChanged()
 	{
+		pauseSelectionNotifications = true;
 		try
 		{
+			// Copy selection for mastodon core SelectionModel to that JTable.
+			table.clearSelection();
 			final ListSelectionModel selection = table.getSelectionModel();
-			final int leadSelectionIndex = selection.getLeadSelectionIndex();
-			if ( leadSelectionIndex < 0 )
-				return;
-			final Row row = rows.get( table.convertRowIndexToModel( leadSelectionIndex ) );
-			groupHandle.setGroupId( 0 );
-			navigationModel.notifyNavigateToVertex( row.spot );
-			focusModel.focusVertex( row.spot );
-			selectionModel.clearSelection();
+			for ( int i = 0; i < rows.size(); i++ )
+			{
+				final Row row = rows.get( table.convertRowIndexToModel( i ) );
+				final Spot spot = row.spot;
+				if ( selectionModel.isSelected( spot ) )
+					selection.addSelectionInterval( i, i );
+			}
 		}
-		catch ( final IndexOutOfBoundsException e )
+		finally
 		{
-			// ignore
+			pauseSelectionNotifications = false;
 		}
 	}
 }
