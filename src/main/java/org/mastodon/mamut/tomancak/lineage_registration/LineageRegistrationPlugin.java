@@ -67,7 +67,7 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	private static final String[] MATCH_TREE_KEYS = { "not mapped" };
 
 	private static final Map< String, String > menuTexts =
-			Collections.singletonMap( MATCH_TREE, "Lineage Registration" );
+			Collections.singletonMap( MATCH_TREE, "Spatial Track Matching" );
 
 	@Plugin( type = CommandDescriptionProvider.class )
 	public static class Descriptions extends CommandDescriptionProvider

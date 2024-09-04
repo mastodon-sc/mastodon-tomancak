@@ -71,7 +71,7 @@ public class LineageRegistrationAlgorithm
 	private final RefDoubleMap< Spot > angles;
 
 	/**
-	 * Runs the lineage registration algorithm for to given graphs. The spots before
+	 * Runs the spatial track matching for to given graphs. The spots before
 	 * the given timepoints are ignored.
 	 *
 	 * @return a {@link RegisteredGraphs} object that contains the two graphs and the

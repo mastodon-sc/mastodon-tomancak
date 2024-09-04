@@ -253,9 +253,9 @@ public class LineageRegistrationControlService extends AbstractService implement
 			executeTask( false, projectA, projectB, () -> {
 				dialog.clearLog();
 				if ( modifyA )
-					dialog.log( "Create tag set \"lineage registration\" in project \"%s\"...", projectA.getName() );
+					dialog.log( "Create tag set \"spatial track matching\" in project \"%s\"...", projectA.getName() );
 				if ( modifyB )
-					dialog.log( "Create tag set \"lineage registration\" in project \"%s\"...", projectB.getName() );
+					dialog.log( "Create tag set \"spatial track matching\" in project \"%s\"...", projectB.getName() );
 				RegisteredGraphs registration = runRegistrationAlgorithm( projectA, projectB );
 				LineageRegistrationUtils.tagCells( registration, modifyA, modifyB );
 				if ( modifyA )

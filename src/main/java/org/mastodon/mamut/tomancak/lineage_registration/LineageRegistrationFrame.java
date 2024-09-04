@@ -75,7 +75,7 @@ public class LineageRegistrationFrame extends JFrame
 			+ "</body></html>";
 
 	private static final String TAG_CELLS_TOOLTIP = "<html><body>"
-			+ "<b>Creates a new tag set \"lineage registration\" in the selected project.</b><br>"
+			+ "<b>Creates a new tag set \"spatial track matching\" in the selected project.</b><br>"
 			+ "<br>"
 			+ "The tag set contains two tags:"
 			+ "<ul>"
@@ -150,7 +150,7 @@ public class LineageRegistrationFrame extends JFrame
 
 	public LineageRegistrationFrame( Listener listener )
 	{
-		super( "Lineage Registration Across Two Mastodon Projects" );
+		super( "Spatial Track Matching Across Two Mastodon Projects" );
 		this.setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
 		this.setLocationByPlatform( true );
 		this.listener = listener;
@@ -265,7 +265,7 @@ public class LineageRegistrationFrame extends JFrame
 	private static JTextPane introductionTextPane()
 	{
 		final String introText = "<html><body>"
-				+ "The \"lineage registration\" plugin allows comparing the lineages of two "
+				+ "The \"spatial track matching\" plugin allows comparing the lineages of two "
 				+ "similarly developing embryos in two Mastodon projects. By analyzing the "
 				+ "spindle directions it finds the corresponding cells in both embryos."
 				+ "<br><br>"
@@ -277,10 +277,10 @@ public class LineageRegistrationFrame extends JFrame
 				+ "<li>Both projects should show stereotypically developing embryos.</li>"
 				+ "<li>The first frames should show both the embryos at a similar developmental stage.</li>"
 				+ "<li>Root nodes must be labeled, and the labels should match between the two projects.</li>"
-				+ "<li>There needs to be at least three lineages with cell divisions, "
+				+ "<li>There needs to be at least three tracks with cell divisions, "
 				+ "that can be paired based on their names.</li>"
 				+ "</ul>"
-				+ "(Note: The plugin ignores lineages that have no cell divisions.)<br><br>"
+				+ "(Note: The plugin ignores tracks that have no cell divisions.)<br><br>"
 				+ "</body></html>";
 		JTextPane comp = new JTextPane();
 		comp.setContentType( "text/html" );

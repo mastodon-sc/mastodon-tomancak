@@ -182,7 +182,7 @@ public class LineageRegistrationUtils
 
 	private static void tagSpotsA( RegisteredGraphs result )
 	{
-		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( result.modelA, "lineage registration", Arrays.asList(
+		TagSetStructure.TagSet tagSet = TagSetUtils.addNewTagSetToModel( result.modelA, "spatial track matching", Arrays.asList(
 				Pair.of( "not mapped", 0xff00ccff ),
 				Pair.of( "flipped", 0xffeeaa00 )
 		) );

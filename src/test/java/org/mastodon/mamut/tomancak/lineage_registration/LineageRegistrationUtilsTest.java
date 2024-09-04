@@ -85,10 +85,10 @@ public class LineageRegistrationUtilsTest
 	public void testTagCells()
 	{
 		LineageRegistrationUtils.tagCells( registration, true, true );
-		assertEquals( Collections.emptySet(), getTaggedSpots( embryoA.model, "lineage registration", "not mapped" ) );
-		assertEquals( set( "B1", "B2" ), getTaggedSpots( embryoA.model, "lineage registration", "flipped" ) );
-		assertEquals( Collections.emptySet(), getTaggedSpots( embryoB.model, "lineage registration", "not mapped" ) );
-		assertEquals( set( "B1", "B2" ), getTaggedSpots( embryoB.model, "lineage registration", "flipped" ) );
+		assertEquals( Collections.emptySet(), getTaggedSpots( embryoA.model, "spatial track matching", "not mapped" ) );
+		assertEquals( set( "B1", "B2" ), getTaggedSpots( embryoA.model, "spatial track matching", "flipped" ) );
+		assertEquals( Collections.emptySet(), getTaggedSpots( embryoB.model, "spatial track matching", "not mapped" ) );
+		assertEquals( set( "B1", "B2" ), getTaggedSpots( embryoB.model, "spatial track matching", "flipped" ) );
 	}
 
 	@Test

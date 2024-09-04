@@ -49,7 +49,7 @@ public class CellDivisionAngleFeature extends DoubleScalarFeature< Spot >
 
 	private static final String KEY = "Cell division angle";
 
-	public static final String INFO_STRING = "Result of the lineage registration algorithm: angle between paired cell division directions.";
+	public static final String INFO_STRING = "Result of the spatial track matching algorithm: angle between paired cell division directions.";
 
 	public static final FeatureProjectionSpec PROJECTION_SPEC =
 			new FeatureProjectionSpec( KEY, Dimension.ANGLE );
