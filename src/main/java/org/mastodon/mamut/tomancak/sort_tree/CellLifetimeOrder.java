@@ -34,7 +34,7 @@ import java.util.function.Predicate;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.lineage_registration.BranchGraphUtils;
+import org.mastodon.mamut.tomancak.trackmatching.BranchGraphUtils;
 
 /**
  * A sorting "order" for sorting the lineage tree in a {@link ModelGraph}.
