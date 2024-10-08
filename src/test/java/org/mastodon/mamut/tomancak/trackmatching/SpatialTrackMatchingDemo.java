@@ -38,7 +38,7 @@ import org.scijava.Context;
 
 import mpicbg.spim.data.SpimDataException;
 
-public class LineageRegistrationDemo
+public class SpatialTrackMatchingDemo
 {
 	public static final String project1 = "/home/arzt/Datasets/Mette/E1.mastodon";
 
