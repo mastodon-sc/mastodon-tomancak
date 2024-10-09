@@ -33,7 +33,7 @@ import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 
 /**
- * Example data for testing {@link LineageRegistrationAlgorithm} and {@link LineageRegistrationUtils}.
+ * Example data for testing {@link SpatialTrackMatchingAlgorithm} and {@link SpatialTrackMatchingUtils}.
  * <p>
  * The graph {@link #graph} is a tree with three lineages, A, B and C. Each
  * lineage divides once.

@@ -45,7 +45,7 @@ import org.mastodon.collection.RefRefMap;
 import org.mastodon.collection.ref.RefRefHashMap;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.lineage_registration.LineageRegistrationAlgorithm;
+import org.mastodon.mamut.tomancak.lineage_registration.SpatialTrackMatchingAlgorithm;
 import org.mastodon.mamut.tomancak.lineage_registration.RegisteredGraphs;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
 import org.mastodon.model.tag.TagSetStructure;
@@ -54,7 +54,7 @@ import org.mastodon.util.TagSetUtils;
 
 /**
  * Tests {@link DynamicLandmarkRegistration} and it's integration in the
- * {@link LineageRegistrationAlgorithm}.
+ * {@link SpatialTrackMatchingAlgorithm}.
  */
 public class DynamicLandmarkRegistrationTest
 {
@@ -136,7 +136,7 @@ public class DynamicLandmarkRegistrationTest
 	@Test
 	public void testLineageRegistrationAlgorithm()
 	{
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryo1.model, 0, embryo2.model, 0,
+		RegisteredGraphs result = SpatialTrackMatchingAlgorithm.run( embryo1.model, 0, embryo2.model, 0,
 				SpatialRegistrationMethod.DYNAMIC_ROOTS );
 		assertEquals( embryo2.c21, result.mapAB.get( embryo1.c21 ) );
 		assertEquals( embryo2.c22, result.mapAB.get( embryo1.c22 ) );

@@ -48,20 +48,20 @@ import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
 
 /**
- * This class is the controller for the {@link LineageRegistrationFrame}.
+ * This class is the controller for the {@link SpatialTrackMatchingFrame}.
  * It shows the dialog and performs the actions requested by the user.
  * <p>
  * There should be only one instance of this class in the Fiji application.
  * This is ensured by making it an {@link ImageJService}. Being a service,
- * allows the {@link LineageRegistrationPlugin} to access it, and to call
+ * allows the {@link SpatialTrackMatchingPlugin} to access it, and to call
  * {@link #registerMastodonInstance}.
  *
  * @author Matthias Arzt
  */
 @Plugin( type = ImageJService.class )
-public class LineageRegistrationControlService extends AbstractService implements ImageJService
+public class SpatialTrackMatchingControlService extends AbstractService implements ImageJService
 {
-	private LineageRegistrationFrame dialog = null;
+	private SpatialTrackMatchingFrame dialog = null;
 
 	private final List< ProjectModel > projectModels = new ArrayList<>();
 
@@ -87,7 +87,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 			return;
 		}
 		if ( dialog == null )
-			dialog = new LineageRegistrationFrame( new Listener() );
+			dialog = new SpatialTrackMatchingFrame( new Listener() );
 		dialog.setMastodonInstances( projectModels );
 		dialog.pack();
 		dialog.setVisible( true );
@@ -108,7 +108,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 		} ).start();
 	}
 
-	private class Listener implements LineageRegistrationFrame.Listener
+	private class Listener implements SpatialTrackMatchingFrame.Listener
 	{
 
 		private ModelCoupling coupling = null;
@@ -132,7 +132,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 				dialog.log( "Sort the order of the child cells in the TrackScheme of project \"%s\".", project1.getName() );
 				dialog.log( "Use project \"%s\" as reference...", project2.getName() );
 				RegisteredGraphs registration = runRegistrationAlgorithm( project1, project2 );
-				LineageRegistrationUtils.sortSecondTrackSchemeToMatch( registration );
+				SpatialTrackMatchingUtils.sortSecondTrackSchemeToMatch( registration );
 				project2.getProjectModel().getBranchGraphSync().sync();
 				project2.getModel().setUndoPoint();
 				dialog.log( "done." );
@@ -148,7 +148,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 				dialog.clearLog();
 				dialog.log( "Create tag set \"lineages\" in project \"%s\"...", projectA.getName() );
 				dialog.log( "Create tag set \"lineages\" in project \"%s\"...", projectB.getName() );
-				LineageColoring.tagLineages(
+				TrackColoring.tagLineages(
 						projectA.getModel(), projectA.getFirstTimepoint(),
 						projectB.getModel(), projectB.getFirstTimepoint() );
 				projectA.getModel().setUndoPoint();
@@ -176,7 +176,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 				dialog.log( "Copy labels from project \"%s\" to project \"%s\"...",
 						fromProject.getName(), toProject.getName() );
 				RegisteredGraphs registration = runRegistrationAlgorithm( fromProject, toProject );
-				LineageRegistrationUtils.copySpotLabelsFromAtoB( registration );
+				SpatialTrackMatchingUtils.copySpotLabelsFromAtoB( registration );
 				toProject.getModel().setUndoPoint();
 				dialog.log( "done." );
 			} );
@@ -222,7 +222,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 						tagSet.getName(), fromProject.getName(), toProject.getName() );
 				String newTagSetName = tagSet.getName() + " (" + fromProject.getName() + ")";
 				RegisteredGraphs registration = runRegistrationAlgorithm( fromProject, toProject );
-				LineageRegistrationUtils.copyTagSetToSecondModel( registration, tagSet, newTagSetName );
+				SpatialTrackMatchingUtils.copyTagSetToSecondModel( registration, tagSet, newTagSetName );
 				toModel.setUndoPoint();
 				dialog.log( "done." );
 			} );
@@ -257,7 +257,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 				if ( modifyB )
 					dialog.log( "Create tag set \"spatial track matching\" in project \"%s\"...", projectB.getName() );
 				RegisteredGraphs registration = runRegistrationAlgorithm( projectA, projectB );
-				LineageRegistrationUtils.tagCells( registration, modifyA, modifyB );
+				SpatialTrackMatchingUtils.tagCells( registration, modifyA, modifyB );
 				if ( modifyA )
 					projectA.getModel().setUndoPoint();
 				if ( modifyB )
@@ -299,7 +299,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 			SelectedProject projectB = dialog.getProjectB();
 			RegisteredGraphs registeredGraphs = runRegistrationAlgorithm( projectA, projectB );
 			RefDoubleMap< Spot > anglesA = registeredGraphs.anglesA;
-			LineageRegistrationUtils.plotAngleAgainstTimepoint( anglesA );
+			SpatialTrackMatchingUtils.plotAngleAgainstTimepoint( anglesA );
 		}
 
 		@Override
@@ -316,7 +316,7 @@ public class LineageRegistrationControlService extends AbstractService implement
 
 	private RegisteredGraphs runRegistrationAlgorithm( SelectedProject projectA, SelectedProject projectB )
 	{
-		return LineageRegistrationAlgorithm.run(
+		return SpatialTrackMatchingAlgorithm.run(
 				projectA.getModel(), projectA.getFirstTimepoint(),
 				projectB.getModel(), projectB.getFirstTimepoint(),
 				dialog.getSpatialRegistrationMethod() );

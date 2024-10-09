@@ -31,7 +31,7 @@ package org.mastodon.mamut.tomancak.lineage_registration;
 import org.mastodon.mamut.model.Spot;
 
 /**
- * Example data for testing {@link LineageRegistrationAlgorithm} and {@link LineageRegistrationUtils}.
+ * Example data for testing {@link SpatialTrackMatchingAlgorithm} and {@link SpatialTrackMatchingUtils}.
  * The graph and coordinates are the similar to {@link EmbryoB}, but the graph in this class has
  * additional spots abc, bc and beforeA, that are added to the graph before the first spots of {@link EmbryoB}.
  * <p>

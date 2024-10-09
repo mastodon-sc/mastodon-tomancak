@@ -51,16 +51,16 @@ import org.scijava.ui.behaviour.util.RunnableAction;
 /**
  * A plugin that registers the cell lineages of two stereotypically developing embryos.
  * <p>
- * The plugin interacts with the {@link LineageRegistrationControlService} to
+ * The plugin interacts with the {@link SpatialTrackMatchingControlService} to
  * register and unregister the {@link ProjectModel}s
- * and to show the {@link LineageRegistrationFrame}.
+ * and to show the {@link SpatialTrackMatchingFrame}.
  */
 @Plugin( type = MamutPlugin.class )
-public class LineageRegistrationPlugin implements MamutPlugin
+public class SpatialTrackMatchingPlugin implements MamutPlugin
 {
 
 	@Parameter
-	LineageRegistrationControlService lineageRegistrationControlService;
+	SpatialTrackMatchingControlService spatialTrackMatchingControlService;
 
 	private static final String MATCH_TREE = "[tomancak] match tree to other project";
 
@@ -87,7 +87,7 @@ public class LineageRegistrationPlugin implements MamutPlugin
 
 	private final AbstractNamedAction matchTreeAction;
 
-	public LineageRegistrationPlugin()
+	public SpatialTrackMatchingPlugin()
 	{
 		matchTreeAction = new RunnableAction( MATCH_TREE, this::matchTree );
 	}
@@ -95,8 +95,8 @@ public class LineageRegistrationPlugin implements MamutPlugin
 	@Override
 	public void setAppPluginModel( ProjectModel model )
 	{
-		lineageRegistrationControlService.registerMastodonInstance( model );
-		model.projectClosedListeners().add( () -> lineageRegistrationControlService.unregisterMastodonInstance( model ) );
+		spatialTrackMatchingControlService.registerMastodonInstance( model );
+		model.projectClosedListeners().add( () -> spatialTrackMatchingControlService.unregisterMastodonInstance( model ) );
 	}
 
 	@Override
@@ -119,6 +119,6 @@ public class LineageRegistrationPlugin implements MamutPlugin
 
 	private void matchTree()
 	{
-		lineageRegistrationControlService.showDialog();
+		spatialTrackMatchingControlService.showDialog();
 	}
 }

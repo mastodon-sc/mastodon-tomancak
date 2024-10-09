@@ -47,7 +47,7 @@ import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.util.TagHelper;
 import org.mastodon.util.TagSetUtils;
 
-public class LineageRegistrationUtilsTest
+public class SpatialTrackMatchingUtilsTest
 {
 	private EmbryoA embryoA;
 
@@ -63,7 +63,7 @@ public class LineageRegistrationUtilsTest
 		// NB: The graphs need to have at least 3 dividing lineages.
 		// Only the root nodes of the dividing lineages are used
 		// to calculate the affine transform between the two "embryos".
-		registration = LineageRegistrationAlgorithm.run(
+		registration = SpatialTrackMatchingAlgorithm.run(
 				embryoA.model, 0,
 				embryoB.model, 0,
 				SpatialRegistrationMethod.FIXED_ROOTS );
@@ -75,7 +75,7 @@ public class LineageRegistrationUtilsTest
 		assertEquals( embryoB.a1, firstChild( embryoB.graph, embryoB.a ) );
 		assertEquals( embryoB.b1, firstChild( embryoB.graph, embryoB.b ) );
 		assertEquals( embryoB.c1, firstChild( embryoB.graph, embryoB.c ) );
-		LineageRegistrationUtils.sortSecondTrackSchemeToMatch( registration );
+		SpatialTrackMatchingUtils.sortSecondTrackSchemeToMatch( registration );
 		assertEquals( embryoB.a1, firstChild( embryoB.graph, embryoB.a ) );
 		assertEquals( embryoB.c1, firstChild( embryoB.graph, embryoB.c ) );
 		assertEquals( embryoB.b2, firstChild( embryoB.graph, embryoB.b ) );
@@ -84,7 +84,7 @@ public class LineageRegistrationUtilsTest
 	@Test
 	public void testTagCells()
 	{
-		LineageRegistrationUtils.tagCells( registration, true, true );
+		SpatialTrackMatchingUtils.tagCells( registration, true, true );
 		assertEquals( Collections.emptySet(), getTaggedSpots( embryoA.model, "spatial track matching", "not mapped" ) );
 		assertEquals( set( "B1", "B2" ), getTaggedSpots( embryoA.model, "spatial track matching", "flipped" ) );
 		assertEquals( Collections.emptySet(), getTaggedSpots( embryoB.model, "spatial track matching", "not mapped" ) );
@@ -107,7 +107,7 @@ public class LineageRegistrationUtilsTest
 		bar.tagBranch( embryoA.b1 );
 		bar.tagLink( embryoA.model.getGraph().getEdge( embryoA.bEnd, embryoA.b1 ) );
 		// process
-		LineageRegistrationUtils.copyTagSetToSecondModel( registration, tagSet, "new-tag-set" );
+		SpatialTrackMatchingUtils.copyTagSetToSecondModel( registration, tagSet, "new-tag-set" );
 		// test: tag set for embryoB
 		TagHelper fooB = new TagHelper( embryoB.model, "new-tag-set", "foo" );
 		TagHelper barB = new TagHelper( embryoB.model, "new-tag-set", "bar" );
@@ -123,7 +123,7 @@ public class LineageRegistrationUtilsTest
 		for ( Spot spot : embryoA.graph.vertices() )
 			spot.setLabel( spot.getLabel() + "_test" );
 		// process
-		LineageRegistrationUtils.copySpotLabelsFromAtoB( registration );
+		SpatialTrackMatchingUtils.copySpotLabelsFromAtoB( registration );
 		// test: labels for embryoB
 		assertEquals( "A_test", embryoB.a.getLabel() );
 		assertEquals( "A_test", embryoB.a.outgoingEdges().get( 0 ).getTarget().getLabel() );

@@ -33,7 +33,7 @@ import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 
 /**
- * Used in {@link LineageRegistrationFrame} and {@link LineageRegistrationControlService}
+ * Used in {@link SpatialTrackMatchingFrame} and {@link SpatialTrackMatchingControlService}
  * to exchange information about the selected projects and related sittings.
  */
 public class SelectedProject

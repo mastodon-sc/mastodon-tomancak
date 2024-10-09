@@ -46,7 +46,7 @@ import org.mastodon.model.tag.ObjTagMap;
 import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.util.TagSetUtils;
 
-public class LineageColoring
+public class TrackColoring
 {
 	/**
 	 * Assigns a tag to the lineages in two models, model A and modelB:

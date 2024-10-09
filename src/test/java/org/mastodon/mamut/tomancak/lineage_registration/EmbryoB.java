@@ -33,7 +33,7 @@ import net.imglib2.realtransform.AffineTransform3D;
 import org.mastodon.mamut.model.Spot;
 
 /**
- * Example data for testing {@link LineageRegistrationAlgorithm} and {@link LineageRegistrationUtils}.
+ * Example data for testing {@link SpatialTrackMatchingAlgorithm} and {@link SpatialTrackMatchingUtils}.
  * <p>
  * Very similar to {@link EmbryoA}, but rotated 90 degrees around x-axis and
  * the positions of the spots B1 and B2 are flipped.

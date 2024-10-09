@@ -49,7 +49,7 @@ public class LineageRegistrationDemo
 		final Context context = new Context();
 		openAppModel( context, project1 );
 		openAppModel( context, project2 );
-		context.service( LineageRegistrationControlService.class ).showDialog();
+		context.service( SpatialTrackMatchingControlService.class ).showDialog();
 	}
 
 	private static void openAppModel( final Context context, final String projectPath )

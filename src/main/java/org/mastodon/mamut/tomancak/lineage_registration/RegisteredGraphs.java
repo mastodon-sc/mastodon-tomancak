@@ -44,7 +44,7 @@ import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.Spa
  * This datastructure holds two {@link ModelGraph}s and a mapping between them.
  * </p>
  * <p>
- * This is also the return type of {@link LineageRegistrationAlgorithm#run}.
+ * This is also the return type of {@link SpatialTrackMatchingAlgorithm#run}.
  * </p>
  */
 public class RegisteredGraphs

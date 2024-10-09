@@ -45,7 +45,7 @@ import org.mastodon.collection.RefRefMap;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationMethod;
 
-public class LineageRegistrationAlgorithmTest
+public class SpatialTrackMatchingAlgorithmTest
 {
 
 	private final List< String > expected = Arrays.asList(
@@ -69,7 +69,7 @@ public class LineageRegistrationAlgorithmTest
 	{
 		EmbryoA embryoA = new EmbryoA();
 		EmbryoB embryoB = new EmbryoB();
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryoA.model, 0, embryoB.model, 0,
+		RegisteredGraphs result = SpatialTrackMatchingAlgorithm.run( embryoA.model, 0, embryoB.model, 0,
 				SpatialRegistrationMethod.FIXED_ROOTS );
 		assertEquals( expected, asStrings( result.mapAB ) );
 		assertEquals( expectedAngles, asStrings( result.anglesA ) );
@@ -80,7 +80,7 @@ public class LineageRegistrationAlgorithmTest
 	{
 		EmbryoA embryoA = new EmbryoA();
 		EmbryoBSingleCellStage embryoB = new EmbryoBSingleCellStage();
-		RegisteredGraphs result = LineageRegistrationAlgorithm.run( embryoA.model, 0, embryoB.model, 2,
+		RegisteredGraphs result = SpatialTrackMatchingAlgorithm.run( embryoA.model, 0, embryoB.model, 2,
 				SpatialRegistrationMethod.FIXED_ROOTS );
 		assertEquals( expected, asStrings( result.mapAB ) );
 		assertEquals( embryoB.beforeA, result.mapAB.get( embryoA.a ) );

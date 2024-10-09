@@ -55,10 +55,10 @@ import org.mastodon.mamut.io.project.MamutProject;
 import org.mastodon.mamut.tomancak.lineage_registration.spatial_registration.SpatialRegistrationMethod;
 
 /**
- * Dialog for the {@link LineageRegistrationPlugin}. It allows to select two
+ * Dialog for the {@link SpatialTrackMatchingPlugin}. It allows to select two
  * {@link MamutProject}s and to perform various actions on them.
  */
-public class LineageRegistrationFrame extends JFrame
+public class SpatialTrackMatchingFrame extends JFrame
 {
 	private static final String FIRST_TIMEPOINT_TOOLTIP = "<html><body>"
 			+ "The first time point of a project to be used for the registration.<br>"
@@ -148,7 +148,7 @@ public class LineageRegistrationFrame extends JFrame
 
 	private final JTextArea logArea;
 
-	public LineageRegistrationFrame( Listener listener )
+	public SpatialTrackMatchingFrame( Listener listener )
 	{
 		super( "Spatial Track Matching Across Two Mastodon Projects" );
 		this.setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
@@ -528,7 +528,7 @@ public class LineageRegistrationFrame extends JFrame
 	public static void main( String... args )
 	{
 		// NOTE: Small demo function that only shows the LineageRegistrationDialog. For easy debugging.
-		LineageRegistrationFrame dialog = new LineageRegistrationFrame( new DummyListener() );
+		SpatialTrackMatchingFrame dialog = new SpatialTrackMatchingFrame( new DummyListener() );
 		dialog.pack();
 		dialog.setVisible( true );
 	}

@@ -58,9 +58,9 @@ import org.mastodon.util.TagSetUtils;
 
 /**
  * Utility class that implements most of the functionality
- * provided by the {@link LineageRegistrationPlugin}.
+ * provided by the {@link SpatialTrackMatchingPlugin}.
  */
-public class LineageRegistrationUtils
+public class SpatialTrackMatchingUtils
 {
 
 	/**

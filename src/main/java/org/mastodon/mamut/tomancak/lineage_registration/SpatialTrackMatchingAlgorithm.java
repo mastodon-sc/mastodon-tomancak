@@ -50,7 +50,7 @@ import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
  *
  * @see SortTreeUtils#directionOfCellDevision(ModelGraph, Spot)
  */
-public class LineageRegistrationAlgorithm
+public class SpatialTrackMatchingAlgorithm
 {
 	private static final int TIME_OFFSET = SortTreeUtils.DIVISION_DIRECTION_TIME_OFFSET;
 
@@ -117,7 +117,7 @@ public class LineageRegistrationAlgorithm
 	public static RegisteredGraphs run( Model modelA, Model modelB,
 			RefRefMap< Spot, Spot > roots, SpatialRegistration spatialRegistration )
 	{
-		LineageRegistrationAlgorithm algorithm = new LineageRegistrationAlgorithm(
+		SpatialTrackMatchingAlgorithm algorithm = new SpatialTrackMatchingAlgorithm(
 				modelA.getGraph(), modelB.getGraph(),
 				roots, spatialRegistration );
 		return new RegisteredGraphs( modelA, modelB, spatialRegistration, algorithm.getMapping(), algorithm.getAngles() );
@@ -128,7 +128,7 @@ public class LineageRegistrationAlgorithm
 		return angles;
 	}
 
-	private LineageRegistrationAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,
+	private SpatialTrackMatchingAlgorithm( ModelGraph graphA, ModelGraph graphB, RefRefMap< Spot, Spot > roots,
 			SpatialRegistration spatialRegistration )
 	{
 		this.spatialRegistration = spatialRegistration;
