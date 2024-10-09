@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -134,28 +134,28 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	static
 	{
-		menuTexts.put( EXPORT_PHYLOXML, "Export phyloXML for Selection" );
-		menuTexts.put( FLIP_DESCENDANTS, "Flip Descendants" );
-		menuTexts.put( COPY_TAG, "Copy Tag" );
-		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate Missing Spots" );
-		menuTexts.put( LABEL_SELECTED_SPOTS, "Label Selected Spots" );
-		menuTexts.put( CHANGE_BRANCH_LABELS, "Change Branch's Labels");
-		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show Compact Lineage" );
-		menuTexts.put( SORT_TREE, "Sort Lineage Tree (Left-Right-Anchors)" );
-		menuTexts.put( SORT_TREE_EXTERN_INTERN, "Sort Lineage Tree (Extern-Intern)" );
-		menuTexts.put( SORT_TREE_LIFETIME, "Sort Lineage Tree (Cell Lifecycle Duration)" );
-		menuTexts.put( LABEL_SPOTS_SYSTEMATICALLY, "Systematically Label Spots (Extern-Intern)" );
-		menuTexts.put( REMOVE_SOLISTS_SPOTS, "Remove Spots Solists" );
-		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export Lineage Lengths" );
-		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export Spots Counts per Lineage" );
-		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export Spots Counts per Timepoint" );
-		menuTexts.put( MERGE_PROJECTS, "Merge Two Projects" );
-		menuTexts.put( TWEAK_DATASET_PATH, "Fix Image Path" );
-		menuTexts.put( ADD_CENTER_SPOTS, "Add Center Spot" );
-		menuTexts.put( MIRROR_SPOTS, "Mirror Spots Along X-Axis" );
-		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create Conflict Tag Set" );
-		menuTexts.put( FUSE_SPOTS, "Fuse Selected Spots" );
-		menuTexts.put( LOCATE_TAGS, "Locate Tags" );
+		menuTexts.put( EXPORT_PHYLOXML, "Export phyloXML for selection" );
+		menuTexts.put( FLIP_DESCENDANTS, "Flip descendants" );
+		menuTexts.put( COPY_TAG, "Copy tag" );
+		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate missing spots" );
+		menuTexts.put( LABEL_SELECTED_SPOTS, "Label selected spots" );
+		menuTexts.put( CHANGE_BRANCH_LABELS, "Change branch labels" );
+		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show compact lineage" );
+		menuTexts.put( SORT_TREE, "Sort lineage tree (left-right-anchors)" );
+		menuTexts.put( SORT_TREE_EXTERN_INTERN, "Sort lineage tree (extern-intern)" );
+		menuTexts.put( SORT_TREE_LIFETIME, "Sort lineage tree (cell life cycle duration)" );
+		menuTexts.put( LABEL_SPOTS_SYSTEMATICALLY, "Systematically label spots (extern-intern)" );
+		menuTexts.put( REMOVE_SOLISTS_SPOTS, "Remove spots solists" );
+		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export lineage lengths" );
+		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export spots counts per lineage" );
+		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export spots counts per timepoint" );
+		menuTexts.put( MERGE_PROJECTS, "Merge two projects" );
+		menuTexts.put( TWEAK_DATASET_PATH, "Fix image path" );
+		menuTexts.put( ADD_CENTER_SPOTS, "Add center spot" );
+		menuTexts.put( MIRROR_SPOTS, "Mirror spots along X-axis" );
+		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create conflict tag set" );
+		menuTexts.put( FUSE_SPOTS, "Fuse selected spots" );
+		menuTexts.put( LOCATE_TAGS, "Locate tags" );
 	}
 
 	/*
@@ -281,35 +281,40 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	public List< ViewMenuBuilder.MenuItem > getMenuItems()
 	{
 		return Arrays.asList(
+				menu( "File",
+						item( TWEAK_DATASET_PATH ),
+						menu( "Exports",
+								menu( "Export measurements",
+										menu( "Spot counts",
+												item( EXPORT_SPOTS_COUNTS_PER_LINEAGE ),
+												item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ),
+										item( EXPORTS_LINEAGE_LENGTHS ) ),
+								item( EXPORT_PHYLOXML ) ) ),
 				menu( "Plugins",
 						menu( "Tags",
 								item( LOCATE_TAGS ),
 								item( COPY_TAG ) ),
+						menu( "Spots management",
+								menu( "Rename spots",
+										item( LABEL_SELECTED_SPOTS ),
+										item( CHANGE_BRANCH_LABELS ),
+										item( LABEL_SPOTS_SYSTEMATICALLY ) ),
+								menu( "Transform spots",
+										item( MIRROR_SPOTS ),
+										item( REMOVE_SOLISTS_SPOTS ),
+										item( ADD_CENTER_SPOTS ),
+										item( INTERPOLATE_SPOTS ) ) ),
+						menu( "Trees Management",
+								item( FLIP_DESCENDANTS ),
+								menu( "Conflict Resolution",
+										item( CREATE_CONFLICT_TAG_SET ),
+										item( FUSE_SPOTS ) ),
+								menu( "Sort trackscheme",
+										item( SORT_TREE ),
+										item( SORT_TREE_EXTERN_INTERN ),
+										item( SORT_TREE_LIFETIME ) ) ),
 						menu( "Auxiliary Displays",
 								item( COMPACT_LINEAGE_VIEW ) ),
-						menu( "Trees Management",
-								item( LABEL_SELECTED_SPOTS ),
-								item( CHANGE_BRANCH_LABELS ),
-								item( REMOVE_SOLISTS_SPOTS ),
-								item( ADD_CENTER_SPOTS ),
-								item( INTERPOLATE_SPOTS ),
-								item( FLIP_DESCENDANTS ),
-								item( SORT_TREE ),
-								item( SORT_TREE_EXTERN_INTERN ),
-								item( SORT_TREE_LIFETIME ),
-								item( LABEL_SPOTS_SYSTEMATICALLY ) ),
-						menu( "Exports",
-								menu( "Spot Counts",
-										item( EXPORT_SPOTS_COUNTS_PER_LINEAGE ),
-										item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ),
-								item( EXPORTS_LINEAGE_LENGTHS ),
-								item( EXPORT_PHYLOXML ) ),
-						menu( "Conflict Resolution",
-								item( CREATE_CONFLICT_TAG_SET ),
-								item( FUSE_SPOTS ) ),
-						item( MIRROR_SPOTS ) ),
-				menu( "File",
-						item( TWEAK_DATASET_PATH ),
 						item( MERGE_PROJECTS ) ) );
 	}
 

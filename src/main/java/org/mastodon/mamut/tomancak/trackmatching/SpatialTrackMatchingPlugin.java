@@ -67,7 +67,7 @@ public class SpatialTrackMatchingPlugin implements MamutPlugin
 	private static final String[] MATCH_TREE_KEYS = { "not mapped" };
 
 	private static final Map< String, String > menuTexts =
-			Collections.singletonMap( MATCH_TREE, "Spatial Track Matching" );
+			Collections.singletonMap( MATCH_TREE, "Spatial track matching" );
 
 	@Plugin( type = CommandDescriptionProvider.class )
 	public static class Descriptions extends CommandDescriptionProvider
@@ -102,7 +102,7 @@ public class SpatialTrackMatchingPlugin implements MamutPlugin
 	@Override
 	public List< ViewMenuBuilder.MenuItem > getMenuItems()
 	{
-		return Collections.singletonList( menu( "Plugins", item( MATCH_TREE ) ) );
+		return Collections.singletonList( menu( "Plugins", menu( "Lineage analysis", item( MATCH_TREE ) ) ) );
 	}
 
 	@Override
