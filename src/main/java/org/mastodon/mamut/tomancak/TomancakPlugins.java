@@ -100,7 +100,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String EXPORT_SPOTS_COUNTS_PER_LINEAGE = "[tomancak] export spots counts per lineage";
 	private static final String EXPORT_SPOTS_COUNTS_PER_TIMEPOINT = "[tomancak] export spots counts per timepoint";
 	private static final String MERGE_PROJECTS = "[tomancak] merge projects";
-	private static final String TWEAK_DATASET_PATH = "[tomancak] fix project image path";
 	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spot";
 	private static final String MIRROR_SPOTS = "[tomancak] mirror spots";
 	private static final String CREATE_CONFLICT_TAG_SET = "[tomancak] create conflict tag set";
@@ -123,7 +122,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS = { "not mapped" };
 	private static final String[] MERGE_PROJECTS_KEYS = { "not mapped" };
-	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
 	private static final String[] MIRROR_SPOTS_KEYS = { "not mapped" };
 	private static final String[] CREATE_CONFLICT_TAG_SET_KEYS = { "not mapped" };
@@ -150,7 +148,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export spots counts per lineage" );
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export spots counts per timepoint" );
 		menuTexts.put( MERGE_PROJECTS, "Merge two projects" );
-		menuTexts.put( TWEAK_DATASET_PATH, "Fix image path" );
 		menuTexts.put( ADD_CENTER_SPOTS, "Add center spot" );
 		menuTexts.put( MIRROR_SPOTS, "Mirror spots along X-axis" );
 		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create conflict tag set" );
@@ -190,7 +187,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS,
 					"Exports counts of spots per timepoint into CSV-like files to be imported in data processors. One file." );
 			descriptions.add( MERGE_PROJECTS, MERGE_PROJECTS_KEYS, "Merge two Mastodon projects into one." );
-			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Allows to insert new path to the BDV data and whether it is relative or absolute." );
 			descriptions.add( ADD_CENTER_SPOTS, ADD_CENTER_SPOTS_KEYS, "On each timepoint with selected spots, add a new spot that is in the center (average position)." );
 			descriptions.add( MIRROR_SPOTS, MIRROR_SPOTS_KEYS, "Mirror spots along x-axis." );
 			descriptions.add( CREATE_CONFLICT_TAG_SET, CREATE_CONFLICT_TAG_SET_KEYS, "Search spots that overlap and create a tag set that highlights these conflicts." );
@@ -231,8 +227,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction mergeProjectsAction;
 
-	private final AbstractNamedAction tweakDatasetPathAction;
-
 	private final AbstractNamedAction addCenterSpots;
 
 	private final AbstractNamedAction mirrorSpots;
@@ -263,7 +257,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		exportSpotsCountsPerLineageAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_LINEAGE, this::exportCountsPerLineage );
 		exportSpotsCountsPerTimepointAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, this::exportCountsPerTimepoint );
 		mergeProjectsAction = new RunnableAction( MERGE_PROJECTS, this::mergeProjects );
-		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		addCenterSpots = new RunnableAction( ADD_CENTER_SPOTS, this::addCenterSpots );
 		mirrorSpots = new RunnableAction( MIRROR_SPOTS, this::mirrorSpots );
 		createConflictTagSet = new RunnableAction( CREATE_CONFLICT_TAG_SET, this::createConflictTagSet );
@@ -282,7 +275,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	{
 		return Arrays.asList(
 				menu( "File",
-						item( TWEAK_DATASET_PATH ),
 						menu( "Exports",
 								menu( "Export measurements",
 										menu( "Spot counts",
@@ -343,7 +335,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( exportSpotsCountsPerLineageAction, EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS );
 		actions.namedAction( exportSpotsCountsPerTimepointAction, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS );
 		actions.namedAction( mergeProjectsAction, MERGE_PROJECTS_KEYS );
-		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 		actions.namedAction( addCenterSpots, ADD_CENTER_SPOTS_KEYS );
 		actions.namedAction( mirrorSpots, MIRROR_SPOTS_KEYS );
 		actions.namedAction( createConflictTagSet, CREATE_CONFLICT_TAG_SET_KEYS );
@@ -470,23 +461,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			}
 		} );
 		mergingDialog.setVisible( true );
-	}
-
-	private void tweakDatasetPath()
-	{
-		if ( pluginAppModel.getProject() instanceof MamutImagePlusProject )
-		{
-			JOptionPane.showMessageDialog(
-					null,
-					"The current project is based on an \n"
-							+ "ImagePlus  as image data source. \n"
-							+ "Its dataset path cannot be edited.",
-					"Cannot edit dataset path",
-					JOptionPane.WARNING_MESSAGE,
-					MastodonIcons.MASTODON_ICON_MEDIUM );
-			return;
-		}
-		new DatasetPathDialog( null, pluginAppModel ).setVisible( true );
 	}
 
 	private void changeBranchLabels()
