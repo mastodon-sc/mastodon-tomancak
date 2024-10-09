@@ -51,8 +51,6 @@ import org.scijava.plugin.Plugin;
 import org.scijava.util.ColorRGB;
 
 /**
- * {@link Command A SciJava command} that is called by the {@link CellDivisionsTagSetPlugin}.
- * <p>
  * The command creates a tag set that highlights cell divisions. The user interface allows to
  * specify the number of spots to highlight before and after a division, and the highlight and
  * background colors.

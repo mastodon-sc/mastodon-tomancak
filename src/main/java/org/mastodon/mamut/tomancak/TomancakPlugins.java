@@ -51,6 +51,7 @@ import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
+import org.mastodon.mamut.tomancak.divisiontagset.CellDivisionsTagSetCommand;
 import org.mastodon.mamut.tomancak.export.ExportCounts;
 import org.mastodon.mamut.tomancak.export.LineageLengthExporter;
 import org.mastodon.mamut.tomancak.export.MakePhyloXml;
@@ -106,6 +107,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String FUSE_SPOTS = "[tomancak] fuse selected spots";
 	private static final String LOCATE_TAGS = "[tomancak] locate tags";
 
+	private static final String CELL_DIVISIONS_TAG_SET = "[tomancak] create cell divisions tag set";
+
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "ctrl E" };
 	private static final String[] COPY_TAG_KEYS = { "not mapped" };
@@ -127,6 +130,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] CREATE_CONFLICT_TAG_SET_KEYS = { "not mapped" };
 	private static final String[] FUSE_SPOTS_KEYS = { "ctrl shift F" };
 	private static final String[] LOCATE_TAGS_KEYS = { "not mapped" };
+
+	private static final String[] CELL_DIVISIONS_TAG_SET_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -153,6 +158,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create conflict tag set" );
 		menuTexts.put( FUSE_SPOTS, "Fuse selected spots" );
 		menuTexts.put( LOCATE_TAGS, "Locate tags" );
+		menuTexts.put( CELL_DIVISIONS_TAG_SET, "Add tag set to highlight cell divisions" );
 	}
 
 	/*
@@ -192,6 +198,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( CREATE_CONFLICT_TAG_SET, CREATE_CONFLICT_TAG_SET_KEYS, "Search spots that overlap and create a tag set that highlights these conflicts." );
 			descriptions.add( FUSE_SPOTS, FUSE_SPOTS_KEYS, "Fuse selected spots into a single spot. Average spot position and shape." );
 			descriptions.add( LOCATE_TAGS, LOCATE_TAGS_KEYS, "Open a dialog that allows to jump to specific tags." );
+			descriptions.add( CELL_DIVISIONS_TAG_SET, CELL_DIVISIONS_TAG_SET_KEYS, "Adds a tag set to highlight cell divisions." );
 		}
 	}
 
@@ -237,6 +244,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction locateTags;
 
+	private final AbstractNamedAction cellDivisionsTagSetAction;
+
 	private ProjectModel pluginAppModel;
 
 	public TomancakPlugins()
@@ -262,6 +271,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		createConflictTagSet = new RunnableAction( CREATE_CONFLICT_TAG_SET, this::createConflictTagSet );
 		fuseSpots = new RunnableAction( FUSE_SPOTS, this::fuseSpots );
 		locateTags = new RunnableAction( LOCATE_TAGS, this::locateTags );
+		cellDivisionsTagSetAction = new RunnableAction( CELL_DIVISIONS_TAG_SET, this::runCellDivisionsTagSet );
 	}
 
 	@Override
@@ -285,7 +295,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 				menu( "Plugins",
 						menu( "Tags",
 								item( LOCATE_TAGS ),
-								item( COPY_TAG ) ),
+								item( COPY_TAG ),
+								item( CELL_DIVISIONS_TAG_SET ) ),
 						menu( "Spots management",
 								menu( "Rename spots",
 										item( LABEL_SELECTED_SPOTS ),
@@ -340,6 +351,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( createConflictTagSet, CREATE_CONFLICT_TAG_SET_KEYS );
 		actions.namedAction( fuseSpots, FUSE_SPOTS_KEYS );
 		actions.namedAction( locateTags, LOCATE_TAGS_KEYS );
+		actions.namedAction( cellDivisionsTagSetAction, CELL_DIVISIONS_TAG_SET_KEYS );
 	}
 
 	private void exportPhyloXml()
@@ -496,5 +508,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private void locateTags()
 	{
 		LocateTagsFrame.run( pluginAppModel );
+	}
+
+	private void runCellDivisionsTagSet()
+	{
+		this.getContext().service( CommandService.class ).run( CellDivisionsTagSetCommand.class, true, "projectModel", pluginAppModel );
 	}
 }
