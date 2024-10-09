@@ -71,6 +71,7 @@ import org.mastodon.model.SelectionModel;
 import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.AbstractContextual;
 import org.scijava.command.CommandService;
+import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.behaviour.io.gui.CommandDescriptionProvider;
 import org.scijava.ui.behaviour.io.gui.CommandDescriptions;
@@ -198,6 +199,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		}
 	}
 
+	@Parameter
+	private CommandService commandService;
+
 	private final AbstractNamedAction exportPhyloXmlAction;
 
 	private final AbstractNamedAction flipDescendantsAction;
@@ -242,7 +246,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction cellDivisionsTagSetAction;
 
-	private ProjectModel pluginAppModel;
+	private ProjectModel projectModel;
 
 	public TomancakPlugins()
 	{
@@ -273,7 +277,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	@Override
 	public void setAppPluginModel( final ProjectModel model )
 	{
-		this.pluginAppModel = model;
+		this.projectModel = model;
 	}
 
 	@Override
@@ -352,43 +356,43 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private void exportPhyloXml()
 	{
-		MakePhyloXml.exportSelectedSubtreeToPhyloXmlFile( pluginAppModel );
+		MakePhyloXml.exportSelectedSubtreeToPhyloXmlFile( projectModel );
 	}
 
 	private void flipDescendants()
 	{
-		FlipDescendants.flipDescendants( pluginAppModel );
+		FlipDescendants.flipDescendants( projectModel );
 	}
 
 	private void copyTag()
 	{
-		final Model model = pluginAppModel.getModel();
+		final Model model = projectModel.getModel();
 		new CopyTagDialog( null, model ).setVisible( true );
 	}
 
 	private void interpolateSpots()
 	{
-		final Model model = pluginAppModel.getModel();
+		final Model model = projectModel.getModel();
 		InterpolateMissingSpots.interpolate( model );
 	}
 
 	private void labelSelectedSpots()
 	{
-		LabelSelectedSpots.labelSelectedSpot( pluginAppModel );
+		LabelSelectedSpots.labelSelectedSpot( projectModel );
 	}
 
 	private void sortTree() {
-		SortTreeLeftRightDialog.showDialog( pluginAppModel );
+		SortTreeLeftRightDialog.showDialog( projectModel );
 	}
 
 	private void sortTreeExternIntern()
 	{
-		SortTreeExternInternDialog.showDialog( pluginAppModel );
+		SortTreeExternInternDialog.showDialog( projectModel );
 	}
 
 	private void sortTreeCellLifetime()
 	{
-		final ProjectModel appModel = pluginAppModel;
+		final ProjectModel appModel = projectModel;
 		final Model model = appModel.getModel();
 		final SelectionModel< Spot, Link > selectionModel = appModel.getSelectionModel();
 
@@ -401,39 +405,32 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	}
 
 	private void showLineageView() {
-		if( pluginAppModel == null )
+		if ( projectModel == null )
 			return;
 		final CompactLineageFrame frame =
-			new CompactLineageFrame(pluginAppModel);
+				new CompactLineageFrame( projectModel );
 		frame.setVisible(true);
 	}
 
 	private void filterOutSolists()
 	{
-		this.getContext().getService(CommandService.class).run(
-				FilterOutSolists.class, true,
-				"appModel", pluginAppModel);
+		commandService.run( FilterOutSolists.class, true, "appModel", projectModel );
 	}
 
 	private void exportLengths()
 	{
-		this.getContext().getService(CommandService.class).run(
-				LineageLengthExporter.class, true,
-				"appModel", pluginAppModel);
+		commandService.run( LineageLengthExporter.class, true, "appModel", projectModel );
 	}
 
 	private void exportCountsPerLineage()
 	{
-		this.getContext().getService(CommandService.class).run(
-				ExportCounts.class, true,
-				"appModel", pluginAppModel);
+		commandService.run( ExportCounts.class, true, "appModel", projectModel );
 	}
 
 	private void exportCountsPerTimepoint()
 	{
-		this.getContext().getService( CommandService.class ).run(
-				ExportSpotCountsPerTimepointCommand.class, true,
-				"projectModel", pluginAppModel, "context", pluginAppModel.getContext() );
+		commandService.run( ExportSpotCountsPerTimepointCommand.class, true, "projectModel", projectModel,
+				"context", projectModel.getContext() );
 	}
 
 	private MergingDialog mergingDialog;
@@ -455,11 +452,11 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 				final Dataset dsA = new Dataset( pathA );
 				final Dataset dsB = new Dataset( pathB );
 
-				final ProjectModel projectMerged = ProjectCreator.createProjectFromBdvFile( dsA.project().getDatasetXmlFile(), pluginAppModel.getContext() );
+				final ProjectModel projectMerged = ProjectCreator.createProjectFromBdvFile( dsA.project().getDatasetXmlFile(), projectModel.getContext() );
 				final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( projectMerged.getModel() );
 				MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
 				// close currently open instance of Mastodon
-				pluginAppModel.close();
+				projectModel.close();
 				// start a new instance of Mastodon that shows the result of the merge operation
 				new MainWindow( projectMerged ).setVisible( true );
 			}
@@ -473,41 +470,41 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private void changeBranchLabels()
 	{
-		RenameBranchLabels.run( pluginAppModel );
+		RenameBranchLabels.run( projectModel );
 	}
 
 	private void labelSpotsSystematically()
 	{
-		LabelSpotsSystematicallyDialog.showDialog( pluginAppModel );
+		LabelSpotsSystematicallyDialog.showDialog( projectModel );
 	}
 
 	private void addCenterSpots()
 	{
-		AddCenterSpots.addSpots( pluginAppModel );
+		AddCenterSpots.addSpots( projectModel );
 	}
 
 	private void mirrorSpots()
 	{
-		MirrorEmbryo.run( pluginAppModel );
+		MirrorEmbryo.run( projectModel );
 	}
 
 	private void createConflictTagSet()
 	{
-		CreateConflictTagSetCommand.run( pluginAppModel );
+		CreateConflictTagSetCommand.run( projectModel );
 	}
 
 	private void fuseSpots()
 	{
-		FuseSpots.run( pluginAppModel );
+		FuseSpots.run( projectModel );
 	}
 
 	private void locateTags()
 	{
-		LocateTagsFrame.run( pluginAppModel );
+		LocateTagsFrame.run( projectModel );
 	}
 
 	private void runCellDivisionsTagSet()
 	{
-		this.getContext().service( CommandService.class ).run( CellDivisionsTagSetCommand.class, true, "projectModel", pluginAppModel );
+		commandService.run( CellDivisionsTagSetCommand.class, true, "projectModel", projectModel );
 	}
 }
