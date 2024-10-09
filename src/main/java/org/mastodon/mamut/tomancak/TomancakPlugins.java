@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -37,20 +37,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JOptionPane;
-
-import org.mastodon.app.MastodonIcons;
 import org.mastodon.app.ui.ViewMenuBuilder;
 import org.mastodon.mamut.KeyConfigScopes;
 import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.io.ProjectCreator;
-import org.mastodon.mamut.io.project.MamutImagePlusProject;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
+import org.mastodon.mamut.tomancak.divisiontagset.CellDivisionsTagSetCommand;
 import org.mastodon.mamut.tomancak.export.ExportCounts;
 import org.mastodon.mamut.tomancak.export.LineageLengthExporter;
 import org.mastodon.mamut.tomancak.export.MakePhyloXml;
@@ -74,6 +71,7 @@ import org.mastodon.model.SelectionModel;
 import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.AbstractContextual;
 import org.scijava.command.CommandService;
+import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.behaviour.io.gui.CommandDescriptionProvider;
 import org.scijava.ui.behaviour.io.gui.CommandDescriptions;
@@ -100,12 +98,13 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String EXPORT_SPOTS_COUNTS_PER_LINEAGE = "[tomancak] export spots counts per lineage";
 	private static final String EXPORT_SPOTS_COUNTS_PER_TIMEPOINT = "[tomancak] export spots counts per timepoint";
 	private static final String MERGE_PROJECTS = "[tomancak] merge projects";
-	private static final String TWEAK_DATASET_PATH = "[tomancak] fix project image path";
 	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spot";
 	private static final String MIRROR_SPOTS = "[tomancak] mirror spots";
 	private static final String CREATE_CONFLICT_TAG_SET = "[tomancak] create conflict tag set";
 	private static final String FUSE_SPOTS = "[tomancak] fuse selected spots";
 	private static final String LOCATE_TAGS = "[tomancak] locate tags";
+
+	private static final String CELL_DIVISIONS_TAG_SET = "[tomancak] create cell divisions tag set";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "ctrl E" };
@@ -123,39 +122,40 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS = { "not mapped" };
 	private static final String[] MERGE_PROJECTS_KEYS = { "not mapped" };
-	private static final String[] TWEAK_DATASET_PATH_KEYS = { "not mapped" };
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
 	private static final String[] MIRROR_SPOTS_KEYS = { "not mapped" };
 	private static final String[] CREATE_CONFLICT_TAG_SET_KEYS = { "not mapped" };
 	private static final String[] FUSE_SPOTS_KEYS = { "ctrl shift F" };
 	private static final String[] LOCATE_TAGS_KEYS = { "not mapped" };
 
+	private static final String[] CELL_DIVISIONS_TAG_SET_KEYS = { "not mapped" };
+
 	private static Map< String, String > menuTexts = new HashMap<>();
 
 	static
 	{
-		menuTexts.put( EXPORT_PHYLOXML, "Export phyloXML for Selection" );
-		menuTexts.put( FLIP_DESCENDANTS, "Flip Descendants" );
-		menuTexts.put( COPY_TAG, "Copy Tag" );
-		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate Missing Spots" );
-		menuTexts.put( LABEL_SELECTED_SPOTS, "Label Selected Spots" );
-		menuTexts.put( CHANGE_BRANCH_LABELS, "Change Branch's Labels");
-		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show Compact Lineage" );
-		menuTexts.put( SORT_TREE, "Sort Lineage Tree (Left-Right-Anchors)" );
-		menuTexts.put( SORT_TREE_EXTERN_INTERN, "Sort Lineage Tree (Extern-Intern)" );
-		menuTexts.put( SORT_TREE_LIFETIME, "Sort Lineage Tree (Cell Lifecycle Duration)" );
-		menuTexts.put( LABEL_SPOTS_SYSTEMATICALLY, "Systematically Label Spots (Extern-Intern)" );
-		menuTexts.put( REMOVE_SOLISTS_SPOTS, "Remove Spots Solists" );
-		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export Lineage Lengths" );
-		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export Spots Counts per Lineage" );
-		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export Spots Counts per Timepoint" );
-		menuTexts.put( MERGE_PROJECTS, "Merge Two Projects" );
-		menuTexts.put( TWEAK_DATASET_PATH, "Fix Image Path" );
-		menuTexts.put( ADD_CENTER_SPOTS, "Add Center Spot" );
-		menuTexts.put( MIRROR_SPOTS, "Mirror Spots Along X-Axis" );
-		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create Conflict Tag Set" );
-		menuTexts.put( FUSE_SPOTS, "Fuse Selected Spots" );
-		menuTexts.put( LOCATE_TAGS, "Locate Tags" );
+		menuTexts.put( EXPORT_PHYLOXML, "Export phyloXML for selection" );
+		menuTexts.put( FLIP_DESCENDANTS, "Flip descendants" );
+		menuTexts.put( COPY_TAG, "Copy tag" );
+		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate missing spots" );
+		menuTexts.put( LABEL_SELECTED_SPOTS, "Label selected spots" );
+		menuTexts.put( CHANGE_BRANCH_LABELS, "Change branch labels" );
+		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show compact lineage" );
+		menuTexts.put( SORT_TREE, "Sort lineage tree (left-right-anchors)" );
+		menuTexts.put( SORT_TREE_EXTERN_INTERN, "Sort lineage tree (extern-intern)" );
+		menuTexts.put( SORT_TREE_LIFETIME, "Sort lineage tree (cell life cycle duration)" );
+		menuTexts.put( LABEL_SPOTS_SYSTEMATICALLY, "Systematically label spots (extern-intern)" );
+		menuTexts.put( REMOVE_SOLISTS_SPOTS, "Remove spots solists" );
+		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export lineage lengths" );
+		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export spots counts per lineage" );
+		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export spots counts per timepoint" );
+		menuTexts.put( MERGE_PROJECTS, "Merge two projects" );
+		menuTexts.put( ADD_CENTER_SPOTS, "Add center spot" );
+		menuTexts.put( MIRROR_SPOTS, "Mirror spots along X-axis" );
+		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create conflict tag set" );
+		menuTexts.put( FUSE_SPOTS, "Fuse selected spots" );
+		menuTexts.put( LOCATE_TAGS, "Locate tags" );
+		menuTexts.put( CELL_DIVISIONS_TAG_SET, "Add tag set to highlight cell divisions" );
 	}
 
 	/*
@@ -190,14 +190,17 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS,
 					"Exports counts of spots per timepoint into CSV-like files to be imported in data processors. One file." );
 			descriptions.add( MERGE_PROJECTS, MERGE_PROJECTS_KEYS, "Merge two Mastodon projects into one." );
-			descriptions.add( TWEAK_DATASET_PATH, TWEAK_DATASET_PATH_KEYS, "Allows to insert new path to the BDV data and whether it is relative or absolute." );
 			descriptions.add( ADD_CENTER_SPOTS, ADD_CENTER_SPOTS_KEYS, "On each timepoint with selected spots, add a new spot that is in the center (average position)." );
 			descriptions.add( MIRROR_SPOTS, MIRROR_SPOTS_KEYS, "Mirror spots along x-axis." );
 			descriptions.add( CREATE_CONFLICT_TAG_SET, CREATE_CONFLICT_TAG_SET_KEYS, "Search spots that overlap and create a tag set that highlights these conflicts." );
 			descriptions.add( FUSE_SPOTS, FUSE_SPOTS_KEYS, "Fuse selected spots into a single spot. Average spot position and shape." );
 			descriptions.add( LOCATE_TAGS, LOCATE_TAGS_KEYS, "Open a dialog that allows to jump to specific tags." );
+			descriptions.add( CELL_DIVISIONS_TAG_SET, CELL_DIVISIONS_TAG_SET_KEYS, "Adds a tag set to highlight cell divisions." );
 		}
 	}
+
+	@Parameter
+	private CommandService commandService;
 
 	private final AbstractNamedAction exportPhyloXmlAction;
 
@@ -231,8 +234,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction mergeProjectsAction;
 
-	private final AbstractNamedAction tweakDatasetPathAction;
-
 	private final AbstractNamedAction addCenterSpots;
 
 	private final AbstractNamedAction mirrorSpots;
@@ -243,7 +244,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction locateTags;
 
-	private ProjectModel pluginAppModel;
+	private final AbstractNamedAction cellDivisionsTagSetAction;
+
+	private ProjectModel projectModel;
 
 	public TomancakPlugins()
 	{
@@ -263,53 +266,58 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		exportSpotsCountsPerLineageAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_LINEAGE, this::exportCountsPerLineage );
 		exportSpotsCountsPerTimepointAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, this::exportCountsPerTimepoint );
 		mergeProjectsAction = new RunnableAction( MERGE_PROJECTS, this::mergeProjects );
-		tweakDatasetPathAction = new RunnableAction( TWEAK_DATASET_PATH, this::tweakDatasetPath );
 		addCenterSpots = new RunnableAction( ADD_CENTER_SPOTS, this::addCenterSpots );
 		mirrorSpots = new RunnableAction( MIRROR_SPOTS, this::mirrorSpots );
 		createConflictTagSet = new RunnableAction( CREATE_CONFLICT_TAG_SET, this::createConflictTagSet );
 		fuseSpots = new RunnableAction( FUSE_SPOTS, this::fuseSpots );
 		locateTags = new RunnableAction( LOCATE_TAGS, this::locateTags );
+		cellDivisionsTagSetAction = new RunnableAction( CELL_DIVISIONS_TAG_SET, this::runCellDivisionsTagSet );
 	}
 
 	@Override
 	public void setAppPluginModel( final ProjectModel model )
 	{
-		this.pluginAppModel = model;
+		this.projectModel = model;
 	}
 
 	@Override
 	public List< ViewMenuBuilder.MenuItem > getMenuItems()
 	{
 		return Arrays.asList(
+				menu( "File",
+						menu( "Exports",
+								menu( "Export measurements",
+										menu( "Spot counts",
+												item( EXPORT_SPOTS_COUNTS_PER_LINEAGE ),
+												item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ),
+										item( EXPORTS_LINEAGE_LENGTHS ) ),
+								item( EXPORT_PHYLOXML ) ) ),
 				menu( "Plugins",
 						menu( "Tags",
 								item( LOCATE_TAGS ),
-								item( COPY_TAG ) ),
+								item( COPY_TAG ),
+								item( CELL_DIVISIONS_TAG_SET ) ),
+						menu( "Spots management",
+								menu( "Rename spots",
+										item( LABEL_SELECTED_SPOTS ),
+										item( CHANGE_BRANCH_LABELS ),
+										item( LABEL_SPOTS_SYSTEMATICALLY ) ),
+								menu( "Transform spots",
+										item( MIRROR_SPOTS ),
+										item( REMOVE_SOLISTS_SPOTS ),
+										item( ADD_CENTER_SPOTS ),
+										item( INTERPOLATE_SPOTS ) ) ),
+						menu( "Trees Management",
+								item( FLIP_DESCENDANTS ),
+								menu( "Conflict Resolution",
+										item( CREATE_CONFLICT_TAG_SET ),
+										item( FUSE_SPOTS ) ),
+								menu( "Sort trackscheme",
+										item( SORT_TREE ),
+										item( SORT_TREE_EXTERN_INTERN ),
+										item( SORT_TREE_LIFETIME ) ) ),
 						menu( "Auxiliary Displays",
 								item( COMPACT_LINEAGE_VIEW ) ),
-						menu( "Trees Management",
-								item( LABEL_SELECTED_SPOTS ),
-								item( CHANGE_BRANCH_LABELS ),
-								item( REMOVE_SOLISTS_SPOTS ),
-								item( ADD_CENTER_SPOTS ),
-								item( INTERPOLATE_SPOTS ),
-								item( FLIP_DESCENDANTS ),
-								item( SORT_TREE ),
-								item( SORT_TREE_EXTERN_INTERN ),
-								item( SORT_TREE_LIFETIME ),
-								item( LABEL_SPOTS_SYSTEMATICALLY ) ),
-						menu( "Exports",
-								menu( "Spot Counts",
-										item( EXPORT_SPOTS_COUNTS_PER_LINEAGE ),
-										item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ),
-								item( EXPORTS_LINEAGE_LENGTHS ),
-								item( EXPORT_PHYLOXML ) ),
-						menu( "Conflict Resolution",
-								item( CREATE_CONFLICT_TAG_SET ),
-								item( FUSE_SPOTS ) ),
-						item( MIRROR_SPOTS ) ),
-				menu( "File",
-						item( TWEAK_DATASET_PATH ),
 						item( MERGE_PROJECTS ) ) );
 	}
 
@@ -338,53 +346,53 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( exportSpotsCountsPerLineageAction, EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS );
 		actions.namedAction( exportSpotsCountsPerTimepointAction, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS );
 		actions.namedAction( mergeProjectsAction, MERGE_PROJECTS_KEYS );
-		actions.namedAction( tweakDatasetPathAction, TWEAK_DATASET_PATH_KEYS );
 		actions.namedAction( addCenterSpots, ADD_CENTER_SPOTS_KEYS );
 		actions.namedAction( mirrorSpots, MIRROR_SPOTS_KEYS );
 		actions.namedAction( createConflictTagSet, CREATE_CONFLICT_TAG_SET_KEYS );
 		actions.namedAction( fuseSpots, FUSE_SPOTS_KEYS );
 		actions.namedAction( locateTags, LOCATE_TAGS_KEYS );
+		actions.namedAction( cellDivisionsTagSetAction, CELL_DIVISIONS_TAG_SET_KEYS );
 	}
 
 	private void exportPhyloXml()
 	{
-		MakePhyloXml.exportSelectedSubtreeToPhyloXmlFile( pluginAppModel );
+		MakePhyloXml.exportSelectedSubtreeToPhyloXmlFile( projectModel );
 	}
 
 	private void flipDescendants()
 	{
-		FlipDescendants.flipDescendants( pluginAppModel );
+		FlipDescendants.flipDescendants( projectModel );
 	}
 
 	private void copyTag()
 	{
-		final Model model = pluginAppModel.getModel();
+		final Model model = projectModel.getModel();
 		new CopyTagDialog( null, model ).setVisible( true );
 	}
 
 	private void interpolateSpots()
 	{
-		final Model model = pluginAppModel.getModel();
+		final Model model = projectModel.getModel();
 		InterpolateMissingSpots.interpolate( model );
 	}
 
 	private void labelSelectedSpots()
 	{
-		LabelSelectedSpots.labelSelectedSpot( pluginAppModel );
+		LabelSelectedSpots.labelSelectedSpot( projectModel );
 	}
 
 	private void sortTree() {
-		SortTreeLeftRightDialog.showDialog( pluginAppModel );
+		SortTreeLeftRightDialog.showDialog( projectModel );
 	}
 
 	private void sortTreeExternIntern()
 	{
-		SortTreeExternInternDialog.showDialog( pluginAppModel );
+		SortTreeExternInternDialog.showDialog( projectModel );
 	}
 
 	private void sortTreeCellLifetime()
 	{
-		final ProjectModel appModel = pluginAppModel;
+		final ProjectModel appModel = projectModel;
 		final Model model = appModel.getModel();
 		final SelectionModel< Spot, Link > selectionModel = appModel.getSelectionModel();
 
@@ -397,39 +405,32 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	}
 
 	private void showLineageView() {
-		if( pluginAppModel == null )
+		if ( projectModel == null )
 			return;
 		final CompactLineageFrame frame =
-			new CompactLineageFrame(pluginAppModel);
+				new CompactLineageFrame( projectModel );
 		frame.setVisible(true);
 	}
 
 	private void filterOutSolists()
 	{
-		this.getContext().getService(CommandService.class).run(
-				FilterOutSolists.class, true,
-				"appModel", pluginAppModel);
+		commandService.run( FilterOutSolists.class, true, "appModel", projectModel );
 	}
 
 	private void exportLengths()
 	{
-		this.getContext().getService(CommandService.class).run(
-				LineageLengthExporter.class, true,
-				"appModel", pluginAppModel);
+		commandService.run( LineageLengthExporter.class, true, "appModel", projectModel );
 	}
 
 	private void exportCountsPerLineage()
 	{
-		this.getContext().getService(CommandService.class).run(
-				ExportCounts.class, true,
-				"appModel", pluginAppModel);
+		commandService.run( ExportCounts.class, true, "appModel", projectModel );
 	}
 
 	private void exportCountsPerTimepoint()
 	{
-		this.getContext().getService( CommandService.class ).run(
-				ExportSpotCountsPerTimepointCommand.class, true,
-				"projectModel", pluginAppModel, "context", pluginAppModel.getContext() );
+		commandService.run( ExportSpotCountsPerTimepointCommand.class, true, "projectModel", projectModel,
+				"context", projectModel.getContext() );
 	}
 
 	private MergingDialog mergingDialog;
@@ -451,11 +452,11 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 				final Dataset dsA = new Dataset( pathA );
 				final Dataset dsB = new Dataset( pathB );
 
-				final ProjectModel projectMerged = ProjectCreator.createProjectFromBdvFile( dsA.project().getDatasetXmlFile(), pluginAppModel.getContext() );
+				final ProjectModel projectMerged = ProjectCreator.createProjectFromBdvFile( dsA.project().getDatasetXmlFile(), projectModel.getContext() );
 				final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( projectMerged.getModel() );
 				MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
 				// close currently open instance of Mastodon
-				pluginAppModel.close();
+				projectModel.close();
 				// start a new instance of Mastodon that shows the result of the merge operation
 				new MainWindow( projectMerged ).setVisible( true );
 			}
@@ -467,55 +468,43 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		mergingDialog.setVisible( true );
 	}
 
-	private void tweakDatasetPath()
-	{
-		if ( pluginAppModel.getProject() instanceof MamutImagePlusProject )
-		{
-			JOptionPane.showMessageDialog(
-					null,
-					"The current project is based on an \n"
-							+ "ImagePlus  as image data source. \n"
-							+ "Its dataset path cannot be edited.",
-					"Cannot edit dataset path",
-					JOptionPane.WARNING_MESSAGE,
-					MastodonIcons.MASTODON_ICON_MEDIUM );
-			return;
-		}
-		new DatasetPathDialog( null, pluginAppModel ).setVisible( true );
-	}
-
 	private void changeBranchLabels()
 	{
-		RenameBranchLabels.run( pluginAppModel );
+		RenameBranchLabels.run( projectModel );
 	}
 
 	private void labelSpotsSystematically()
 	{
-		LabelSpotsSystematicallyDialog.showDialog( pluginAppModel );
+		LabelSpotsSystematicallyDialog.showDialog( projectModel );
 	}
 
 	private void addCenterSpots()
 	{
-		AddCenterSpots.addSpots( pluginAppModel );
+		AddCenterSpots.addSpots( projectModel );
 	}
 
 	private void mirrorSpots()
 	{
-		MirrorEmbryo.run( pluginAppModel );
+		MirrorEmbryo.run( projectModel );
 	}
 
 	private void createConflictTagSet()
 	{
-		CreateConflictTagSetCommand.run( pluginAppModel );
+		CreateConflictTagSetCommand.run( projectModel );
 	}
 
 	private void fuseSpots()
 	{
-		FuseSpots.run( pluginAppModel );
+		FuseSpots.run( projectModel );
 	}
 
 	private void locateTags()
 	{
-		LocateTagsFrame.run( pluginAppModel );
+		LocateTagsFrame.run( projectModel );
+	}
+
+	private void runCellDivisionsTagSet()
+	{
+		commandService.run( CellDivisionsTagSetCommand.class, true, "projectModel", projectModel );
 	}
 }
