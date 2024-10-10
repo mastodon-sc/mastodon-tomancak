@@ -39,9 +39,7 @@ import java.util.Map;
 
 import org.mastodon.app.ui.ViewMenuBuilder;
 import org.mastodon.mamut.KeyConfigScopes;
-import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.ProjectModel;
-import org.mastodon.mamut.io.ProjectCreator;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
@@ -49,15 +47,12 @@ import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
 import org.mastodon.mamut.tomancak.divisiontagset.CellDivisionsTagSetCommand;
 import org.mastodon.mamut.tomancak.export.ExportCounts;
+import org.mastodon.mamut.tomancak.export.ExportSpotCountsPerTimepointCommand;
 import org.mastodon.mamut.tomancak.export.LineageLengthExporter;
 import org.mastodon.mamut.tomancak.export.MakePhyloXml;
-import org.mastodon.mamut.tomancak.export.ExportSpotCountsPerTimepointCommand;
 import org.mastodon.mamut.tomancak.label_systematically.LabelSpotsSystematicallyDialog;
-import org.mastodon.mamut.tomancak.merging.Dataset;
-import org.mastodon.mamut.tomancak.merging.MergeDatasets;
-import org.mastodon.mamut.tomancak.merging.MergingDialog;
-import org.mastodon.mamut.tomancak.resolve.FuseSpots;
 import org.mastodon.mamut.tomancak.resolve.CreateConflictTagSetCommand;
+import org.mastodon.mamut.tomancak.resolve.FuseSpots;
 import org.mastodon.mamut.tomancak.resolve.LocateTagsFrame;
 import org.mastodon.mamut.tomancak.sort_tree.FlipDescendants;
 import org.mastodon.mamut.tomancak.sort_tree.SortTree;
@@ -97,7 +92,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String EXPORTS_LINEAGE_LENGTHS = "[tomancak] export lineage lengths";
 	private static final String EXPORT_SPOTS_COUNTS_PER_LINEAGE = "[tomancak] export spots counts per lineage";
 	private static final String EXPORT_SPOTS_COUNTS_PER_TIMEPOINT = "[tomancak] export spots counts per timepoint";
-	private static final String MERGE_PROJECTS = "[tomancak] merge projects";
+
 	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spot";
 	private static final String MIRROR_SPOTS = "[tomancak] mirror spots";
 	private static final String CREATE_CONFLICT_TAG_SET = "[tomancak] create conflict tag set";
@@ -121,7 +116,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] EXPORTS_LINEAGE_LENGTHS_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS = { "not mapped" };
-	private static final String[] MERGE_PROJECTS_KEYS = { "not mapped" };
+
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
 	private static final String[] MIRROR_SPOTS_KEYS = { "not mapped" };
 	private static final String[] CREATE_CONFLICT_TAG_SET_KEYS = { "not mapped" };
@@ -149,7 +144,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export lineage lengths" );
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export spots counts per lineage" );
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export spots counts per timepoint" );
-		menuTexts.put( MERGE_PROJECTS, "Merge two projects" );
 		menuTexts.put( ADD_CENTER_SPOTS, "Add center spot" );
 		menuTexts.put( MIRROR_SPOTS, "Mirror spots along X-axis" );
 		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create conflict tag set" );
@@ -189,7 +183,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 					"Exports counts of spots into CSV-like files to be imported in data processors. One file per lineage." );
 			descriptions.add( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS,
 					"Exports counts of spots per timepoint into CSV-like files to be imported in data processors. One file." );
-			descriptions.add( MERGE_PROJECTS, MERGE_PROJECTS_KEYS, "Merge two Mastodon projects into one." );
 			descriptions.add( ADD_CENTER_SPOTS, ADD_CENTER_SPOTS_KEYS, "On each timepoint with selected spots, add a new spot that is in the center (average position)." );
 			descriptions.add( MIRROR_SPOTS, MIRROR_SPOTS_KEYS, "Mirror spots along x-axis." );
 			descriptions.add( CREATE_CONFLICT_TAG_SET, CREATE_CONFLICT_TAG_SET_KEYS, "Search spots that overlap and create a tag set that highlights these conflicts." );
@@ -232,7 +225,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction exportSpotsCountsPerTimepointAction;
 
-	private final AbstractNamedAction mergeProjectsAction;
+	// private final AbstractNamedAction mergeProjectsAction;
 
 	private final AbstractNamedAction addCenterSpots;
 
@@ -265,7 +258,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		exportLineageLengthsAction = new RunnableAction( EXPORTS_LINEAGE_LENGTHS, this::exportLengths );
 		exportSpotsCountsPerLineageAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_LINEAGE, this::exportCountsPerLineage );
 		exportSpotsCountsPerTimepointAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, this::exportCountsPerTimepoint );
-		mergeProjectsAction = new RunnableAction( MERGE_PROJECTS, this::mergeProjects );
 		addCenterSpots = new RunnableAction( ADD_CENTER_SPOTS, this::addCenterSpots );
 		mirrorSpots = new RunnableAction( MIRROR_SPOTS, this::mirrorSpots );
 		createConflictTagSet = new RunnableAction( CREATE_CONFLICT_TAG_SET, this::createConflictTagSet );
@@ -317,8 +309,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 										item( SORT_TREE_EXTERN_INTERN ),
 										item( SORT_TREE_LIFETIME ) ) ),
 						menu( "Auxiliary Displays",
-								item( COMPACT_LINEAGE_VIEW ) ),
-						item( MERGE_PROJECTS ) ) );
+								item( COMPACT_LINEAGE_VIEW ) ) ) );
 	}
 
 	@Override
@@ -345,7 +336,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( exportLineageLengthsAction, EXPORTS_LINEAGE_LENGTHS_KEYS );
 		actions.namedAction( exportSpotsCountsPerLineageAction, EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS );
 		actions.namedAction( exportSpotsCountsPerTimepointAction, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS );
-		actions.namedAction( mergeProjectsAction, MERGE_PROJECTS_KEYS );
 		actions.namedAction( addCenterSpots, ADD_CENTER_SPOTS_KEYS );
 		actions.namedAction( mirrorSpots, MIRROR_SPOTS_KEYS );
 		actions.namedAction( createConflictTagSet, CREATE_CONFLICT_TAG_SET_KEYS );
@@ -431,41 +421,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	{
 		commandService.run( ExportSpotCountsPerTimepointCommand.class, true, "projectModel", projectModel,
 				"context", projectModel.getContext() );
-	}
-
-	private MergingDialog mergingDialog;
-
-	private void mergeProjects()
-	{
-		if ( mergingDialog == null )
-			mergingDialog = new MergingDialog( null );
-		mergingDialog.onMerge( () ->
-		{
-			try
-			{
-				final String pathA = mergingDialog.getPathA();
-				final String pathB = mergingDialog.getPathB();
-				final double distCutoff = mergingDialog.getDistCutoff();
-				final double mahalanobisDistCutoff = mergingDialog.getMahalanobisDistCutoff();
-				final double ratioThreshold = mergingDialog.getRatioThreshold();
-
-				final Dataset dsA = new Dataset( pathA );
-				final Dataset dsB = new Dataset( pathB );
-
-				final ProjectModel projectMerged = ProjectCreator.createProjectFromBdvFile( dsA.project().getDatasetXmlFile(), projectModel.getContext() );
-				final MergeDatasets.OutputDataSet output = new MergeDatasets.OutputDataSet( projectMerged.getModel() );
-				MergeDatasets.merge( dsA, dsB, output, distCutoff, mahalanobisDistCutoff, ratioThreshold );
-				// close currently open instance of Mastodon
-				projectModel.close();
-				// start a new instance of Mastodon that shows the result of the merge operation
-				new MainWindow( projectMerged ).setVisible( true );
-			}
-			catch( final Exception e )
-			{
-				e.printStackTrace();
-			}
-		} );
-		mergingDialog.setVisible( true );
 	}
 
 	private void changeBranchLabels()
