@@ -103,7 +103,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String CREATE_CONFLICT_TAG_SET = "[tomancak] create conflict tag set";
 	private static final String FUSE_SPOTS = "[tomancak] fuse selected spots";
 	private static final String LOCATE_TAGS = "[tomancak] locate tags";
-
 	private static final String CELL_DIVISIONS_TAG_SET = "[tomancak] create cell divisions tag set";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
@@ -125,10 +124,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
 	private static final String[] MIRROR_SPOTS_KEYS = { "not mapped" };
 	private static final String[] CREATE_CONFLICT_TAG_SET_KEYS = { "not mapped" };
-
 	private static final String[] FUSE_SPOTS_KEYS = { "ctrl alt F" };
 	private static final String[] LOCATE_TAGS_KEYS = { "not mapped" };
-
 	private static final String[] CELL_DIVISIONS_TAG_SET_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
