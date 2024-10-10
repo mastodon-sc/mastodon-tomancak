@@ -174,7 +174,7 @@ public class MergingDialog extends JDialog
 		buttons.add( okButton );
 		getContentPane().add( buttons, BorderLayout.SOUTH );
 
-		setDefaultCloseOperation( WindowConstants.HIDE_ON_CLOSE );
+		setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
 		addWindowListener( new WindowAdapter()
 		{
 			@Override
@@ -201,7 +201,6 @@ public class MergingDialog extends JDialog
 		am.put( hideKey, hideAction );
 
 		pack();
-		setDefaultCloseOperation( WindowConstants.HIDE_ON_CLOSE );
 	}
 
 	private void cancel()
