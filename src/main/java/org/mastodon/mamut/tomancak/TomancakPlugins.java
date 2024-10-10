@@ -285,7 +285,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	{
 		return Arrays.asList(
 				menu( "File",
-						menu( "Exports",
+						menu( "Export",
 								menu( "Export measurements",
 										menu( "Spot counts",
 												item( EXPORT_SPOTS_COUNTS_PER_LINEAGE ),
