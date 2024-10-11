@@ -125,6 +125,16 @@
 				<role>developer</role>
 			</roles>
 		</developer>
+		<developer>
+			<id>stefanhahmann</id>
+			<name>Stefan Hahmann</name>
+			<url>https://github.com/stefanhahmann</url>
+			<organization>TU Dresden</organization>
+			<organizationUrl>https://tu-dresden.de/</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
 	</developers>
 
 	<contributors>
