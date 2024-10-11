@@ -297,16 +297,16 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 										item( REMOVE_SOLISTS_SPOTS ),
 										item( ADD_CENTER_SPOTS ),
 										item( INTERPOLATE_SPOTS ) ) ),
-						menu( "Trees Management",
+						menu( "Trees management",
 								item( FLIP_DESCENDANTS ),
-								menu( "Conflict Resolution",
+								menu( "Conflict resolution",
 										item( CREATE_CONFLICT_TAG_SET ),
 										item( FUSE_SPOTS ) ),
 								menu( "Sort trackscheme",
 										item( SORT_TREE ),
 										item( SORT_TREE_EXTERN_INTERN ),
 										item( SORT_TREE_LIFETIME ) ) ),
-						menu( "Auxiliary Displays",
+						menu( "Auxiliary displays",
 								item( COMPACT_LINEAGE_VIEW ) ) ) );
 	}
 
