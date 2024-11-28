@@ -82,7 +82,6 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String COPY_TAG = "[tomancak] copy tag";
 	private static final String INTERPOLATE_SPOTS = "[tomancak] interpolate missing spots";
 	private static final String LABEL_SELECTED_SPOTS = "[tomancak] label selected spots";
-
 	private static final String SET_RADIUS_SELECTED_SPOTS = "[tomancak] set radius selected spots";
 	private static final String CHANGE_BRANCH_LABELS = "[tomancak] change branch labels";
 	private static final String COMPACT_LINEAGE_VIEW = "[tomancak] show compact lineage";
@@ -101,13 +100,13 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String FUSE_SPOTS = "[tomancak] fuse selected spots";
 	private static final String LOCATE_TAGS = "[tomancak] locate tags";
 	private static final String CELL_DIVISIONS_TAG_SET = "[tomancak] create cell divisions tag set";
+	private static final String CREATE_DUMMY_TAG_SET = "[tomancak] create dummy tag set";
 
 	private static final String[] EXPORT_PHYLOXML_KEYS = { "not mapped" };
 	private static final String[] FLIP_DESCENDANTS_KEYS = { "ctrl E" };
 	private static final String[] COPY_TAG_KEYS = { "not mapped" };
 	private static final String[] INTERPOLATE_SPOTS_KEYS = { "not mapped" };
 	private static final String[] LABEL_SELECTED_SPOTS_KEYS = { "F2" };
-
 	private static final String[] SET_RADIUS_SELECTED_SPOTS_KEYS = { "F3" };
 	private static final String[] CHANGE_BRANCH_LABELS_KEYS = { "shift F2" };
 	private static final String[] COMPACT_LINEAGE_VIEW_KEYS = { "not mapped" };
@@ -126,6 +125,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] FUSE_SPOTS_KEYS = { "ctrl alt F" };
 	private static final String[] LOCATE_TAGS_KEYS = { "not mapped" };
 	private static final String[] CELL_DIVISIONS_TAG_SET_KEYS = { "not mapped" };
+	private static final String[] CREATE_DUMMY_TAG_SET_KEYS = { "not mapped" };
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
@@ -153,6 +153,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( FUSE_SPOTS, "Fuse selected spots" );
 		menuTexts.put( LOCATE_TAGS, "Locate tags" );
 		menuTexts.put( CELL_DIVISIONS_TAG_SET, "Add tag set to highlight cell divisions" );
+		menuTexts.put( CREATE_DUMMY_TAG_SET, "Create dummy tag set" );
 	}
 
 	/*
@@ -193,6 +194,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( FUSE_SPOTS, FUSE_SPOTS_KEYS, "Fuse selected spots into a single spot. Average spot position and shape." );
 			descriptions.add( LOCATE_TAGS, LOCATE_TAGS_KEYS, "Open a dialog that allows to jump to specific tags." );
 			descriptions.add( CELL_DIVISIONS_TAG_SET, CELL_DIVISIONS_TAG_SET_KEYS, "Adds a tag set to highlight cell divisions." );
+			descriptions.add( CREATE_DUMMY_TAG_SET, CREATE_DUMMY_TAG_SET_KEYS,
+					"Creates a dummy tag set with a specifiable maximum number of tags." );
 		}
 	}
 
@@ -245,6 +248,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction cellDivisionsTagSetAction;
 
+	private final AbstractNamedAction createDummyTagSet;
+
 	private ProjectModel projectModel;
 
 	public TomancakPlugins()
@@ -271,6 +276,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		fuseSpots = new RunnableAction( FUSE_SPOTS, this::fuseSpots );
 		locateTags = new RunnableAction( LOCATE_TAGS, this::locateTags );
 		cellDivisionsTagSetAction = new RunnableAction( CELL_DIVISIONS_TAG_SET, this::runCellDivisionsTagSet );
+		createDummyTagSet = new RunnableAction( CREATE_DUMMY_TAG_SET, this::createDummyTagSet );
 	}
 
 	@Override
@@ -295,7 +301,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 						menu( "Tags",
 								item( LOCATE_TAGS ),
 								item( COPY_TAG ),
-								item( CELL_DIVISIONS_TAG_SET ) ),
+								item( CELL_DIVISIONS_TAG_SET ),
+								item( CREATE_DUMMY_TAG_SET ) ),
 						menu( "Spots management",
 								menu( "Rename spots",
 										item( LABEL_SELECTED_SPOTS ),
@@ -351,6 +358,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( fuseSpots, FUSE_SPOTS_KEYS );
 		actions.namedAction( locateTags, LOCATE_TAGS_KEYS );
 		actions.namedAction( cellDivisionsTagSetAction, CELL_DIVISIONS_TAG_SET_KEYS );
+		actions.namedAction( createDummyTagSet, CREATE_DUMMY_TAG_SET_KEYS );
 	}
 
 	private void exportPhyloXml()
@@ -475,5 +483,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private void runCellDivisionsTagSet()
 	{
 		commandService.run( CellDivisionsTagSetCommand.class, true, "projectModel", projectModel );
+	}
+
+	private void createDummyTagSet()
+	{
+		CreateDummyTagSet.createDummyTagSet( projectModel, commandService );
 	}
 }
