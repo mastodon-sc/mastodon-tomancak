@@ -82,6 +82,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String COPY_TAG = "[tomancak] copy tag";
 	private static final String INTERPOLATE_SPOTS = "[tomancak] interpolate missing spots";
 	private static final String LABEL_SELECTED_SPOTS = "[tomancak] label selected spots";
+
+	private static final String SET_RADIUS_SELECTED_SPOTS = "[tomancak] set radius selected spots";
 	private static final String CHANGE_BRANCH_LABELS = "[tomancak] change branch labels";
 	private static final String COMPACT_LINEAGE_VIEW = "[tomancak] show compact lineage";
 	private static final String SORT_TREE = "[tomancak] sort lineage tree";
@@ -105,6 +107,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] COPY_TAG_KEYS = { "not mapped" };
 	private static final String[] INTERPOLATE_SPOTS_KEYS = { "not mapped" };
 	private static final String[] LABEL_SELECTED_SPOTS_KEYS = { "F2" };
+
+	private static final String[] SET_RADIUS_SELECTED_SPOTS_KEYS = { "F3" };
 	private static final String[] CHANGE_BRANCH_LABELS_KEYS = { "shift F2" };
 	private static final String[] COMPACT_LINEAGE_VIEW_KEYS = { "not mapped" };
 	private static final String[] SORT_TREE_KEYS = { "ctrl S" };
@@ -132,6 +136,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( COPY_TAG, "Copy tag" );
 		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate missing spots" );
 		menuTexts.put( LABEL_SELECTED_SPOTS, "Label selected spots" );
+		menuTexts.put( SET_RADIUS_SELECTED_SPOTS, "Set radius of selected spots" );
 		menuTexts.put( CHANGE_BRANCH_LABELS, "Change branch labels" );
 		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show compact lineage" );
 		menuTexts.put( SORT_TREE, "Sort lineage tree (left-right-anchors)" );
@@ -169,6 +174,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( COPY_TAG, COPY_TAG_KEYS, "Copy tags: everything that has tag A assigned gets B assigned." );
 			descriptions.add( INTERPOLATE_SPOTS, INTERPOLATE_SPOTS_KEYS, "Along each track, new spot is inserted to every time points with no spots." );
 			descriptions.add( LABEL_SELECTED_SPOTS, LABEL_SELECTED_SPOTS_KEYS, "Set label for all selected spots." );
+			descriptions.add( SET_RADIUS_SELECTED_SPOTS, SET_RADIUS_SELECTED_SPOTS_KEYS, "Set radius for all selected spots." );
 			descriptions.add( CHANGE_BRANCH_LABELS, CHANGE_BRANCH_LABELS_KEYS, "Change the labels of all the spots between to division." );
 			descriptions.add( COMPACT_LINEAGE_VIEW, COMPACT_LINEAGE_VIEW_KEYS, "Show compact representation of the lineage tree.");
 			descriptions.add( SORT_TREE, SORT_TREE_KEYS, "Sort selected spots according to tagged anchors.");
@@ -202,6 +208,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private final AbstractNamedAction interpolateSpotsAction;
 
 	private final AbstractNamedAction labelSelectedSpotsAction;
+
+	private final AbstractNamedAction setRadiusSelectedSpotsAction;
 
 	private final AbstractNamedAction changeBranchLabelsAction;
 
@@ -246,6 +254,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		copyTagAction = new RunnableAction( COPY_TAG, this::copyTag );
 		interpolateSpotsAction = new RunnableAction( INTERPOLATE_SPOTS, this::interpolateSpots );
 		labelSelectedSpotsAction = new RunnableAction( LABEL_SELECTED_SPOTS, this::labelSelectedSpots );
+		setRadiusSelectedSpotsAction = new RunnableAction( SET_RADIUS_SELECTED_SPOTS, this::setRadiusSelectedSpots );
 		changeBranchLabelsAction = new RunnableAction( CHANGE_BRANCH_LABELS, this::changeBranchLabels );
 		lineageTreeViewAction = new RunnableAction( COMPACT_LINEAGE_VIEW, this::showLineageView );
 		sortTreeAction = new RunnableAction( SORT_TREE, this::sortTree );
@@ -296,7 +305,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 										item( MIRROR_SPOTS ),
 										item( REMOVE_SOLISTS_SPOTS ),
 										item( ADD_CENTER_SPOTS ),
-										item( INTERPOLATE_SPOTS ) ) ),
+										item( INTERPOLATE_SPOTS ),
+										item( SET_RADIUS_SELECTED_SPOTS ) ) ),
 						menu( "Trees management",
 								item( FLIP_DESCENDANTS ),
 								menu( "Conflict resolution",
@@ -324,6 +334,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( copyTagAction, COPY_TAG_KEYS );
 		actions.namedAction( interpolateSpotsAction, INTERPOLATE_SPOTS_KEYS );
 		actions.namedAction( labelSelectedSpotsAction, LABEL_SELECTED_SPOTS_KEYS );
+		actions.namedAction( setRadiusSelectedSpotsAction, SET_RADIUS_SELECTED_SPOTS_KEYS );
 		actions.namedAction( changeBranchLabelsAction, CHANGE_BRANCH_LABELS_KEYS );
 		actions.namedAction( lineageTreeViewAction, COMPACT_LINEAGE_VIEW_KEYS );
 		actions.namedAction( sortTreeAction, SORT_TREE_KEYS );
@@ -367,6 +378,11 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private void labelSelectedSpots()
 	{
 		LabelSelectedSpots.labelSelectedSpot( projectModel );
+	}
+
+	private void setRadiusSelectedSpots()
+	{
+		SetRadiusSelectedSpots.setRadiusSelectedSpot( projectModel, commandService );
 	}
 
 	private void sortTree() {
