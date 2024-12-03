@@ -41,7 +41,6 @@ import org.mastodon.collection.ref.ObjectRefHashMap;
 import org.mastodon.collection.ref.RefRefHashMap;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.lineage_registration.GraphUtils;
 
 /**
  * Pair the root spots in two ModelGraphs based on their label.

@@ -1,4 +1,4 @@
-package org.mastodon.mamut.tomancak.lineage_registration;
+package org.mastodon.mamut.tomancak.trackmatching;
 
 import java.util.function.Predicate;
 
