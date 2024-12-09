@@ -59,7 +59,7 @@ import org.mastodon.mamut.tomancak.sort_tree.SortTree;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeExternInternDialog;
 import org.mastodon.mamut.tomancak.sort_tree.SortTreeLeftRightDialog;
 import org.mastodon.mamut.tomancak.spots.AddCenterSpots;
-import org.mastodon.mamut.tomancak.spots.FilterOutSolists;
+import org.mastodon.mamut.tomancak.spots.FilterOutIsolatedSpots;
 import org.mastodon.mamut.tomancak.spots.InterpolateMissingSpots;
 import org.mastodon.mamut.tomancak.spots.MirrorEmbryo;
 import org.mastodon.model.SelectionModel;
@@ -89,7 +89,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String SORT_TREE_EXTERN_INTERN = "[tomancak] sort lineage tree extern intern";
 	private static final String SORT_TREE_LIFETIME = "[tomancak] sort lineage tree lifetime";
 	private static final String LABEL_SPOTS_SYSTEMATICALLY = "[tomancak] label spots systematically";
-	private static final String REMOVE_SOLISTS_SPOTS = "[tomancak] remove solists spots";
+
+	private static final String REMOVE_ISOLATED_SPOTS = "[tomancak] remove isolated spots";
 	private static final String EXPORTS_LINEAGE_LENGTHS = "[tomancak] export lineage lengths";
 	private static final String EXPORT_SPOTS_COUNTS_PER_LINEAGE = "[tomancak] export spots counts per lineage";
 	private static final String EXPORT_SPOTS_COUNTS_PER_TIMEPOINT = "[tomancak] export spots counts per timepoint";
@@ -114,7 +115,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] SORT_TREE_EXTERN_INTERN_KEYS = { "not mapped" };
 	private static final String[] SORT_TREE_LIFETIME_KEYS = { "not mapped" };
 	private static final String[] LABEL_SPOTS_SYSTEMATICALLY_KEYS = { "not mapped" };
-	private static final String[] REMOVE_SOLISTS_SPOTS_KEYS = { "not mapped" };
+
+	private static final String[] REMOVE_ISOLATED_SPOTS_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_LINEAGE_LENGTHS_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS = { "not mapped" };
@@ -143,7 +145,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( SORT_TREE_EXTERN_INTERN, "Sort lineage tree (extern-intern)" );
 		menuTexts.put( SORT_TREE_LIFETIME, "Sort lineage tree (cell life cycle duration)" );
 		menuTexts.put( LABEL_SPOTS_SYSTEMATICALLY, "Systematically label spots (extern-intern)" );
-		menuTexts.put( REMOVE_SOLISTS_SPOTS, "Remove spots solists" );
+		menuTexts.put( REMOVE_ISOLATED_SPOTS, "Remove isolated spots" );
 		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export lineage lengths" );
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export spots counts per lineage" );
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export spots counts per timepoint" );
@@ -182,7 +184,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( SORT_TREE_EXTERN_INTERN, SORT_TREE_EXTERN_INTERN_KEYS, "Sort selected spots according to tagged center anchor.");
 			descriptions.add( SORT_TREE_LIFETIME, SORT_TREE_LIFETIME_KEYS, "Sort selected spots, such that the child cell with the longer cell cycle duration is left in the TrackScheme.");
 			descriptions.add( LABEL_SPOTS_SYSTEMATICALLY, LABEL_SPOTS_SYSTEMATICALLY_KEYS, "Child cells are named after their parent cell, with a \"1\" or \"2\" appended to the label.");
-			descriptions.add( REMOVE_SOLISTS_SPOTS, REMOVE_SOLISTS_SPOTS_KEYS, "Finds and removes isolated spots from the lineage, based on conditions." );
+			descriptions.add( REMOVE_ISOLATED_SPOTS, REMOVE_ISOLATED_SPOTS_KEYS,
+					"Finds and removes isolated spots from the lineage, based on conditions." );
 			descriptions.add( EXPORTS_LINEAGE_LENGTHS, EXPORTS_LINEAGE_LENGTHS_KEYS, "Exports lineage lengths into CSV-like files to be imported in data processors." );
 			descriptions.add( EXPORT_SPOTS_COUNTS_PER_LINEAGE, EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS,
 					"Exports counts of spots into CSV-like files to be imported in data processors. One file per lineage." );
@@ -226,7 +229,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction labelSpotsSystematicallyAction;
 
-	private final AbstractNamedAction removeSolistsAction;
+	private final AbstractNamedAction removeIsolatedSpotsAction;
 
 	private final AbstractNamedAction exportLineageLengthsAction;
 
@@ -266,7 +269,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		sortTreeExternInternAction = new RunnableAction( SORT_TREE_EXTERN_INTERN, this::sortTreeExternIntern );
 		sortTreeLifetimeAction = new RunnableAction( SORT_TREE_LIFETIME, this::sortTreeCellLifetime );
 		labelSpotsSystematicallyAction = new RunnableAction( LABEL_SPOTS_SYSTEMATICALLY, this::labelSpotsSystematically );
-		removeSolistsAction = new RunnableAction( REMOVE_SOLISTS_SPOTS, this::filterOutSolists );
+		removeIsolatedSpotsAction = new RunnableAction( REMOVE_ISOLATED_SPOTS, this::filterOutIsolatedSpots );
 		exportLineageLengthsAction = new RunnableAction( EXPORTS_LINEAGE_LENGTHS, this::exportLengths );
 		exportSpotsCountsPerLineageAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_LINEAGE, this::exportCountsPerLineage );
 		exportSpotsCountsPerTimepointAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, this::exportCountsPerTimepoint );
@@ -310,7 +313,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 										item( LABEL_SPOTS_SYSTEMATICALLY ) ),
 								menu( "Transform spots",
 										item( MIRROR_SPOTS ),
-										item( REMOVE_SOLISTS_SPOTS ),
+										item( REMOVE_ISOLATED_SPOTS ),
 										item( ADD_CENTER_SPOTS ),
 										item( INTERPOLATE_SPOTS ),
 										item( SET_RADIUS_SELECTED_SPOTS ) ) ),
@@ -348,7 +351,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( sortTreeExternInternAction, SORT_TREE_EXTERN_INTERN_KEYS );
 		actions.namedAction( sortTreeLifetimeAction, SORT_TREE_LIFETIME_KEYS );
 		actions.namedAction( labelSpotsSystematicallyAction, LABEL_SPOTS_SYSTEMATICALLY_KEYS );
-		actions.namedAction( removeSolistsAction, REMOVE_SOLISTS_SPOTS_KEYS );
+		actions.namedAction( removeIsolatedSpotsAction, REMOVE_ISOLATED_SPOTS_KEYS );
 		actions.namedAction( exportLineageLengthsAction, EXPORTS_LINEAGE_LENGTHS_KEYS );
 		actions.namedAction( exportSpotsCountsPerLineageAction, EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS );
 		actions.namedAction( exportSpotsCountsPerTimepointAction, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS );
@@ -424,9 +427,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		frame.setVisible(true);
 	}
 
-	private void filterOutSolists()
+	private void filterOutIsolatedSpots()
 	{
-		commandService.run( FilterOutSolists.class, true, "appModel", projectModel );
+		commandService.run( FilterOutIsolatedSpots.class, true, "appModel", projectModel );
 	}
 
 	private void exportLengths()
