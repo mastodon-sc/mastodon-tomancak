@@ -59,11 +59,13 @@ Mastodon Tomancak is an extension of Mastodon. For the full documentation of Mas
 
 #### Mirror spots along X-axis
 
-The command first calculates the mean x-coordinate of all spots. Then the x-coordinate of each spot is mirrored on the
+* Menu Location: `Plugins > Spots management > Transform spots > Mirror spots along X-axis`
+* The command first calculates the mean x-coordinate of all spots. Then the x-coordinate of each spot is mirrored on the
 plane x = mean x. The ellipsoids are mirrored as well. The trackscheme is not modified.
-Important: The command does not support mirroring of the image data. The spots will therefore appear to be in the wrong
+* Important: The command does not support mirroring of the image data. The spots will therefore appear to be in the
+  wrong
 place.
-Example: ![mirror_spots.gif](doc/spotsmanagement/mirror_spots.gif)
+* Example: ![mirror_spots.gif](doc/spotsmanagement/mirror_spots.gif)
 
 #### Remove spots solists
 
