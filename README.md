@@ -8,4 +8,10 @@
 Mastodon Tomancak is an extension of Mastodon. For the full documentation of Mastodon, please visit
 [mastodon.readthedocs.io](https://mastodon.readthedocs.io/en/latest/index.html).
 
+## Installation Instructions
 
+* Add the listed Mastodon update sites in Fiji:
+    * `Help > Update > Manage update sites`
+        1. `Mastodon`
+        2. `Mastodon-Tomancak`
+           ![Mastodon Update sites](doc/installation/Mastodon.png)
