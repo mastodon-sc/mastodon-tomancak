@@ -10,7 +10,7 @@
 * [Spots management](#spots-management)
     * [Transform spots](#transform-spots)
         * [Mirror spots along X-axis](#mirror-spots-along-x-axis)
-        * [Remove spots solists](#remove-spots-solists)
+      * [Remove spots solists](#remove-isolated-spots)
         * [Add center spot](#add-center-spot)
         * [Interpolate missing spots](#interpolate-missing-spots)
         * [Set radius of selected spots](#set-radius-of-selected-spots)
@@ -67,7 +67,18 @@ plane x = mean x. The ellipsoids are mirrored as well. The trackscheme is not mo
 place.
 * Example: ![mirror_spots.gif](doc/spotsmanagement/mirror_spots.gif)
 
-#### Remove spots solists
+#### Remove isolated spots
+
+* Menu Location: `Plugins > Spots management > Transform spots > Remove isolated spots`
+* An isolated spot has no ancestors and no descendants
+* The command removes all isolated spots
+* Two refining conditions can be set:
+    * The spot must appear in the last time point
+        * Lonely spots at the end of a video are much harder to find compared to lonely spots at the beginning.
+    * The spot's label consists of numbers only
+        * A label that does not only consist of numbers has likely been edited by the user. A label that consists of
+          number only may indicate a spot that was automatically detected and not linked to a track.
+* Example: ![isolated_spots.gif](doc/spotsmanagement/isolated_spots.gif)
 
 #### Add center spot
 
