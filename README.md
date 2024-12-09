@@ -86,6 +86,10 @@ place.
 
 #### Set radius of selected spots
 
+* Menu Location: `Plugins > Spots management > Transform spots > Set radius of selected spots`
+* Set the radius of all selected spots to the same value.
+* Example: ![set_radius_selected_spots.gif](doc/spotsmanagement/set_radius_selected_spots.gif)
+
 ### Rename spots
 
 #### Label selected spots
