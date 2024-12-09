@@ -70,11 +70,11 @@ import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin( type = Command.class, name = "Filter lineage and remove solists spots" )
-public class FilterOutSolists extends DefaultCancelable implements Command
+@Plugin( type = Command.class, name = "Filter lineage and remove isolated spots" )
+public class FilterOutIsolatedSpots extends DefaultCancelable implements Command
 {
 	@Parameter(visibility = ItemVisibility.MESSAGE, persist = false, required = false)
-	final String hintMsg = "A spot-solist has no ancestors and no descendants, plus the optional conditions below:";
+	final String hintMsg = "An isolated spot has no ancestors and no descendants, plus the optional conditions below:";
 
 	@Parameter(label = "And the spot must appear in the last time point:",
 			description = "Lonely spots at the end of the video are much harder" +
@@ -82,8 +82,8 @@ public class FilterOutSolists extends DefaultCancelable implements Command
 	private boolean isInTheLastTimePoint = true;
 
 	@Parameter(label = "And the spot's label consists of numbers only:",
-			description = "A label that is not a number only suggests that" +
-					"user has curated this spot.")
+			description = "A label that not only consists of numbers has likely" +
+					"been edited by the user." )
 	private boolean hasLabelMadeOfNumbersOnly = true;
 
 	@Parameter(persist = false)
@@ -96,24 +96,25 @@ public class FilterOutSolists extends DefaultCancelable implements Command
 	public void run()
 	{
 		final Logger loggerRoots = logService.subLogger("Searcher...");
-		final Logger loggerSolists = logService.subLogger("Remove Solists");
+		final Logger loggerIsolatedSpots = logService.subLogger( "Remove Isolated Spots" );
 
-		final RefList<Spot> solists = new RefArrayList<>(appModel.getModel().getGraph().vertices().getRefPool(),100);
+		final RefList< Spot > isolatedSpots = new RefArrayList<>( appModel.getModel().getGraph().vertices().getRefPool(), 100 );
 		final int maxTP = appModel.getMaxTimepoint();
 
 		final SpotsIterator ss = new SpotsIterator(appModel, loggerRoots);
 		ss.visitAllSpots(s -> {
 			if (ss.countAncestors(s) == 0 && ss.countDescendants(s) == 0) {
-				loggerSolists.info("Potential solist: "+s.getLabel()+" at timepoint "+s.getTimepoint());
+				loggerIsolatedSpots.info( "Potential isolated spot: " + s.getLabel() + " at timepoint " + s.getTimepoint() );
 				//
 				if (isInTheLastTimePoint && s.getTimepoint() != maxTP) return;
 				if (hasLabelMadeOfNumbersOnly && !StringUtils.isNumeric(s.getLabel())) return;
-				loggerSolists.info("                  ^^^^^ will be removed");
-				solists.add(s);
+				loggerIsolatedSpots.info( "                  ^^^^^ will be removed" );
+				isolatedSpots.add( s );
 			}});
 
 		final ModelGraph g = appModel.getModel().getGraph();
-		for (Spot s : solists) g.remove(s);
+		for ( Spot s : isolatedSpots )
+			g.remove( s );
 		appModel.getModel().getGraph().notifyGraphChanged();
 	}
 }
