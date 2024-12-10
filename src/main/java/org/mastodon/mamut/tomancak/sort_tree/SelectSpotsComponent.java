@@ -157,10 +157,7 @@ public class SelectSpotsComponent extends JButton
 			map.put( key, new ArrayList<>() );
 		for(Spot root : roots) {
 			Character character = root.getLabel().charAt( 0 );
-			if(map.containsKey( character ))
-				map.get( character ).add( root );
-			else
-				other.add( root );
+			map.getOrDefault( character, other ).add( root );
 		}
 		map.forEach( (key, list) -> addLineageSubMenu( popupMenu, "\"" + key + "...\"", list ) );
 		addLineageSubMenu( popupMenu, "\"A-Z...\"", other );
