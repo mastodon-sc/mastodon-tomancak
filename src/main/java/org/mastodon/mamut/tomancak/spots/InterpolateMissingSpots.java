@@ -28,8 +28,6 @@
  */
 package org.mastodon.mamut.tomancak.spots;
 
-import static net.imglib2.util.LinAlgHelpers.rows;
-
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.mastodon.collection.RefCollections;
@@ -125,7 +123,7 @@ public class InterpolateMissingSpots
 				final double ratio = ( double ) s / steps;
 
 				final int t = t0 + s;
-				lerp( pos0, pos1, ratio, pos );
+				LinAlgHelpers.lerp( pos0, pos1, ratio, pos );
 				final double scale = ( 1.0 - ratio ) + ratio * radiusRatio;
 				LinAlgHelpers.scale( cov0, scale * scale, cov );
 
@@ -135,22 +133,5 @@ public class InterpolateMissingSpots
 			}
 			graph.addEdge( previous, to, eref1 ).init();
 		}
-	}
-
-
-	// TODO: Use imglib2 LinAlgHelpers.lerp() when released
-	/**
-	 * set c = ( 1 - t ) * a + t * b, where a, b are vectors and t is scalar. Dimensions of a, b, and c
-	 * must match. In place interpolation (c==a or c==b) is allowed.
-	 */
-	private static void lerp( final double[] a, final double[] b, final double t, final double[] c )
-	{
-		assert rows( a ) == rows( b );
-		assert rows( a ) == rows( c );
-
-		final int rows = rows( a );
-
-		for ( int i = 0; i < rows; ++i )
-			c[ i ] = ( 1.0 - t ) * a[ i ] + t * b[ i ];
 	}
 }
