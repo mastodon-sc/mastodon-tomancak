@@ -95,7 +95,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String EXPORT_SPOTS_COUNTS_PER_LINEAGE = "[tomancak] export spots counts per lineage";
 	private static final String EXPORT_SPOTS_COUNTS_PER_TIMEPOINT = "[tomancak] export spots counts per timepoint";
 
-	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spot";
+	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spots";
 	private static final String MIRROR_SPOTS = "[tomancak] mirror spots";
 	private static final String CREATE_CONFLICT_TAG_SET = "[tomancak] create conflict tag set";
 	private static final String FUSE_SPOTS = "[tomancak] fuse selected spots";
@@ -149,7 +149,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export lineage lengths" );
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export spots counts per lineage" );
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export spots counts per timepoint" );
-		menuTexts.put( ADD_CENTER_SPOTS, "Add center spot" );
+		menuTexts.put( ADD_CENTER_SPOTS, "Add center spots" );
 		menuTexts.put( MIRROR_SPOTS, "Mirror spots along X-axis" );
 		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create conflict tag set" );
 		menuTexts.put( FUSE_SPOTS, "Fuse selected spots" );

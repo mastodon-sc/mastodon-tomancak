@@ -166,19 +166,31 @@ public class SortTreeUtils
 		return averages;
 	}
 
-	public static List< double[] > calculateAveragePosition( int numTimePoint, Collection< Spot > taggedSpots )
+	/**
+	 * Calculates the average position of the given spots per time point,
+	 * i.e. at each time point the average position of all spots that belong to that time point is calculated.
+	 * If there are no spots at a time point, the average position of that time point is {@code null}.
+	 * <br>
+	 * The result is a list of double arrays, where the index of the array corresponds to the time point and the array contains the average position in three dimensions.
+	 * If there are no spots at a time point, the array is {@code null} at that index.
+	 *
+	 * @param numTimePoints The number of time points.
+	 * @param spots The collection of spots.
+	 * @return A list of double arrays representing the average positions per time point.
+	 */
+	public static List< double[] > calculateAveragePosition( int numTimePoints, Collection< Spot > spots )
 	{
-		List<double[]> averages = new ArrayList<>( Collections.nCopies( numTimePoint, null ) );
-		int[] counts = new int[ numTimePoint ];
+		List< double[] > averages = new ArrayList<>( Collections.nCopies( numTimePoints, null ) );
+		int[] counts = new int[ numTimePoints ];
 		Collections.fill(averages, null);
-		for(Spot spot : taggedSpots )
+		for ( Spot spot : spots )
 		{
 			int timepoint = spot.getTimepoint();
 			counts[timepoint]++;
 			double[] average = getOrCreateEntry( averages, timepoint );
 			add( average, spot );
 		}
-		for ( int i = 0; i < numTimePoint; i++ )
+		for ( int i = 0; i < numTimePoints; i++ )
 		{
 			double[] average = averages.get( i );
 			if(average != null)
