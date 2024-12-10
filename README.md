@@ -80,7 +80,17 @@ place.
           number only may indicate a spot that was automatically detected and not linked to a track.
 * Example: ![isolated_spots.gif](doc/spotsmanagement/isolated_spots.gif)
 
-#### Add center spot
+#### Add center spots
+
+* Menu Location: `Plugins > Spots management > Transform spots > Add center spots`
+* Adds spots to the model at the average position of the selected spots of each time point. The new spots are connected
+  by links in the order of the time points.
+* If there are time points without selected spots, no spot is added at that time point. In this case, the links span
+  over the time points without spots.
+* If there are time points with multiple selected spots, the average position of the selected spots is calculated at
+  that time point.
+* If no spots are selected, only a message dialog is shown.
+* Example: ![add_center_spots.gif](doc/spotsmanagement/add_center_spots.gif)
 
 #### Interpolate missing spots
 
