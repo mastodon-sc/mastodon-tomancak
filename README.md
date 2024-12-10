@@ -94,6 +94,14 @@ place.
 
 #### Interpolate missing spots
 
+* Menu Location: `Plugins > Spots management > Transform spots > Interpolate missing spots`
+* Interpolates missing spots in the whole project.
+* Spots are considered missing, if there is a gap of more than one time point between two spots that are connected by a
+  link.
+* Spots are interpolated by linearly interpolating their position and covariance matrix between the two spots that are
+  connected by such a link and inserting the new spots and links between them.
+* Example: ![interpolate_missing_spots.gif](doc/spotsmanagement/interpolate_missing_spots.gif)
+
 #### Set radius of selected spots
 
 * Menu Location: `Plugins > Spots management > Transform spots > Set radius of selected spots`
