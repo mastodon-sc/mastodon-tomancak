@@ -49,6 +49,7 @@ public class RenameBranchLabels
 			Spot focusedSpot = focusModel.getFocusedVertex( ref );
 			String newLabel = askForNewLabel( focusedSpot );
 			renameBranch( graph, focusedSpot, newLabel );
+			model.setUndoPoint();
 		}
 		finally
 		{
