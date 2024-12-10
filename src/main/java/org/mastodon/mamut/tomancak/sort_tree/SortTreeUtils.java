@@ -50,7 +50,7 @@ public class SortTreeUtils
 	/**
 	 * If {@code spot} is a {@link Spot} that divides at timepoint
 	 * {@code t = spot.getTimepoint}. Then the cell division direction
-	 * returned by {@link #directionOfCellDevision} is sampled not at
+	 * returned by {@link #directionOfCellDivision} is sampled not at
 	 * timepoint {@code t} but at a timepoint {@code s}. With
 	 * {@code s = t + DIVISION_DIRECTION_TIME_OFFSET}.
 	 */
@@ -62,7 +62,7 @@ public class SortTreeUtils
 	 * three time points. And returns the vector from the first daughter cell
 	 * to the second daughter cell.
 	 */
-	public static double[] directionOfCellDevision( ModelGraph graph, Spot spot )
+	public static double[] directionOfCellDivision( ModelGraph graph, Spot spot )
 	{
 		if(spot.outgoingEdges().size() != 2)
 			return new double[]{ 0, 0, 0 };
@@ -110,15 +110,6 @@ public class SortTreeUtils
 		}
 	}
 
-	public static double scalarProduct( double[] a, double[] b )
-	{
-		assert a.length == b.length;
-		double sum = 0;
-		for ( int i = 0; i < a.length; i++ )
-			sum += a[ i ] * b[ i ];
-		return sum;
-	}
-
 	static List<double[]> subtract( List<double[]> a, List<double[]> b )
 	{
 		final int n = a.size();
@@ -152,8 +143,8 @@ public class SortTreeUtils
 	}
 
 	/**
-	 * Given a collection of {@link Spot spots}, this the average position of
-	 * the spots for each time point. The position is interpolated (or
+	 * Given a collection of {@link Spot spots}, this method computes the average position of
+	 * the spots at each time point. The position is interpolated (or
 	 * extrapolated), if there is a time point with no given cell.
 	 */
 	public static List<double[]> calculateAndInterpolateAveragePosition( int numTimePoint, Collection<Spot> spots )
@@ -292,7 +283,7 @@ public class SortTreeUtils
 	 */
 	public static double angle( double[] directionA, double[] directionB )
 	{
-		double cos = scalarProduct( directionA, directionB ) / LinAlgHelpers.length( directionA ) / LinAlgHelpers.length( directionB );
+		double cos = LinAlgHelpers.dot( directionA, directionB ) / LinAlgHelpers.length( directionA ) / LinAlgHelpers.length( directionB );
 		return Math.acos( cos );
 	}
 

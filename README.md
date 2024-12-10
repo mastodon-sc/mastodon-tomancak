@@ -126,6 +126,19 @@ place.
 
 #### Systematically label spots (extern-intern)
 
+* Menu Location: `Plugins > Spots management > Rename spots > Systematically label spots (extern-intern)`
+* Derives the name of child cells from the name of the parent by appending a "1" or a "2" to the parent cell name.
+* The child cell further away from the center landmark gets "1" appended.
+* The child cell closer to the center landmark gets "2" appended.
+* The command is useful for systematically labeling cells in a lineage tree.
+* The renaming can be restricted to
+    * Selected spots
+    * Spots with a certain tag
+    * Spots that are yet labeled with a number only (indicating that they were automatically detected and not yet
+      manually labeled)
+    * Spots whose names end with "1" or "2" (indicating that they were labeled with this command before)
+* Example: ![systematically_label_spots.gif](doc/spotsmanagement/systematically_label_spots.gif)
+
 ## Tags
 
 ### Locate tags

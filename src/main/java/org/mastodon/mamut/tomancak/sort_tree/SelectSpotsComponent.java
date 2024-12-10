@@ -30,6 +30,7 @@ package org.mastodon.mamut.tomancak.sort_tree;
 
 import org.mastodon.collection.RefSet;
 import org.mastodon.collection.ref.RefSetImp;
+import org.mastodon.graph.algorithm.RootFinder;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
@@ -156,10 +157,7 @@ public class SelectSpotsComponent extends JButton
 			map.put( key, new ArrayList<>() );
 		for(Spot root : roots) {
 			Character character = root.getLabel().charAt( 0 );
-			if(map.containsKey( character ))
-				map.get( character ).add( root );
-			else
-				other.add( root );
+			map.getOrDefault( character, other ).add( root );
 		}
 		map.forEach( (key, list) -> addLineageSubMenu( popupMenu, "\"" + key + "...\"", list ) );
 		addLineageSubMenu( popupMenu, "\"A-Z...\"", other );
@@ -184,15 +182,7 @@ public class SelectSpotsComponent extends JButton
 
 	private List<Spot> getRoots()
 	{
-		ModelGraph graph = mastodonModel.getGraph();
-		List<Spot> roots = new ArrayList<>();
-		for ( Spot spot : graph.vertices() )
-			if ( spot.incomingEdges().size() == 0 )
-			{
-				Spot ref = graph.vertexRef().refTo( spot );
-				roots.add( ref );
-			}
-		return roots;
+		return new ArrayList<>( RootFinder.getRoots( mastodonModel.getGraph() ) );
 	}
 
 	private JMenu createTagSetMenu( TagSetStructure.TagSet tagSet )

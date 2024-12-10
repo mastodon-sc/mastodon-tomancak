@@ -30,11 +30,12 @@ package org.mastodon.mamut.tomancak.sort_tree;
 
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
+
+import net.imglib2.util.LinAlgHelpers;
 
 /**
  * Returns true, if and only if, the first child of the given spot is further
@@ -59,9 +60,9 @@ public class ExternInternOrder implements Predicate<Spot>
 	{
 		if(spot.outgoingEdges().size() != 2)
 			return true;
-		double[] devisionDirection = SortTreeUtils.directionOfCellDevision( graph, spot );
+		double[] divisionDirection = SortTreeUtils.directionOfCellDivision( graph, spot );
 		double[] centerPosition = centerPositions.get( spot.getTimepoint() );
 		double[] centerDirection = SortTreeUtils.subtract( spot.positionAsDoubleArray(), centerPosition );
-		return SortTreeUtils.scalarProduct( devisionDirection, centerDirection ) < 0;
+		return LinAlgHelpers.dot( divisionDirection, centerDirection ) < 0;
 	}
 }
