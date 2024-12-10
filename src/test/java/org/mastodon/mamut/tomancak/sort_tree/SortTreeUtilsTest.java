@@ -33,10 +33,12 @@ import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class SortTreeUtilsTest
 {
@@ -94,6 +96,52 @@ public class SortTreeUtilsTest
 		double[] averagePosition = SortTreeUtils.calculateAndInterpolateAveragePosition( 1, Arrays.asList(a, b)).get(0);
 		// test
 		assertArrayEquals( array(2,3,4), averagePosition, 0.0 );
+	}
+
+	@Test
+	public void calculateAveragePosition_withMultipleSpots()
+	{
+		// setup
+		int numTimepoints = 4;
+		ModelGraph graph = new ModelGraph();
+		Spot a = graph.addVertex().init( 1, array( 1, 2, 3 ), 0.5 );
+		Spot b = graph.addVertex().init( 1, array( 3, 4, 5 ), 0.5 );
+		Spot c = graph.addVertex().init( 2, array( 5, 6, 7 ), 0.5 );
+		graph.addVertex().init( 3, array( 7, 8, 9 ), 0.5 );
+		// process
+		List< double[] > averages = SortTreeUtils.calculateAveragePosition( numTimepoints, Arrays.asList( a, b, c ) );
+		// test
+		assertEquals( numTimepoints, averages.size() );
+		assertNull( averages.get( 0 ) );
+		assertArrayEquals( array( 2, 3, 4 ), averages.get( 1 ), 0.0 );
+		assertArrayEquals( array( 5, 6, 7 ), averages.get( 2 ), 0.0 );
+		assertNull( averages.get( 3 ) );
+	}
+
+	@Test
+	public void calculateAveragePosition_withNoSpots()
+	{
+		// process
+		int numTimepoints = 2;
+		List< double[] > averages = SortTreeUtils.calculateAveragePosition( numTimepoints, Collections.emptyList() );
+		// test
+		assertEquals( numTimepoints, averages.size() );
+		assertNull( averages.get( 0 ) );
+		assertNull( averages.get( 1 ) );
+	}
+
+	@Test
+	public void calculateAveragePosition_withSingleSpot()
+	{
+		// setup
+		int numTimepoints = 1;
+		ModelGraph graph = new ModelGraph();
+		Spot a = graph.addVertex().init( 0, array( 1, 2, 3 ), 0.5 );
+		// process
+		List< double[] > averages = SortTreeUtils.calculateAveragePosition( numTimepoints, Collections.singletonList( a ) );
+		// test
+		assertEquals( numTimepoints, averages.size() );
+		assertArrayEquals( array( 1, 2, 3 ), averages.get( 0 ), 0.0 );
 	}
 
 	@Test
