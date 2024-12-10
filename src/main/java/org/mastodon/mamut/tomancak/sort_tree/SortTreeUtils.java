@@ -143,8 +143,8 @@ public class SortTreeUtils
 	}
 
 	/**
-	 * Given a collection of {@link Spot spots}, this the average position of
-	 * the spots for each time point. The position is interpolated (or
+	 * Given a collection of {@link Spot spots}, this method computes the average position of
+	 * the spots at each time point. The position is interpolated (or
 	 * extrapolated), if there is a time point with no given cell.
 	 */
 	public static List<double[]> calculateAndInterpolateAveragePosition( int numTimePoint, Collection<Spot> spots )
