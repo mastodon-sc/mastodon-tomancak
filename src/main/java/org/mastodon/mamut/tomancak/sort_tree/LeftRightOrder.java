@@ -35,6 +35,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
+import net.imglib2.util.LinAlgHelpers;
+
 public class LeftRightOrder implements Predicate<Spot>
 {
 
@@ -58,6 +60,6 @@ public class LeftRightOrder implements Predicate<Spot>
 			return true;
 		double[] divisionDirection = SortTreeUtils.directionOfCellDevision( graph, spot );
 		double[] sortingDirection = directions.get( spot.getTimepoint() );
-		return SortTreeUtils.scalarProduct( sortingDirection, divisionDirection) >= 0;
+		return LinAlgHelpers.dot( sortingDirection, divisionDirection ) >= 0;
 	}
 }

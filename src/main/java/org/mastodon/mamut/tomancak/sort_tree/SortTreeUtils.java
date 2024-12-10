@@ -110,15 +110,6 @@ public class SortTreeUtils
 		}
 	}
 
-	public static double scalarProduct( double[] a, double[] b )
-	{
-		assert a.length == b.length;
-		double sum = 0;
-		for ( int i = 0; i < a.length; i++ )
-			sum += a[ i ] * b[ i ];
-		return sum;
-	}
-
 	static List<double[]> subtract( List<double[]> a, List<double[]> b )
 	{
 		final int n = a.size();
@@ -292,7 +283,7 @@ public class SortTreeUtils
 	 */
 	public static double angle( double[] directionA, double[] directionB )
 	{
-		double cos = scalarProduct( directionA, directionB ) / LinAlgHelpers.length( directionA ) / LinAlgHelpers.length( directionB );
+		double cos = LinAlgHelpers.dot( directionA, directionB ) / LinAlgHelpers.length( directionA ) / LinAlgHelpers.length( directionB );
 		return Math.acos( cos );
 	}
 
