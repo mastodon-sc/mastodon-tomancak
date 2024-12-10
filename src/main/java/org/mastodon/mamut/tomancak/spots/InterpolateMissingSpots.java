@@ -39,6 +39,35 @@ import org.mastodon.mamut.model.Spot;
 
 import net.imglib2.util.LinAlgHelpers;
 
+/**
+ * Interpolates missing spots in the given model.<br><br>
+ * Spots are considered missing, if there is a gap of more than one time point between two spots that are connected by a link.<br><br>
+ * Spots are interpolated by linearly interpolating their position and covariance matrix between the two spots that are connected by such a link and inserting the new spots and links between them.<br><br>
+ *
+ * Example:<br>
+ *
+ * Before interpolation:<br>
+ * <pre>
+ *    Spot( 0, X=1,00, Y=2,00, Z=3,00, tp=0 )
+ *                       │
+ *    Spot( 3, X=4,00, Y=8,00, Z=12,00, tp=3 )
+ *                       │
+ *    Spot( 4, X=5,00, Y=10,00, Z=15,00, tp=4 )
+ *  </pre>
+ *
+ * After interpolation:<br>
+ *  <pre>
+ *    Spot( 0, X=1,00, Y=2,00, Z=3,00, tp=0 )
+ *                       │
+ *    Spot( 1, X=2,00, Y=4,00, Z=6,00, tp=1 )
+ *                       │
+ *    Spot( 2, X=3,00, Y=6,00, Z=9,00, tp=2 )
+ *                       │
+ *    Spot( 3, X=4,00, Y=8,00, Z=12,00, tp=3 )
+ *                       │
+ *    Spot( 4, X=5,00, Y=10,00, Z=15,00, tp=4 )
+ *  </pre>
+ */
 public class InterpolateMissingSpots
 {
 	public static void interpolate( final Model model )
