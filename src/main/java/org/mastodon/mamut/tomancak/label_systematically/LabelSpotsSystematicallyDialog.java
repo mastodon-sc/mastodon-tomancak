@@ -121,6 +121,11 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 		try
 		{
 			Collection<Spot> center = centerLandmark.getSelectedSpots();
+			if ( center.isEmpty() )
+			{
+				dispose();
+				return;
+			}
 			Collection<Spot> selected = selectSpots.getSelectedSpots();
 			LabelSpotsSystematically.setLabelsBasedOnExternIntern( graph, center, selected, renameUnnamed, renameLabelsEndingWith1Or2 );
 			model.setUndoPoint();
