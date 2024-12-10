@@ -69,7 +69,7 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 	private final JButton actionButton;
 
 	private LabelSpotsSystematicallyDialog( ProjectModel appModel ) {
-		super(( Frame ) null, "Sort Lineage Tree", false);
+		super( ( Frame ) null, "Label spots systematically", false );
 		setResizable( false );
 		this.appModel = appModel;
 		this.centerLandmark = new SelectSpotsComponent( appModel );
