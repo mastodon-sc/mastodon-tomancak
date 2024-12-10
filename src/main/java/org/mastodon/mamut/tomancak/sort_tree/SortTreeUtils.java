@@ -166,6 +166,18 @@ public class SortTreeUtils
 		return averages;
 	}
 
+	/**
+	 * Calculates the average position of the given spots per time point,
+	 * i.e. at each time point the average position of all spots that belong to that time point is calculated.
+	 * If there are no spots at a time point, the average position of that time point is {@code null}.
+	 * <br>
+	 * The result is a list of double arrays, where the index of the array corresponds to the time point and the array contains the average position in three dimensions.
+	 * If there are no spots at a time point, the array is {@code null} at that index.
+	 *
+	 * @param numTimePoints The number of time points.
+	 * @param spots The collection of spots.
+	 * @return A list of double arrays representing the average positions per time point.
+	 */
 	public static List< double[] > calculateAveragePosition( int numTimePoints, Collection< Spot > spots )
 	{
 		List< double[] > averages = new ArrayList<>( Collections.nCopies( numTimePoints, null ) );
