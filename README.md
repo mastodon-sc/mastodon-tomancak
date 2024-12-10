@@ -112,7 +112,17 @@ place.
 
 #### Label selected spots
 
+* Menu Location: `Plugins > Spots management > Rename spots > Label selected spots`
+* The command opens a dialog where the user can enter a new label that will be set for all selected spots.
+* Example: ![label_selected_spots.gif](doc/spotsmanagement/label_selected_spots.gif)
+
 #### Change branch labels
+
+* Menu Location: `Plugins > Spots management > Rename spots > Change branch labels`
+* The command opens a dialog where the user can enter a new label that will be set for all spots that belong to the
+  branch that is currently focussed. Since the label of the last spot is shown is the branch label in the trackscheme
+  branch view, this operation also changes the visible label of the branch.
+* Example: ![change_branch_labels.gif](doc/spotsmanagement/change_branch_labels.gif)
 
 #### Systematically label spots (extern-intern)
 
