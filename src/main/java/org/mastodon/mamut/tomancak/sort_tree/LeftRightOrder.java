@@ -58,7 +58,7 @@ public class LeftRightOrder implements Predicate<Spot>
 	{
 		if (spot.outgoingEdges().size() != 2)
 			return true;
-		double[] divisionDirection = SortTreeUtils.directionOfCellDevision( graph, spot );
+		double[] divisionDirection = SortTreeUtils.directionOfCellDivision( graph, spot );
 		double[] sortingDirection = directions.get( spot.getTimepoint() );
 		return LinAlgHelpers.dot( sortingDirection, divisionDirection ) >= 0;
 	}

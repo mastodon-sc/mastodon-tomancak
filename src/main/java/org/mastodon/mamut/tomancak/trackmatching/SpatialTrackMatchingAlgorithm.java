@@ -48,7 +48,7 @@ import org.mastodon.mamut.tomancak.sort_tree.SortTreeUtils;
  * By doing so it figures out which spots need to be flipped in order
  * to match the TrackSchemes of both lineages.
  *
- * @see SortTreeUtils#directionOfCellDevision(ModelGraph, Spot)
+ * @see SortTreeUtils#directionOfCellDivision(ModelGraph, Spot)
  */
 public class SpatialTrackMatchingAlgorithm
 {
@@ -164,8 +164,8 @@ public class SpatialTrackMatchingAlgorithm
 					dividingB.outgoingEdges().size() == 2;
 			if ( !bothDivide )
 				return;
-			double[] directionA = SortTreeUtils.directionOfCellDevision( graphA, dividingA );
-			double[] directionB = SortTreeUtils.directionOfCellDevision( graphB, dividingB );
+			double[] directionA = SortTreeUtils.directionOfCellDivision( graphA, dividingA );
+			double[] directionB = SortTreeUtils.directionOfCellDivision( graphB, dividingB );
 			AffineTransform3D transformAB = noOffsetTransform( spatialRegistration.getTransformationAtoB(
 					dividingA.getTimepoint() + TIME_OFFSET, dividingB.getTimepoint() + TIME_OFFSET ) );
 			transformAB.apply( directionA, directionA );

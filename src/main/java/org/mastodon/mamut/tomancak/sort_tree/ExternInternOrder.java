@@ -60,9 +60,9 @@ public class ExternInternOrder implements Predicate<Spot>
 	{
 		if(spot.outgoingEdges().size() != 2)
 			return true;
-		double[] devisionDirection = SortTreeUtils.directionOfCellDevision( graph, spot );
+		double[] divisionDirection = SortTreeUtils.directionOfCellDivision( graph, spot );
 		double[] centerPosition = centerPositions.get( spot.getTimepoint() );
 		double[] centerDirection = SortTreeUtils.subtract( spot.positionAsDoubleArray(), centerPosition );
-		return LinAlgHelpers.dot( devisionDirection, centerDirection ) < 0;
+		return LinAlgHelpers.dot( divisionDirection, centerDirection ) < 0;
 	}
 }

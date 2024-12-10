@@ -43,7 +43,8 @@ import static org.junit.Assert.assertNull;
 public class SortTreeUtilsTest
 {
 	@Test
-	public void testDirectionOfCellDevision() {
+	public void testDirectionOfCellDivision()
+	{
 		// setup
 		ModelGraph graph = new ModelGraph();
 		Spot spot = graph.addVertex().init( 0, array(2, 2, 2), 0.5 );
@@ -52,13 +53,14 @@ public class SortTreeUtilsTest
 		graph.addEdge( spot, a ).init();
 		graph.addEdge( spot, b ).init();
 		// process
-		double[] direction = SortTreeUtils.directionOfCellDevision( graph, spot );
+		double[] direction = SortTreeUtils.directionOfCellDivision( graph, spot );
 		// test
 		assertArrayEquals(array(2, 0, 0), direction, 0.0);
 	}
 
 	@Test
-	public void testDirectionOfCellDevision2() {
+	public void testDirectionOfCellDivision2()
+	{
 		// setup
 		ModelGraph graph = new ModelGraph();
 		Spot spot = graph.addVertex().init( 0, array(2, 2, 2), 0.5 );
@@ -79,7 +81,7 @@ public class SortTreeUtilsTest
 		graph.addEdge( b2, b3_1 ).init();
 		graph.addEdge( b2, b3_2 ).init();
 		// process
-		double[] direction = SortTreeUtils.directionOfCellDevision( graph, spot );
+		double[] direction = SortTreeUtils.directionOfCellDivision( graph, spot );
 		// test
 		assertArrayEquals(array(0.5, 0, 0), direction, 0.0);
 

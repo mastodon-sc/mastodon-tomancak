@@ -50,7 +50,7 @@ public class SortTreeUtils
 	/**
 	 * If {@code spot} is a {@link Spot} that divides at timepoint
 	 * {@code t = spot.getTimepoint}. Then the cell division direction
-	 * returned by {@link #directionOfCellDevision} is sampled not at
+	 * returned by {@link #directionOfCellDivision} is sampled not at
 	 * timepoint {@code t} but at a timepoint {@code s}. With
 	 * {@code s = t + DIVISION_DIRECTION_TIME_OFFSET}.
 	 */
@@ -62,7 +62,7 @@ public class SortTreeUtils
 	 * three time points. And returns the vector from the first daughter cell
 	 * to the second daughter cell.
 	 */
-	public static double[] directionOfCellDevision( ModelGraph graph, Spot spot )
+	public static double[] directionOfCellDivision( ModelGraph graph, Spot spot )
 	{
 		if(spot.outgoingEdges().size() != 2)
 			return new double[]{ 0, 0, 0 };
