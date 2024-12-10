@@ -52,6 +52,18 @@ public class AddCenterSpots
 		// prevent from instantiation
 	}
 
+	/**
+	 * Adds spots to the model at the average position of the selected spots of each time point.
+	 * The new spots are connected by links in the order of the time points.
+	 * <br>
+	 * If there are time points without selected spots, no spot is added at that time point. In this case, the links span over the time points without spots.
+	 * <br>
+	 * If there are time points with multiple selected spots, the average position of the selected spots is calculated at that time point.
+	 * <br><br>
+	 * If no spots are selected, only a message dialog is shown.
+	 *
+	 * @param appModel the project model
+	 */
 	public static void addSpots( ProjectModel appModel )
 	{
 		RefSet< Spot > selectedSpots = appModel.getSelectionModel().getSelectedVertices();
