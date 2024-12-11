@@ -156,6 +156,7 @@ public class LocateTagsFrame extends JFrame
 		groupHandle = this.projectModel.getGroupManager().createGroupHandle();
 		setTitle( "Locate Tags" );
 		setLayout( new MigLayout( "insets dialog", "[grow]", "[][][grow]" ) );
+		setLocationRelativeTo( null );
 		add( new GroupLocksPanel( groupHandle ), "split" );
 		add( new Label( "Tag Set:" ) );
 		tagSetComboBox = new JComboBox<>();
