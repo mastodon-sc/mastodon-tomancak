@@ -151,7 +151,12 @@ place.
 * Tags can be removed from the selected spots.
 * Example: ![locate_tags.gif](doc/tags/locate_tags.gif)
 
-### Copy tag
+### Copy tags
+
+* Menu Location: `Plugins > Tags > Copy tag`
+* Allows the user to assign a tag to spots under the condition that the spots already have a certain tag that can be
+  specified by the user.
+* Example: ![copy_tag.gif](doc/tags/copy_tag.gif)
 
 ### Add tag set to highlight cell divisions
 
