@@ -78,7 +78,8 @@ public class CopyTagDialog extends JDialog
 
 	public CopyTagDialog( final Frame owner, final Model model )
 	{
-		super( owner, "Copy Tag...", false );
+		super( owner, "Copy Tag", false );
+		setLocationRelativeTo( null );
 		this.model = model;
 
 		model.getTagSetModel().listeners().add( this::tagSetStructureChanged );
