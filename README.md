@@ -160,6 +160,12 @@ place.
 
 ### Add tag set to highlight cell divisions
 
+* Menu Location: `Plugins > Tags > Add tag set to highlight cell divisions`
+* The command creates a tag set that highlights cell divisions. The user interface allows to specify the number of spots
+  to highlight before and after a division.
+* The colors for highlight background can be selected.
+* Example: ![add_tag_set_to_highlight_cell_divisions.gif](doc/tags/add_tag_set_to_highlight_cell_divisions.gif)
+
 ### Create Dummy Tag Set
 
 ## Trees management
