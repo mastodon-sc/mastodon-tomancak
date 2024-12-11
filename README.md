@@ -168,6 +168,10 @@ place.
 
 ### Create Dummy Tag Set
 
+* Menu Location: `Plugins > Tags > Create Empty Tag Set`
+* Creates a tag set with a specified number of tags in random colors.
+* Example: ![dummy_tagset.png](doc/tags/dummy_tagset.png)
+
 ## Trees management
 
 ### Flip descendants
