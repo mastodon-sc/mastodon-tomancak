@@ -143,6 +143,14 @@ place.
 
 ### Locate tags
 
+* Menu Location: `Plugins > Tags > Locate tags`
+* Opens a window with a list showing tracks and tags assigned to them.
+  The time point and the spot (identified via its label) of the first occurrence of the tag in a track are shown.
+* The user can select a tag-track combination in the list and linked views will navigate to the corresponding spot.
+  The spot will be selected and highlighted.
+* Tags can be removed from the selected spots.
+* Example: ![locate_tags.gif](doc/tags/locate_tags.gif)
+
 ### Copy tag
 
 ### Add tag set to highlight cell divisions
