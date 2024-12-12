@@ -176,13 +176,17 @@ place.
 
 ### Flip descendants
 
+* Menu Location: `Plugins > Trees management > Flip descendants`
+* Flip children of the currently selected and focused spot in the track scheme graph.
+* Example: ![flip_descendants.gif](doc/treesmanagement/flip_descendants.gif)
+
 ### Conflict resolution
 
 #### Create conflict tag set
 
 #### Fuse selected spots
 
-### Sort trackscheme
+### Sort track scheme
 
 #### Sort lineage tree (left-right-anchors)
 
@@ -190,7 +194,7 @@ place.
 
 #### Sort lineage tree (cell life cycle duration)
 
-## Auxilliary displays
+## Auxiliary displays
 
 ### Show compact lineage
 
@@ -200,6 +204,6 @@ place.
 
 ### Export spots counts per lineage
 
-### Export spots counts per timepoint
+### Export spots counts per time point
 
 ### Export lineage lengths
