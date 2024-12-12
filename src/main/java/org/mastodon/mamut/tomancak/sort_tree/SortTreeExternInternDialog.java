@@ -31,6 +31,8 @@ package org.mastodon.mamut.tomancak.sort_tree;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import net.miginfocom.swing.MigLayout;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Spot;
@@ -91,6 +93,11 @@ public class SortTreeExternInternDialog extends JDialog
 	private void sortButtonClicked()
 	{
 		Collection<Spot> center = centerLandmark.getSelectedSpots();
+		if ( center.isEmpty() )
+		{
+			JOptionPane.showMessageDialog( this, "Please select a center landmark.", "No center landmark selected",
+					JOptionPane.ERROR_MESSAGE );
+		}
 		Collection<Spot> selectedSpots = nodesToSort.getSelectedSpots();
 		SortTree.sortExternIntern( appModel.getModel(), selectedSpots, center );
 		appModel.getBranchGraphSync().sync();
