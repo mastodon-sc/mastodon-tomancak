@@ -200,6 +200,14 @@ place.
 
 #### Sort lineage tree (extern-intern)
 
+* Menu Location: `Plugins > Trees management > Sort trackscheme > Sort lineage tree (extern-intern)`
+* Sorts the order of the sub lineages in the track scheme.
+* Cells further away from the center landmark, are put to the left side.
+* Cells closer to the center landmark, are put to the right side.
+* The user can specify the center landmark by selecting a track.
+* The user can specify if the entire tree should be sorted, only selected subtrees or subtrees with a specific tag.
+* Example: ![sort_lineage_tree_extern_intern.gif](doc/treesmanagement/sort_lineage_tree_extern_intern.gif)
+
 #### Sort lineage tree (cell life cycle duration)
 
 ## Auxiliary displays
