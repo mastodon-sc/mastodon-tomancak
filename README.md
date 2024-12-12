@@ -188,7 +188,15 @@ place.
 
 ### Sort track scheme
 
-#### Sort lineage tree (left-right-anchors)
+#### Sort lineage tree (left-right-landmarks)
+
+* Menu Location: `Plugins > Trees management > Sort trackscheme > Sort lineage tree (left-right-anchors)`
+* Sorts the order of sub lineages in the track scheme.
+* Cell closer to the left landmark, are put to the left side.
+* Cells closer to the right landmark are put to the right side.
+* The user can specify the left and right landmark by selecting tracks.
+* The user can specify if the entire tree should be sorted, only selected subtrees or subtrees with a specific tag.
+* Example: ![sort_lineage_tree_left_right_landmarks.gif](doc/treesmanagement/sort_lineage_tree_left_right_landmarks.gif)
 
 #### Sort lineage tree (extern-intern)
 
