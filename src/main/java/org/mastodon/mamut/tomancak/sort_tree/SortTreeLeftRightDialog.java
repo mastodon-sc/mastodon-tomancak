@@ -91,6 +91,24 @@ public class SortTreeLeftRightDialog extends JDialog
 		Collection<Spot> left = leftLandmark.getSelectedSpots();
 		Collection<Spot> right = rightLandmark.getSelectedSpots();
 		Collection<Spot> selectedSpot = nodesToSort.getSelectedSpots();
+		if ( left.isEmpty() && right.isEmpty() )
+		{
+			JOptionPane.showMessageDialog( this, "Please select left and right landmarks.", "No landmarks selected",
+					JOptionPane.ERROR_MESSAGE );
+			return;
+		}
+		if ( left.isEmpty() )
+		{
+			JOptionPane.showMessageDialog( this, "Please select left a landmark.", "No left landmark selected",
+					JOptionPane.ERROR_MESSAGE );
+			return;
+		}
+		if ( right.isEmpty() )
+		{
+			JOptionPane.showMessageDialog( this, "Please select right a landmark.", "No right landmark selected",
+					JOptionPane.ERROR_MESSAGE );
+			return;
+		}
 		SortTree.sortLeftRightAnchors( appModel.getModel(), selectedSpot, left, right );
 		appModel.getBranchGraphSync().sync();
 	}
