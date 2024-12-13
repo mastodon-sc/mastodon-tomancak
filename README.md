@@ -202,6 +202,33 @@ place.
 
 #### Fuse selected spots
 
+* Menu Location: `Plugins > Trees management > Conflict resolution > Fuse selected spots`
+* The currently selected spots are fused into a single track. For each time point, the position and covariance of the
+  selected spots are averaged and assigned to a fused spot.
+* The selected spots must fulfill very specific requirements. As shown here:
+
+<pre>
+     before:                                 after fusion:
+     (selected spots are marked with *)
+
+     A1      B1      C1                      A1   B1  C1
+     |       |       |                         \  |  /
+     A2*     B2*     C2*                          A2
+     |       |       |           ---&gt;             |
+     A3*     B3*     C3*                          A3
+     |       |       |                         /  |  \
+     A4      B4      C4                      A4   B4  C4
+</pre>
+
+* The selected spots must belong to a fixed number of branches. And in each branch, the same number of spots must be
+  selected and the spots must be at the same time points.
+* One of the branches is considered to be the "focused" branch. (If a spot is focused that containing branch will be
+  that "focused" branch.) The spots in the focused branch are kept. Their position and covariance are updated to the
+  average of the selected spots of the same time point. The other selected spots, that are not in the "focused" branch,
+  are removed.
+* New edges are added as if the spots were actually fused.
+* Example: ![fuse_selected_spots.gif](doc/treesmanagement/fuse_selected_spots.gif)
+
 ### Sort track scheme
 
 #### Sort lineage tree (left-right-landmarks)
