@@ -210,6 +210,13 @@ place.
 
 #### Sort lineage tree (cell life cycle duration)
 
+* Menu Location: `Plugins > Trees management > Sort trackscheme > Sort lineage tree (cell life cycle duration)`
+* Sort selected spots such that the child cell with the longer cell cycle duration (aka branch duration) is arranged to
+  the left in the TrackScheme.
+* If no spots are selected, the entire track scheme is sorted.
+*
+Example: ![sort_lineage_tree_cell_life_cycle_duration.gif](doc/treesmanagement/sort_lineage_tree_cell_life_cycle_duration.gif)
+
 ## Auxiliary displays
 
 ### Show compact lineage
