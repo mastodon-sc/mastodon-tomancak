@@ -92,8 +92,10 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private static final String REMOVE_ISOLATED_SPOTS = "[tomancak] remove isolated spots";
 	private static final String EXPORTS_LINEAGE_LENGTHS = "[tomancak] export lineage lengths";
-	private static final String EXPORT_SPOTS_COUNTS_PER_LINEAGE = "[tomancak] export spots counts per lineage";
-	private static final String EXPORT_SPOTS_COUNTS_PER_TIMEPOINT = "[tomancak] export spots counts per timepoint";
+
+	private static final String EXPORT_SPOTS_COUNTS_PER_LINEAGE = "[tomancak] export spot counts per lineage";
+
+	private static final String EXPORT_SPOTS_COUNTS_PER_TIMEPOINT = "[tomancak] export spot counts per timepoint";
 
 	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spots";
 	private static final String MIRROR_SPOTS = "[tomancak] mirror spots";
@@ -147,8 +149,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( LABEL_SPOTS_SYSTEMATICALLY, "Systematically label spots (extern-intern)" );
 		menuTexts.put( REMOVE_ISOLATED_SPOTS, "Remove isolated spots" );
 		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export lineage lengths" );
-		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export spots counts per lineage" );
-		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export spots counts per timepoint" );
+		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export spot counts per lineage" );
+		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export spot counts per timepoint" );
 		menuTexts.put( ADD_CENTER_SPOTS, "Add center spots" );
 		menuTexts.put( MIRROR_SPOTS, "Mirror spots along X-axis" );
 		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create conflict tag set" );
