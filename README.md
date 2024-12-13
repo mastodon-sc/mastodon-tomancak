@@ -10,8 +10,8 @@
 * [Spots management](#spots-management)
     * [Transform spots](#transform-spots)
         * [Mirror spots along X-axis](#mirror-spots-along-x-axis)
-      * [Remove spots solists](#remove-isolated-spots)
-        * [Add center spot](#add-center-spot)
+      * [Remove isolated spots](#remove-isolated-spots)
+          * [Add center spots](#add-center-spots)
         * [Interpolate missing spots](#interpolate-missing-spots)
         * [Set radius of selected spots](#set-radius-of-selected-spots)
     * [Rename spots](#rename-spots)
@@ -20,7 +20,7 @@
         * [Systematically label spots (extern-intern)](#systematically-label-spots-extern-intern)
 * [Tags](#tags)
     * [Locate tags](#locate-tags)
-    * [Copy tag](#copy-tag)
+  * [Copy tags](#copy-tags)
     * [Add tag set to highlight cell divisions](#add-tag-set-to-highlight-cell-divisions)
     * [Create Dummy Tag Set](#create-dummy-tag-set)
 * [Trees management](#trees-management)
@@ -28,16 +28,16 @@
     * [Conflict resolution](#conflict-resolution)
         * [Create conflict tag set](#create-conflict-tag-set)
         * [Fuse selected spots](#fuse-selected-spots)
-    * [Sort trackscheme](#sort-trackscheme)
-        * [Sort lineage tree (left-right-anchors)](#sort-lineage-tree-left-right-anchors)
+  * [Sort track scheme](#sort-track-scheme)
+      * [Sort lineage tree (left-right-landmarks)](#sort-lineage-tree-left-right-landmarks)
         * [Sort lineage tree (extern-intern)](#sort-lineage-tree-extern-intern)
         * [Sort lineage tree (cell life cycle duration)](#sort-lineage-tree-cell-life-cycle-duration)
-* [Auxilliary displays](#auxilliary-displays)
+* [Auxiliary displays](#auxiliary-displays)
     * [Show compact lineage](#show-compact-lineage)
 * [Spatial track matching](#spatial-track-matching)
 * [Export measurements](#export-measurements)
-    * [Export spots counts per lineage](#export-spots-counts-per-lineage)
-    * [Export spots counts per timepoint](#export-spots-counts-per-timepoint)
+    * [Export spot counts per lineage](#export-spot-counts-per-lineage)
+    * [Export spot counts per time point](#export-spot-counts-per-time-point)
     * [Export lineage lengths](#export-lineage-lengths)
 
 ## Documentation of Mastodon
@@ -268,8 +268,8 @@ Example: ![sort_lineage_tree_cell_life_cycle_duration.gif](doc/treesmanagement/s
 
 ## Export measurements
 
-### Export spots counts per lineage
+### Export spot counts per lineage
 
-### Export spots counts per time point
+### Export spot counts per time point
 
 ### Export lineage lengths
