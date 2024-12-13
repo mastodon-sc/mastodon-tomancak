@@ -32,6 +32,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import net.miginfocom.swing.MigLayout;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Model;
@@ -123,7 +125,8 @@ public class LabelSpotsSystematicallyDialog extends JDialog
 			Collection<Spot> center = centerLandmark.getSelectedSpots();
 			if ( center.isEmpty() )
 			{
-				dispose();
+				JOptionPane.showMessageDialog( this, "Please select a center landmark.", "Error",
+						JOptionPane.ERROR_MESSAGE );
 				return;
 			}
 			Collection<Spot> selected = selectSpots.getSelectedSpots();

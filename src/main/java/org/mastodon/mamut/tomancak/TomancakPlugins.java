@@ -141,7 +141,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( SET_RADIUS_SELECTED_SPOTS, "Set radius of selected spots" );
 		menuTexts.put( CHANGE_BRANCH_LABELS, "Change branch labels" );
 		menuTexts.put( COMPACT_LINEAGE_VIEW, "Show compact lineage" );
-		menuTexts.put( SORT_TREE, "Sort lineage tree (left-right-anchors)" );
+		menuTexts.put( SORT_TREE, "Sort lineage tree (left-right-landmarks)" );
 		menuTexts.put( SORT_TREE_EXTERN_INTERN, "Sort lineage tree (extern-intern)" );
 		menuTexts.put( SORT_TREE_LIFETIME, "Sort lineage tree (cell life cycle duration)" );
 		menuTexts.put( LABEL_SPOTS_SYSTEMATICALLY, "Systematically label spots (extern-intern)" );
@@ -180,7 +180,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 			descriptions.add( SET_RADIUS_SELECTED_SPOTS, SET_RADIUS_SELECTED_SPOTS_KEYS, "Set radius for all selected spots." );
 			descriptions.add( CHANGE_BRANCH_LABELS, CHANGE_BRANCH_LABELS_KEYS, "Change the labels of all the spots between to division." );
 			descriptions.add( COMPACT_LINEAGE_VIEW, COMPACT_LINEAGE_VIEW_KEYS, "Show compact representation of the lineage tree.");
-			descriptions.add( SORT_TREE, SORT_TREE_KEYS, "Sort selected spots according to tagged anchors.");
+			descriptions.add( SORT_TREE, SORT_TREE_KEYS, "Sort selected spots according to selectable landmarks." );
 			descriptions.add( SORT_TREE_EXTERN_INTERN, SORT_TREE_EXTERN_INTERN_KEYS, "Sort selected spots according to tagged center anchor.");
 			descriptions.add( SORT_TREE_LIFETIME, SORT_TREE_LIFETIME_KEYS, "Sort selected spots, such that the child cell with the longer cell cycle duration is left in the TrackScheme.");
 			descriptions.add( LABEL_SPOTS_SYSTEMATICALLY, LABEL_SPOTS_SYSTEMATICALLY_KEYS, "Child cells are named after their parent cell, with a \"1\" or \"2\" appended to the label.");
