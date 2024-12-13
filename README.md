@@ -184,6 +184,22 @@ place.
 
 #### Create conflict tag set
 
+* Menu Location: `Plugins > Trees management > Conflict resolution > Create conflict tag set`
+* During tracking it can happen that the same objects has been detected multiple times at similar positions in the
+  image. The result of this are overlapping spots in the tracking data that actually represent the same object.
+* This command searches for overlaps (aka 'conflicts') in the tracked spots that may indicate such situations.
+* The command creates a new tag set with the name "Conflicting Spots" that contains tags for all the detected conflicts.
+* Two spots are considered to be in conflict if they overlap to a certain degree.
+    * More precisely, the Hellinger
+      distance <sup>[1](https://en.wikipedia.org/wiki/Hellinger_distance), [2]("https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3582582/figure/F11/)</sup>
+      between the ellipsoids of the spots is computed.
+    * The spots are considered to be in overlapping / in conflict, if the distance is below a threshold that can be set
+      by the user:
+        * Only spheres that strongly overlap are considered to be in conflict. (0.3)
+        * Two spheres with a moderate overlap are considered to be in conflict. (0.5)
+        * Two spheres that slightly touch are considered to be in conflict. (0.7)
+* Example: ![create_conflict_tag_set.gif](doc/treesmanagement/create_conflict_tag_set.gif)
+
 #### Fuse selected spots
 
 ### Sort track scheme
