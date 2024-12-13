@@ -45,7 +45,7 @@ public class CreateConflictTagSetTest
 		addShortTack( model, 1, 2, 3, 1.1, 2.1, 3.1 );
 		addShortTack( model, 5, 3, 4, 5.1, 3.1, 4.1 );
 		addShortTack( model, 5, 3.2, 4, 5.1, 3.2, 4.1 );
-		CreateConflictTagSet.run( model, "Conflicting Spots", 0.4 );
+		CreateConflictTagSet.run( model, "Conflicting Spots", 0.4, null );
 		assertEquals( 2, new TagHelper( model, "Conflicting Spots", "Conflict 0 (a)" ).getTaggedSpots().size() );
 		assertEquals( 2, new TagHelper( model, "Conflicting Spots", "Conflict 0 (b)" ).getTaggedSpots().size() );
 	}
