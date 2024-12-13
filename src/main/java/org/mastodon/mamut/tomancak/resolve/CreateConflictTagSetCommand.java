@@ -38,6 +38,7 @@ import org.mastodon.mamut.tomancak.util.DefaultCancelable;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
 import org.scijava.ItemVisibility;
+import org.scijava.app.StatusService;
 import org.scijava.command.Command;
 import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
@@ -110,7 +111,8 @@ public class CreateConflictTagSetCommand extends DefaultCancelable implements Co
 		final double threshold = getThreshold();
 		final String tagSetName = String.format( "Conflicting Spots (threshold=%1.2f)", threshold );
 		removeTagSetIfExists( projectModel.getModel(), tagSetName );
-		final TagSetStructure.TagSet tagSet = CreateConflictTagSet.run( projectModel.getModel(), tagSetName, threshold );
+		final TagSetStructure.TagSet tagSet = CreateConflictTagSet.run( projectModel.getModel(), tagSetName, threshold,
+				projectModel.getContext().service( StatusService.class ) );
 		LocateTagsFrame.run( projectModel, tagSet );
 	}
 

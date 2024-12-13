@@ -57,6 +57,7 @@ import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.spatial.SpatialIndex;
 import org.mastodon.util.TagSetUtils;
 import org.mastodon.util.TreeUtils;
+import org.scijava.app.StatusService;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.TIntSet;
@@ -87,7 +88,8 @@ public class CreateConflictTagSet
 	 *                   this value.
 	 * @return the tag set that was created.
 	 */
-	public static TagSetStructure.TagSet run( final Model model, final String tagSetName, final double threshold )
+	public static TagSetStructure.TagSet run( final Model model, final String tagSetName, final double threshold,
+			final StatusService statusService )
 	{
 		final ModelGraph graph = model.getGraph();
 		TagSetStructure.TagSet tagSet;
@@ -95,7 +97,7 @@ public class CreateConflictTagSet
 		lock.lock();
 		try
 		{
-			tagSet = createTagSet( model, tagSetName, threshold );
+			tagSet = createTagSet( model, tagSetName, threshold, statusService );
 			model.setUndoPoint();
 		}
 		finally
@@ -106,20 +108,24 @@ public class CreateConflictTagSet
 		return tagSet;
 	}
 
-	private static TagSetStructure.TagSet createTagSet( final Model model, final String tagSetName, final double threshold )
+	private static TagSetStructure.TagSet createTagSet( final Model model, final String tagSetName, final double threshold,
+			final StatusService statusService )
 	{
 		final RefIntMap< Spot > branchIds = getBranchIdMap( model );
-		final Map< TIntSet, RefList< Spot > > conflictGroups = computeConflictGroups( model, branchIds, threshold );
+		final Map< TIntSet, RefList< Spot > > conflictGroups = computeConflictGroups( model, branchIds, threshold, statusService );
 		return addTagSet( model, tagSetName, conflictGroups, branchIds );
 	}
 
-	private static Map< TIntSet, RefList< Spot > > computeConflictGroups( final Model model, final RefIntMap< Spot > branchIds, final double threshold )
+	private static Map< TIntSet, RefList< Spot > > computeConflictGroups( final Model model, final RefIntMap< Spot > branchIds,
+			final double threshold, final StatusService statusService )
 	{
 		final int maxTimepoint = TreeUtils.getMaxTimepoint( model );
 		final int minTimepoint = TreeUtils.getMinTimepoint( model );
 		final Map< TIntSet, RefList< Spot > > conflictGroups = new HashMap<>();
 		for ( int timepoint = minTimepoint; timepoint <= maxTimepoint; timepoint++ )
 		{
+			if ( statusService != null )
+				statusService.showProgress( timepoint, maxTimepoint );
 			final SpatialIndex< Spot > frame = model.getSpatioTemporalIndex().getSpatialIndex( timepoint );
 			for ( final Set< Spot > conflict : findConflictsForFrame( model.getGraph(), frame, threshold ) )
 				addConflict( model, conflict, branchIds, conflictGroups );
