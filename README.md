@@ -39,6 +39,7 @@
     * [Export spot counts per lineage](#export-spot-counts-per-lineage)
     * [Export spot counts per time point](#export-spot-counts-per-time-point)
     * [Export lineage lengths](#export-lineage-lengths)
+  * [Export phyloXML for selected spot](#export-phyloxml-for-selected-spot)
 
 ## Documentation of Mastodon
 
