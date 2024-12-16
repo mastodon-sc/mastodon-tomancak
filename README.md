@@ -283,3 +283,9 @@ Example: ![sort_lineage_tree_cell_life_cycle_duration.gif](doc/treesmanagement/s
 * Example: ![export_spot_counts_per_time_point.png](doc/export/export_spot_counts_per_time_point.png)
 
 ### Export lineage lengths
+
+### Export phyloXML for selected spot
+
+* Menu Location: `File > Export > Export phyloXML for selected spot`
+* Export the subtree of the selected spot in phyloXML format.
+* The phyloXML format is a standard for representing phylogenetic trees: [phyloxml.org](http://www.phyloxml.org/)
