@@ -75,6 +75,7 @@ public class MergingDialog extends JDialog
 	public MergingDialog( final Frame owner )
 	{
 		super( owner, "Merge Projects...", true );
+		setLocationRelativeTo( null );
 
 		final JPanel content = new JPanel();
 		getContentPane().add( content, BorderLayout.CENTER );
