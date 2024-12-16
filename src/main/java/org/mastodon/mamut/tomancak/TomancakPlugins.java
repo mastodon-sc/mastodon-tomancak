@@ -77,7 +77,7 @@ import org.scijava.ui.behaviour.util.RunnableAction;
 @Plugin( type = MamutPlugin.class )
 public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 {
-	private static final String EXPORT_PHYLOXML = "[tomancak] export phyloxml for selection";
+	private static final String EXPORT_PHYLOXML = "[tomancak] export phyloxml for selected spot";
 	private static final String FLIP_DESCENDANTS = "[tomancak] flip lineage descendants";
 	private static final String COPY_TAG = "[tomancak] copy tag";
 	private static final String INTERPOLATE_SPOTS = "[tomancak] interpolate missing spots";
@@ -135,7 +135,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	static
 	{
-		menuTexts.put( EXPORT_PHYLOXML, "Export phyloXML for selection" );
+		menuTexts.put( EXPORT_PHYLOXML, "Export phyloXML for selected spot" );
 		menuTexts.put( FLIP_DESCENDANTS, "Flip descendants" );
 		menuTexts.put( COPY_TAG, "Copy tag" );
 		menuTexts.put( INTERPOLATE_SPOTS, "Interpolate missing spots" );
