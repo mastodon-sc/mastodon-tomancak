@@ -81,9 +81,9 @@ public class MakePhyloXml
 		{
 			final String message;
 			if ( vertices.isEmpty() )
-				message = "No spot selected. (Please select the root of the subtree to export.)";
+				message = "No spot selected. Please select the root of the subtree to export.";
 			else
-				message = "Too many spots selected. (Please select only the root spot of the subtree to export.)";
+				message = "Too many spots selected. Please select only the root spot of the subtree to export.";
 			JOptionPane.showMessageDialog( null,
 					message,
 					"Warning",
