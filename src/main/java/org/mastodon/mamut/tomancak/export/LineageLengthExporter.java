@@ -72,7 +72,24 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-
+/**
+ * Reports all tracklets that are reachable from the
+ * selected spot (are on the same lineage) and that are fully included in
+ * the time interval (they start with a division and finish with a
+ * division; so their full life span can be computed (in contrast to
+ * tracklets starting at timepoint=0)).
+ * <br>
+ * Such tracklets are reported, one per line.
+ * <br>
+ * Each line contains:
+ * <br>
+ * label of mother to the tracklet and its timenpoint; label of the last spot
+ * on the tracklet (mother to another tracklets) and its timenpoint; life span as
+ * the number of time points and the same multiplied with the "physical time
+ * between time points";
+ * <br>
+ * The rows are sorted in time
+ */
 @Plugin( type = Command.class, name = "Export lineage as lengths between divisions" )
 public class LineageLengthExporter extends DynamicCommand
 {
