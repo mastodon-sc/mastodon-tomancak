@@ -28,6 +28,7 @@
  */
 package org.mastodon.mamut.tomancak.trackmatching;
 
+import java.awt.Font;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
@@ -157,6 +159,11 @@ public class SpatialTrackMatchingFrame extends JFrame
 		setLayout( new MigLayout( "insets dialog, fill" ) );
 
 		add( introductionTextPane(), "span, grow, wrap, width 0:0:" );
+		add( new JSeparator(), "span, grow, wrap" );
+
+		JLabel parametersLabel = new JLabel( "Parameters:" );
+		parametersLabel.setFont( parametersLabel.getFont().deriveFont( Font.BOLD ) );
+		add( parametersLabel, "span, wrap" );
 		add( new JLabel( "Select Mastodon projects to match:" ), "span, wrap" );
 		add( new JLabel( "project A:" ) );
 		comboBoxA.addActionListener( ignore -> updateEnableComponents() );
@@ -179,6 +186,11 @@ public class SpatialTrackMatchingFrame extends JFrame
 		spatialRegistrationComboBox.setSelectedItem( SpatialRegistrationMethod.DYNAMIC_ROOTS );
 		add( spatialRegistrationComboBox, "wrap" );
 		enableDisable.add( spatialRegistrationComboBox );
+
+		add( new JSeparator(), "span, grow, wrap" );
+		JLabel operationsLabel = new JLabel( "Operations:" );
+		operationsLabel.setFont( operationsLabel.getFont().deriveFont( Font.BOLD ) );
+		add( operationsLabel, "span, wrap" );
 
 		add( new JLabel( "Tag unmatched & flipped cells:" ), "gaptop unrelated" );
 		add( newOperationButton( "in both projects", TAG_CELLS_TOOLTIP, listener::onTagBothClicked ), "split 3" );
@@ -203,6 +215,7 @@ public class SpatialTrackMatchingFrame extends JFrame
 		add( syncGroupButtons.get( 0 ), "split 3" );
 		add( syncGroupButtons.get( 1 ) );
 		add( syncGroupButtons.get( 2 ), "wrap" );
+		add( new JSeparator(), "span, grow, wrap" );
 		logArea = new JTextArea( 3, 50 );
 		logArea.setEditable( false );
 		add( logArea, "gaptop unrelated, span, grow" );
