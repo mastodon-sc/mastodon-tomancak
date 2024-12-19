@@ -175,7 +175,7 @@ public class SpatialTrackMatchingFrame extends JFrame
 		firstTimepointB.setToolTipText( FIRST_TIMEPOINT_TOOLTIP );
 		enableDisable.add( firstTimepointB );
 
-		add( new JLabel( "Spatial registration method:" ) );
+		add( new JLabel( "Spatial track matching method:" ) );
 		spatialRegistrationComboBox.setSelectedItem( SpatialRegistrationMethod.DYNAMIC_ROOTS );
 		add( spatialRegistrationComboBox, "wrap" );
 		enableDisable.add( spatialRegistrationComboBox );
