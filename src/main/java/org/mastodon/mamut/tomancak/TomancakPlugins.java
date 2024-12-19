@@ -299,8 +299,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 								menu( "Export measurements",
 										menu( "Spot counts",
 												item( EXPORT_SPOTS_COUNTS_PER_LINEAGE ),
-												item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ),
-										item( EXPORTS_LINEAGE_LENGTHS ) ),
+												item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ) ),
+								// item( EXPORTS_LINEAGE_LENGTHS ) ), // NB: deactivated for now, since the function is too prototype-y
 								item( EXPORT_PHYLOXML ) ) ),
 				menu( "Plugins",
 						menu( "Tags",
