@@ -32,8 +32,7 @@
       * [Sort lineage tree (left-right-landmarks)](#sort-lineage-tree-left-right-landmarks)
         * [Sort lineage tree (extern-intern)](#sort-lineage-tree-extern-intern)
         * [Sort lineage tree (cell life cycle duration)](#sort-lineage-tree-cell-life-cycle-duration)
-* [Auxiliary displays](#auxiliary-displays)
-    * [Show compact lineage](#show-compact-lineage)
+  * [Show compact lineage](#show-compact-lineage)
 * [Spatial track matching](#spatial-track-matching)
 * [Export measurements](#export-measurements)
     * [Export spot counts per lineage](#export-spot-counts-per-lineage)
@@ -261,9 +260,12 @@ place.
 *
 Example: ![sort_lineage_tree_cell_life_cycle_duration.gif](doc/treesmanagement/sort_lineage_tree_cell_life_cycle_duration.gif)
 
-## Auxiliary displays
-
 ### Show compact lineage
+
+* Menu Location: `Plugins > Trees management > Show compact lineage`
+* Shows a compact representation of the lineage tree, i.e. only the roots, leaves and spots immediately before a
+  division are shown.
+* Example: ![show_compact_lineage.gif](doc/treesmanagement/show_compact_lineage.gif)
 
 ## Spatial track matching
 
@@ -358,8 +360,6 @@ The plugin allows performing various operations based on the correspondence info
 * Menu Location: `File > Export > Export measurements > Export spot counts per time point`
 * This command writes the time point and the number of spots at each time point to a single CSV file.
 * Example: ![export_spot_counts_per_time_point.png](doc/export/export_spot_counts_per_time_point.png)
-
-### Export lineage lengths
 
 ### Export phyloXML for selected spot
 
