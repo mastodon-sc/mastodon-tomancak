@@ -361,8 +361,6 @@ The plugin allows performing various operations based on the correspondence info
 * This command writes the time point and the number of spots at each time point to a single CSV file.
 * Example: ![export_spot_counts_per_time_point.png](doc/export/export_spot_counts_per_time_point.png)
 
-### Export lineage lengths
-
 ### Export phyloXML for selected spot
 
 * Menu Location: `File > Export > Export phyloXML for selected spot`
