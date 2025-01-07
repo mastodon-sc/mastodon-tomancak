@@ -327,8 +327,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 								menu( "Sort trackscheme",
 										item( SORT_TREE ),
 										item( SORT_TREE_EXTERN_INTERN ),
-										item( SORT_TREE_LIFETIME ) ) ),
-						menu( "Auxiliary displays",
+										item( SORT_TREE_LIFETIME ) ),
 								item( COMPACT_LINEAGE_VIEW ) ) ) );
 	}
 
