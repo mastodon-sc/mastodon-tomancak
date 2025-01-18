@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>38.0.1</version>
+		<version>40.0.0</version>
 	</parent>
 
 	<groupId>org.mastodon</groupId>
@@ -109,7 +109,7 @@
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch</license.copyrightOwners>
 
-		<mastodon.version>1.0.0-beta-33</mastodon.version>
+		<mastodon.version>1.0.0-beta-34</mastodon.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
@@ -155,6 +155,13 @@
 			<name>Vladimír Ulman</name>
 			<url>https://github.com/xulman</url>
 			<properties><id>xulman</id></properties>
+		</contributor>
+		<contributor>
+			<name>Stefan Hahmann</name>
+			<url>https://github.com/stefanhahmann</url>
+			<properties>
+				<id>stefanhahmann</id>
+			</properties>
 		</contributor>
 	</contributors>
 
