@@ -37,7 +37,7 @@
 * [Export measurements](#export-measurements)
     * [Export spot counts per lineage](#export-spot-counts-per-lineage)
     * [Export spot counts per time point](#export-spot-counts-per-time-point)
-    * [Export lineage lengths](#export-lineage-lengths)
+  * [Export division counts per time point](#export-division-counts-per-time-point)
   * [Export phyloXML for selected spot](#export-phyloxml-for-selected-spot)
 
 ## Documentation of Mastodon
@@ -360,6 +360,13 @@ The plugin allows performing various operations based on the correspondence info
 * Menu Location: `File > Export > Export measurements > Export spot counts per time point`
 * This command writes the time point and the number of spots at each time point to a single CSV file.
 * Example: ![export_spot_counts_per_time_point.png](doc/export/export_spot_counts_per_time_point.png)
+
+### Export division counts per time point
+
+* Menu Location: `File > Export > Export measurements > Export division counts per time point`
+* This command writes the time point and the number of divisions at each time point to a single CSV file.
+* A division is defined as a spot with more than one outgoing edge.
+* Example: ![export_division_counts_per_time_point.png](doc/export/export_division_counts_per_time_point.png)
 
 ### Export phyloXML for selected spot
 

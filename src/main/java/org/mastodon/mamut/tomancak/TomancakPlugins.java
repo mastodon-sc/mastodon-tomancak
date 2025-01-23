@@ -47,6 +47,7 @@ import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
 import org.mastodon.mamut.tomancak.divisiontagset.CellDivisionsTagSetCommand;
 import org.mastodon.mamut.tomancak.export.ExportCounts;
+import org.mastodon.mamut.tomancak.export.ExportDivisionCountsPerTimepointCommand;
 import org.mastodon.mamut.tomancak.export.ExportSpotCountsPerTimepointCommand;
 import org.mastodon.mamut.tomancak.export.LineageLengthExporter;
 import org.mastodon.mamut.tomancak.export.MakePhyloXml;
@@ -97,6 +98,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private static final String EXPORT_SPOTS_COUNTS_PER_TIMEPOINT = "[tomancak] export spot counts per timepoint";
 
+	private static final String EXPORT_DIVISION_COUNTS_PER_TIMEPOINT = "[tomancak] export division counts per timepoint";
+
 	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spots";
 	private static final String MIRROR_SPOTS = "[tomancak] mirror spots";
 	private static final String CREATE_CONFLICT_TAG_SET = "[tomancak] create conflict tag set";
@@ -122,6 +125,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private static final String[] EXPORTS_LINEAGE_LENGTHS_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS = { "not mapped" };
 	private static final String[] EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS = { "not mapped" };
+
+	private static final String[] EXPORT_DIVISION_COUNTS_PER_TIMEPOINT_KEYS = { "not mapped" };
 
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
 	private static final String[] MIRROR_SPOTS_KEYS = { "not mapped" };
@@ -151,6 +156,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( EXPORTS_LINEAGE_LENGTHS, "Export lineage lengths" );
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export spot counts per lineage" );
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export spot counts per timepoint" );
+		menuTexts.put( EXPORT_DIVISION_COUNTS_PER_TIMEPOINT, "Export division counts per timepoint" );
 		menuTexts.put( ADD_CENTER_SPOTS, "Add center spots" );
 		menuTexts.put( MIRROR_SPOTS, "Mirror spots along X-axis" );
 		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create conflict tag set" );
@@ -193,6 +199,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 					"Exports counts of spots into CSV-like files to be imported in data processors. One file per lineage." );
 			descriptions.add( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS,
 					"Exports counts of spots per timepoint into CSV-like files to be imported in data processors. One file." );
+			descriptions.add( EXPORT_DIVISION_COUNTS_PER_TIMEPOINT, EXPORT_DIVISION_COUNTS_PER_TIMEPOINT_KEYS,
+					"Exports counts of divisions per timepoint into CSV-like files to be imported in data processors. One file." );
 			descriptions.add( ADD_CENTER_SPOTS, ADD_CENTER_SPOTS_KEYS, "On each timepoint with selected spots, add a new spot that is in the center (average position)." );
 			descriptions.add( MIRROR_SPOTS, MIRROR_SPOTS_KEYS, "Mirror spots along x-axis." );
 			descriptions.add( CREATE_CONFLICT_TAG_SET, CREATE_CONFLICT_TAG_SET_KEYS, "Search spots that overlap and create a tag set that highlights these conflicts." );
@@ -239,6 +247,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction exportSpotsCountsPerTimepointAction;
 
+	private final AbstractNamedAction exportDivisionCountsPerTimepointAction;
+
 	// private final AbstractNamedAction mergeProjectsAction;
 
 	private final AbstractNamedAction addCenterSpots;
@@ -275,6 +285,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		exportLineageLengthsAction = new RunnableAction( EXPORTS_LINEAGE_LENGTHS, this::exportLengths );
 		exportSpotsCountsPerLineageAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_LINEAGE, this::exportCountsPerLineage );
 		exportSpotsCountsPerTimepointAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, this::exportCountsPerTimepoint );
+		exportDivisionCountsPerTimepointAction =
+				new RunnableAction( EXPORT_DIVISION_COUNTS_PER_TIMEPOINT, this::exportDivisionCountsPerTimepoint );
 		addCenterSpots = new RunnableAction( ADD_CENTER_SPOTS, this::addCenterSpots );
 		mirrorSpots = new RunnableAction( MIRROR_SPOTS, this::mirrorSpots );
 		createConflictTagSet = new RunnableAction( CREATE_CONFLICT_TAG_SET, this::createConflictTagSet );
@@ -299,7 +311,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 								menu( "Export measurements",
 										menu( "Spot counts",
 												item( EXPORT_SPOTS_COUNTS_PER_LINEAGE ),
-												item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ) ),
+												item( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT ) ),
+										item( EXPORT_DIVISION_COUNTS_PER_TIMEPOINT ) ),
 								// item( EXPORTS_LINEAGE_LENGTHS ) ), // NB: deactivated for now, since the function is too prototype-y
 								item( EXPORT_PHYLOXML ) ) ),
 				menu( "Plugins",
@@ -356,6 +369,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( exportLineageLengthsAction, EXPORTS_LINEAGE_LENGTHS_KEYS );
 		actions.namedAction( exportSpotsCountsPerLineageAction, EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS );
 		actions.namedAction( exportSpotsCountsPerTimepointAction, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS );
+		actions.namedAction( exportDivisionCountsPerTimepointAction, EXPORT_DIVISION_COUNTS_PER_TIMEPOINT_KEYS );
 		actions.namedAction( addCenterSpots, ADD_CENTER_SPOTS_KEYS );
 		actions.namedAction( mirrorSpots, MIRROR_SPOTS_KEYS );
 		actions.namedAction( createConflictTagSet, CREATE_CONFLICT_TAG_SET_KEYS );
@@ -446,6 +460,12 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 	private void exportCountsPerTimepoint()
 	{
 		commandService.run( ExportSpotCountsPerTimepointCommand.class, true, "projectModel", projectModel,
+				"context", projectModel.getContext() );
+	}
+
+	private void exportDivisionCountsPerTimepoint()
+	{
+		commandService.run( ExportDivisionCountsPerTimepointCommand.class, true, "projectModel", projectModel,
 				"context", projectModel.getContext() );
 	}
 
