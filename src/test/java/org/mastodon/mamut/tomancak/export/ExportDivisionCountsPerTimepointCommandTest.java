@@ -32,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -58,7 +59,7 @@ public class ExportDivisionCountsPerTimepointCommandTest
 
 			ExportDivisionCountsPerTimepointCommand.writeDivisionCountsToFile( model, outputFile, service );
 
-			String content = FileUtils.readFileToString( outputFile );
+			String content = FileUtils.readFileToString( outputFile, Charset.defaultCharset() );
 			String expected = "\"timepoint\",\"divisions\"\n"
 					+ "0,0\n"
 					+ "1,0\n"

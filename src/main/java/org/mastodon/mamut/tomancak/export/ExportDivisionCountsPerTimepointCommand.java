@@ -31,14 +31,14 @@ package org.mastodon.mamut.tomancak.export;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.List;
 
 import com.opencsv.CSVWriter;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Model;
-import org.mastodon.mamut.model.Spot;
-import org.mastodon.util.TreeUtils;
+import org.mastodon.mamut.tomancak.divisioncount.DivisionCount;
 import org.scijava.Context;
 import org.scijava.ItemVisibility;
 import org.scijava.app.StatusService;
@@ -101,18 +101,11 @@ public class ExportDivisionCountsPerTimepointCommand implements Command
 		try (CSVWriter csvWriter = new CSVWriter( new FileWriter( file ) ))
 		{
 			csvWriter.writeNext( new String[] { "timepoint", "divisions" } );
-			int minTimepoint = TreeUtils.getMinTimepoint( model );
-			int maxTimepoint = TreeUtils.getMaxTimepoint( model );
-			for ( int timepoint = minTimepoint; timepoint <= maxTimepoint; timepoint++ )
+			List< Pair< Integer, Integer > > timepointAndDivisions = DivisionCount.getTimepointAndDivisions( model );
+			for ( Pair< Integer, Integer > pair : timepointAndDivisions )
 			{
-				int divisions = 0;
-				for ( Spot spot : model.getSpatioTemporalIndex().getSpatialIndex( timepoint ) )
-				{
-					if ( spot.outgoingEdges().size() > 1 )
-						divisions++;
-				}
-				csvWriter.writeNext( new String[] { String.valueOf( timepoint ), String.valueOf( divisions ) }, false );
-				statusService.showProgress( timepoint, maxTimepoint );
+				csvWriter.writeNext( new String[] { String.valueOf( pair.getLeft() ), String.valueOf( pair.getRight() ) }, false );
+				statusService.showProgress( pair.getLeft(), timepointAndDivisions.size() );
 			}
 		}
 	}
