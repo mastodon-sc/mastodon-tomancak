@@ -32,22 +32,22 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.mastodon.mamut.ProjectModel;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin( type = Command.class, label = "Show division counts over time" )
-public class ShowDivisionCountsOverTimeCommand implements Command
+@Plugin( type = Command.class, label = "Show spot and division counts over time" )
+public class ShowSpotAndDivisionCountsOverTimeCommand implements Command
 {
 
 	@Parameter( visibility = ItemVisibility.MESSAGE, required = false, persist = false )
 	private String documentation = "<html>\n"
 			+ "<body width=15cm align=left>\n"
-			+ "<h1>Show division counts over time</h1>\n"
-			+ "<p>This command allows to set a window size and subsequently plot the number of divisions at each timepoint together with a sliding average acknowledging the given window size.</p>\n"
+			+ "<h1>Show spot and division counts over time</h1>\n"
+			+ "<p>This command allows to set a window size and subsequently plot the number of spots and divisions at each timepoint together with a sliding average acknowledging the given window size.</p>\n"
 			+ "<p>A division is defined as a spot with more than one outgoing edge.</p>\n"
 			+ "</body>\n"
 			+ "</html>\n";
@@ -61,9 +61,12 @@ public class ShowDivisionCountsOverTimeCommand implements Command
 	@Override
 	public void run()
 	{
-		List< Pair< Integer, Integer > > divisionCounts = DivisionCount.getTimepointAndDivisions( projectModel.getModel() );
-		double[] xValues = divisionCounts.stream().mapToDouble( Pair::getLeft ).toArray();
-		double[] yValues = divisionCounts.stream().mapToDouble( Pair::getRight ).toArray();
-		SwingUtilities.invokeLater( () -> new DivisionCountChart( xValues, yValues, windowSize ).setVisible( true ) );
+		List< Triple< Integer, Integer, Integer > > divisionCounts =
+				DivisionCount.getSpotAndDivisionsPerTimepoint( projectModel.getModel() );
+		double[] timepoints = divisionCounts.stream().mapToDouble( Triple::getLeft ).toArray();
+		double[] spots = divisionCounts.stream().mapToDouble( Triple::getMiddle ).toArray();
+		double[] divisons = divisionCounts.stream().mapToDouble( Triple::getRight ).toArray();
+
+		SwingUtilities.invokeLater( () -> new DivisionCountChart( timepoints, spots, divisons, windowSize ).setVisible( true ) );
 	}
 }

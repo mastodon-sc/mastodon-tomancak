@@ -45,7 +45,7 @@ import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
-import org.mastodon.mamut.tomancak.divisioncount.ShowDivisionCountsOverTimeCommand;
+import org.mastodon.mamut.tomancak.divisioncount.ShowSpotAndDivisionCountsOverTimeCommand;
 import org.mastodon.mamut.tomancak.divisiontagset.CellDivisionsTagSetCommand;
 import org.mastodon.mamut.tomancak.export.ExportCounts;
 import org.mastodon.mamut.tomancak.export.ExportDivisionCountsPerTimepointCommand;
@@ -102,7 +102,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private static final String EXPORT_DIVISION_COUNTS_PER_TIMEPOINT = "[tomancak] export division counts per timepoint";
 
-	private static final String SHOW_DIVISION_COUNTS_OVER_TIME = "[tomancak] show division counts over time";
+	private static final String SHOW_SPOT_AND_DIVISION_COUNTS_OVER_TIME = "[tomancak] show division counts over time";
 
 	private static final String ADD_CENTER_SPOTS = "[tomancak] add center spots";
 	private static final String MIRROR_SPOTS = "[tomancak] mirror spots";
@@ -132,7 +132,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private static final String[] EXPORT_DIVISION_COUNTS_PER_TIMEPOINT_KEYS = { "not mapped" };
 
-	private static final String[] SHOW_DIVISION_COUNTS_OVER_TIME_KEYS = { "not mapped" };
+	private static final String[] SHOW_SPOT_AND_DIVISION_COUNTS_OVER_TIME_KEYS = { "not mapped" };
 
 	private static final String[] ADD_CENTER_SPOTS_KEYS = { "not mapped" };
 	private static final String[] MIRROR_SPOTS_KEYS = { "not mapped" };
@@ -163,7 +163,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_LINEAGE, "Export spot counts per lineage" );
 		menuTexts.put( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, "Export spot counts per timepoint" );
 		menuTexts.put( EXPORT_DIVISION_COUNTS_PER_TIMEPOINT, "Export division counts per timepoint" );
-		menuTexts.put( SHOW_DIVISION_COUNTS_OVER_TIME, "Show division counts over time" );
+		menuTexts.put( SHOW_SPOT_AND_DIVISION_COUNTS_OVER_TIME, "Show spot and division counts over time" );
 		menuTexts.put( ADD_CENTER_SPOTS, "Add center spots" );
 		menuTexts.put( MIRROR_SPOTS, "Mirror spots along X-axis" );
 		menuTexts.put( CREATE_CONFLICT_TAG_SET, "Create conflict tag set" );
@@ -208,8 +208,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 					"Exports counts of spots per timepoint into CSV-like files to be imported in data processors. One file." );
 			descriptions.add( EXPORT_DIVISION_COUNTS_PER_TIMEPOINT, EXPORT_DIVISION_COUNTS_PER_TIMEPOINT_KEYS,
 					"Exports counts of divisions per timepoint into CSV-like files to be imported in data processors. One file." );
-			descriptions.add( SHOW_DIVISION_COUNTS_OVER_TIME, SHOW_DIVISION_COUNTS_OVER_TIME_KEYS,
-					"Shows a plot of the number of divisions over time." );
+			descriptions.add(
+					SHOW_SPOT_AND_DIVISION_COUNTS_OVER_TIME, SHOW_SPOT_AND_DIVISION_COUNTS_OVER_TIME_KEYS,
+					"Shows a plot of the number of spots and divisions over time." );
 			descriptions.add( ADD_CENTER_SPOTS, ADD_CENTER_SPOTS_KEYS, "On each timepoint with selected spots, add a new spot that is in the center (average position)." );
 			descriptions.add( MIRROR_SPOTS, MIRROR_SPOTS_KEYS, "Mirror spots along x-axis." );
 			descriptions.add( CREATE_CONFLICT_TAG_SET, CREATE_CONFLICT_TAG_SET_KEYS, "Search spots that overlap and create a tag set that highlights these conflicts." );
@@ -258,7 +259,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private final AbstractNamedAction exportDivisionCountsPerTimepointAction;
 
-	private final AbstractNamedAction showDivisionCountsOverTimeAction;
+	private final AbstractNamedAction showSpotAndDivisionCountsOverTimeAction;
 
 	// private final AbstractNamedAction mergeProjectsAction;
 
@@ -298,7 +299,8 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		exportSpotsCountsPerTimepointAction = new RunnableAction( EXPORT_SPOTS_COUNTS_PER_TIMEPOINT, this::exportCountsPerTimepoint );
 		exportDivisionCountsPerTimepointAction =
 				new RunnableAction( EXPORT_DIVISION_COUNTS_PER_TIMEPOINT, this::exportDivisionCountsPerTimepoint );
-		showDivisionCountsOverTimeAction = new RunnableAction( SHOW_DIVISION_COUNTS_OVER_TIME, this::showDivisionCountsOverTime );
+		showSpotAndDivisionCountsOverTimeAction =
+				new RunnableAction( SHOW_SPOT_AND_DIVISION_COUNTS_OVER_TIME, this::showSpotAndDivisionCountsOverTime );
 		addCenterSpots = new RunnableAction( ADD_CENTER_SPOTS, this::addCenterSpots );
 		mirrorSpots = new RunnableAction( MIRROR_SPOTS, this::mirrorSpots );
 		createConflictTagSet = new RunnableAction( CREATE_CONFLICT_TAG_SET, this::createConflictTagSet );
@@ -329,7 +331,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 								item( EXPORT_PHYLOXML ) ) ),
 				menu( "Plugins",
 						menu( "Lineage analysis",
-								item( SHOW_DIVISION_COUNTS_OVER_TIME ) ),
+								item( SHOW_SPOT_AND_DIVISION_COUNTS_OVER_TIME ) ),
 						menu( "Tags",
 								item( LOCATE_TAGS ),
 								item( COPY_TAG ),
@@ -384,7 +386,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 		actions.namedAction( exportSpotsCountsPerLineageAction, EXPORTS_SPOTS_COUNTS_PER_LINEAGE_KEYS );
 		actions.namedAction( exportSpotsCountsPerTimepointAction, EXPORTS_SPOTS_COUNTS_PER_TIMEPOINT_KEYS );
 		actions.namedAction( exportDivisionCountsPerTimepointAction, EXPORT_DIVISION_COUNTS_PER_TIMEPOINT_KEYS );
-		actions.namedAction( showDivisionCountsOverTimeAction, SHOW_DIVISION_COUNTS_OVER_TIME_KEYS );
+		actions.namedAction( showSpotAndDivisionCountsOverTimeAction, SHOW_SPOT_AND_DIVISION_COUNTS_OVER_TIME_KEYS );
 		actions.namedAction( addCenterSpots, ADD_CENTER_SPOTS_KEYS );
 		actions.namedAction( mirrorSpots, MIRROR_SPOTS_KEYS );
 		actions.namedAction( createConflictTagSet, CREATE_CONFLICT_TAG_SET_KEYS );
@@ -484,9 +486,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 				"context", projectModel.getContext() );
 	}
 
-	private void showDivisionCountsOverTime()
+	private void showSpotAndDivisionCountsOverTime()
 	{
-		commandService.run( ShowDivisionCountsOverTimeCommand.class, true, "projectModel", projectModel );
+		commandService.run( ShowSpotAndDivisionCountsOverTimeCommand.class, true, "projectModel", projectModel );
 	}
 
 	private void changeBranchLabels()
