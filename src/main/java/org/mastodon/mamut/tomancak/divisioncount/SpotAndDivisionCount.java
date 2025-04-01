@@ -36,9 +36,9 @@ import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.util.TreeUtils;
 
-public class DivisionCount
+public class SpotAndDivisionCount
 {
-	private DivisionCount()
+	private SpotAndDivisionCount()
 	{
 		// prevent instantiation
 	}
