@@ -65,8 +65,8 @@ public class ShowSpotAndDivisionCountsOverTimeCommand implements Command
 				DivisionCount.getSpotAndDivisionsPerTimepoint( projectModel.getModel() );
 		double[] timepoints = divisionCounts.stream().mapToDouble( Triple::getLeft ).toArray();
 		double[] spots = divisionCounts.stream().mapToDouble( Triple::getMiddle ).toArray();
-		double[] divisons = divisionCounts.stream().mapToDouble( Triple::getRight ).toArray();
+		double[] divisions = divisionCounts.stream().mapToDouble( Triple::getRight ).toArray();
 
-		SwingUtilities.invokeLater( () -> new DivisionCountChart( timepoints, spots, divisons, windowSize ).setVisible( true ) );
+		SwingUtilities.invokeLater( () -> new DivisionCountChart( timepoints, spots, divisions, windowSize ).setVisible( true ) );
 	}
 }
