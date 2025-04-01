@@ -48,7 +48,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-class DivisionCountChart extends JFrame
+class SpotAndDivisionCountChart extends JFrame
 {
 	private final static Color DIVISION_COUNT_COLOR = new Color( 86, 180, 233 ); // Light Blue
 
@@ -60,7 +60,7 @@ class DivisionCountChart extends JFrame
 
 	private final static String DIVISION_COUNT_SERIES_NAME = "Division Counts";
 
-	DivisionCountChart( double[] timepoints, double[] spotCounts, double[] divisionCounts, int windowSize )
+	SpotAndDivisionCountChart( double[] timepoints, double[] spotCounts, double[] divisionCounts, int windowSize )
 	{
 		XYSeriesCollection spotCountsSeries = createSeries(
 				timepoints, spotCounts, SPOTS_COUNT_SERIES_NAME, windowSize );
