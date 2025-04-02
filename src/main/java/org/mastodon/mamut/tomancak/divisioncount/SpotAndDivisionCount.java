@@ -31,23 +31,29 @@ package org.mastodon.mamut.tomancak.divisioncount;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.util.TreeUtils;
 
-public class DivisionCount
+public class SpotAndDivisionCount
 {
-	private DivisionCount()
+	private SpotAndDivisionCount()
 	{
 		// prevent instantiation
 	}
 
-	public static List< Pair< Integer, Integer > > getTimepointAndDivisions( final Model model )
+	/**
+	 * Calculates the number of spots and divisions per time point in the given model.
+	 *
+	 * @param model The model containing the spots and edges.
+	 * @return A list of triples, where each triple contains (in that order) the timepoint, the number of spots at that timepoint, and the number of divisions at that timepoint.
+	 */
+	public static List< Triple< Integer, Integer, Integer > > getSpotAndDivisionsPerTimepoint( final Model model )
 	{
 		int minTimepoint = TreeUtils.getMinTimepoint( model );
 		int maxTimepoint = TreeUtils.getMaxTimepoint( model );
-		List< Pair< Integer, Integer > > timepointAndDivisions = new ArrayList<>();
+		List< Triple< Integer, Integer, Integer > > timepointAndDivisions = new ArrayList<>();
 		for ( int timepoint = minTimepoint; timepoint <= maxTimepoint; timepoint++ )
 		{
 			int divisions = 0;
@@ -56,7 +62,8 @@ public class DivisionCount
 				if ( spot.outgoingEdges().size() > 1 )
 					divisions++;
 			}
-			timepointAndDivisions.add( Pair.of( timepoint, divisions ) );
+			int spots = model.getSpatioTemporalIndex().getSpatialIndex( timepoint ).size();
+			timepointAndDivisions.add( Triple.of( timepoint, spots, divisions ) );
 		}
 		return timepointAndDivisions;
 	}

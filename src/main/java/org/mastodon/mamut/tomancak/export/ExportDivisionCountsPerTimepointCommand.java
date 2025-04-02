@@ -35,10 +35,10 @@ import java.util.List;
 
 import com.opencsv.CSVWriter;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Model;
-import org.mastodon.mamut.tomancak.divisioncount.DivisionCount;
+import org.mastodon.mamut.tomancak.divisioncount.SpotAndDivisionCount;
 import org.scijava.Context;
 import org.scijava.ItemVisibility;
 import org.scijava.app.StatusService;
@@ -101,8 +101,9 @@ public class ExportDivisionCountsPerTimepointCommand implements Command
 		try (CSVWriter csvWriter = new CSVWriter( new FileWriter( file ) ))
 		{
 			csvWriter.writeNext( new String[] { "timepoint", "divisions" } );
-			List< Pair< Integer, Integer > > timepointAndDivisions = DivisionCount.getTimepointAndDivisions( model );
-			for ( Pair< Integer, Integer > pair : timepointAndDivisions )
+			List< Triple< Integer, Integer, Integer > > timepointAndDivisions =
+					SpotAndDivisionCount.getSpotAndDivisionsPerTimepoint( model );
+			for ( Triple< Integer, Integer, Integer > pair : timepointAndDivisions )
 			{
 				csvWriter.writeNext( new String[] { String.valueOf( pair.getLeft() ), String.valueOf( pair.getRight() ) }, false );
 				statusService.showProgress( pair.getLeft(), timepointAndDivisions.size() );
