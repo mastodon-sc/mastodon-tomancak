@@ -334,15 +334,18 @@ public class SpotAndDivisionCountChart extends JFrame
 		XYItemRenderer spotCountRenderer = plot.getRenderer( 0 );
 		Boolean spotCountVisible = spotCountRenderer.getSeriesVisible( 0 );
 		Boolean spotAverageVisible = spotCountRenderer.getSeriesVisible( 1 );
-		boolean showSpotAxis = spotCountVisible != null && spotCountVisible || spotAverageVisible != null && spotAverageVisible;
+		boolean isSpotCountVisible = spotCountVisible != null && spotCountVisible;
+		boolean isSpotAverageVisible = spotAverageVisible != null && spotAverageVisible;
+		boolean showSpotAxis = isSpotCountVisible || isSpotAverageVisible;
 		leftAxis.setLabel( showSpotAxis ? SPOTS_COUNT_SERIES_NAME : null );
 		leftAxis.setVisible( showSpotAxis );
 
 		XYItemRenderer divisionCountRenderer = plot.getRenderer( 1 );
 		Boolean divisionCountVisible = divisionCountRenderer.getSeriesVisible( 0 );
 		Boolean divisionAverageVisible = divisionCountRenderer.getSeriesVisible( 1 );
-		boolean showDivisionAxis =
-				divisionCountVisible != null && divisionCountVisible || divisionAverageVisible != null && divisionAverageVisible;
+		boolean isDivisionCountVisible = divisionCountVisible != null && divisionCountVisible;
+		boolean isDivisionAverageVisible = divisionAverageVisible != null && divisionAverageVisible;
+		boolean showDivisionAxis = isDivisionCountVisible || isDivisionAverageVisible;
 		rightAxis.setLabel( showDivisionAxis ? DIVISION_COUNT_SERIES_NAME : null );
 		rightAxis.setVisible( showDivisionAxis );
 
