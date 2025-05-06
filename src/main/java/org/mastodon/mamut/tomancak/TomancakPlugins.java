@@ -45,7 +45,7 @@ import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.tomancak.compact_lineage.CompactLineageFrame;
-import org.mastodon.mamut.tomancak.divisioncount.ShowSpotAndDivisionCountsOverTimeCommand;
+import org.mastodon.mamut.tomancak.divisioncount.SpotAndDivisionCountChart;
 import org.mastodon.mamut.tomancak.divisiontagset.CellDivisionsTagSetCommand;
 import org.mastodon.mamut.tomancak.export.ExportCounts;
 import org.mastodon.mamut.tomancak.export.ExportDivisionCountsPerTimepointCommand;
@@ -70,6 +70,7 @@ import org.scijava.AbstractContextual;
 import org.scijava.command.CommandService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.prefs.PrefService;
 import org.scijava.ui.behaviour.io.gui.CommandDescriptionProvider;
 import org.scijava.ui.behaviour.io.gui.CommandDescriptions;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
@@ -224,6 +225,9 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	@Parameter
 	private CommandService commandService;
+
+	@Parameter
+	private PrefService prefService;
 
 	private final AbstractNamedAction exportPhyloXmlAction;
 
@@ -488,7 +492,7 @@ public class TomancakPlugins extends AbstractContextual implements MamutPlugin
 
 	private void showSpotAndDivisionCountsOverTime()
 	{
-		commandService.run( ShowSpotAndDivisionCountsOverTimeCommand.class, true, "projectModel", projectModel );
+		SpotAndDivisionCountChart.show( projectModel, prefService );
 	}
 
 	private void changeBranchLabels()
