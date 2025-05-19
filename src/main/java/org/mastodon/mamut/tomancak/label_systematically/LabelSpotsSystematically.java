@@ -78,8 +78,10 @@ public class LabelSpotsSystematically
 			Spot child1 = edges.next().getTarget(ref2);
 			Spot child2 = edges.next().getTarget(ref3);
 			boolean b = correctOrder.test( branchEnd );
-			renameDescendants(graph, filter, correctOrder, spot, child1, b );
-			renameDescendants(graph, filter, correctOrder, spot, child2, !b );
+			if ( !branchEnd.equals( child1 ) ) // NB: edge linking to itself. this normally should not happen but occurs in real data.
+				renameDescendants( graph, filter, correctOrder, spot, child1, b );
+			if ( !branchEnd.equals( child2 ) ) // NB: edge linking to itself. this normally should not happen but occurs in real data.
+				renameDescendants( graph, filter, correctOrder, spot, child2, !b );
 		}
 		finally
 		{
