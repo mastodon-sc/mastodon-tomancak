@@ -94,6 +94,8 @@ public class SpotAndDivisionCountChart extends JFrame implements SelectionListen
 
 	private static final int DEFAULT_SLIDING_WINDOW_SIZE = 10;
 
+	public static final String GROW_X = "growx";
+
 	private Color spotCountColor; // Dark Orange
 
 	private Color divisionCountColor; // Light Blue
@@ -319,19 +321,19 @@ public class SpotAndDivisionCountChart extends JFrame implements SelectionListen
 		} );
 
 		// Add components to the control panel
-		controlPanel.add( spotColorButton, "growx" );
-		controlPanel.add( showSpotCounts, "growx" );
-		controlPanel.add( showSpotAverage, "growx" );
+		controlPanel.add( spotColorButton, GROW_X );
+		controlPanel.add( showSpotCounts, GROW_X );
+		controlPanel.add( showSpotAverage, GROW_X );
 		controlPanel.add( new JLabel( "Window Size:" ), "align right" );
 		controlPanel.add( spotWindowSpinner, "wmax 50" );
 
-		controlPanel.add( divisionColorButton, "growx" );
-		controlPanel.add( showDivisionCounts, "growx" );
-		controlPanel.add( showDivisionAverage, "growx" );
+		controlPanel.add( divisionColorButton, GROW_X );
+		controlPanel.add( showDivisionCounts, GROW_X );
+		controlPanel.add( showDivisionAverage, GROW_X );
 		controlPanel.add( new JLabel( "Window Size:" ), "align right" );
 		controlPanel.add( divisionWindowSpinner, "wmax 50" );
 
-		controlPanel.add( allSpots, "growx" );
+		controlPanel.add( allSpots, GROW_X );
 		controlPanel.add( selectedSpots, "span, growx" );
 
 		// Add description
