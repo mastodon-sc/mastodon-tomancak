@@ -34,8 +34,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgs;
+import net.imglib2.type.numeric.real.FloatType;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.mastodon.mamut.ProjectModel;
+import org.mastodon.mamut.ProjectModelTestUtils;
 import org.mastodon.mamut.feature.branch.exampleGraph.ExampleGraph2;
 import org.mastodon.mamut.model.Model;
 import org.scijava.Context;
@@ -52,12 +58,16 @@ public class ExportDivisionCountsPerTimepointCommandTest
 	{
 		try (Context context = new Context())
 		{
+			final Img< FloatType > img = ArrayImgs.floats( 1, 1, 1 );
 			Model model = new ExampleGraph2().getModel();
+			File mastodonFile = File.createTempFile( "test", ".mastodon" );
+			ProjectModel appModel = ProjectModelTestUtils.wrapAsAppModel( img, model, context, mastodonFile );
+
 			File outputFile = File.createTempFile( "divisioncounts", ".csv" );
 			outputFile.deleteOnExit();
 			StatusService service = context.service( StatusService.class );
 
-			ExportDivisionCountsPerTimepointCommand.writeDivisionCountsToFile( model, outputFile, service );
+			ExportDivisionCountsPerTimepointCommand.writeDivisionCountsToFile( appModel, outputFile, service );
 
 			String content = FileUtils.readFileToString( outputFile, Charset.defaultCharset() );
 			String expected = "\"timepoint\",\"divisions\"\n"

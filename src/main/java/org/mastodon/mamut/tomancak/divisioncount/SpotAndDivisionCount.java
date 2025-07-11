@@ -32,8 +32,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Triple;
+import org.mastodon.mamut.ProjectModel;
+import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.model.SelectionModel;
 import org.mastodon.util.TreeUtils;
 
 public class SpotAndDivisionCount
@@ -46,23 +49,33 @@ public class SpotAndDivisionCount
 	/**
 	 * Calculates the number of spots and divisions per time point in the given model.
 	 *
-	 * @param model The model containing the spots and edges.
+	 * @param projectModel The project model containing the spots and edges.
+	 * @param onlySelectedSpots If {@code true}, only counts spots that are selected.
 	 * @return A list of triples, where each triple contains (in that order) the timepoint, the number of spots at that timepoint, and the number of divisions at that timepoint.
 	 */
-	public static List< Triple< Integer, Integer, Integer > > getSpotAndDivisionsPerTimepoint( final Model model )
+	public static List< Triple< Integer, Integer, Integer > > getSpotAndDivisionsPerTimepoint( final ProjectModel projectModel,
+			final boolean onlySelectedSpots )
 	{
+		final Model model = projectModel.getModel();
+		final SelectionModel< Spot, Link > selectionModel = projectModel.getSelectionModel();
 		int minTimepoint = TreeUtils.getMinTimepoint( model );
 		int maxTimepoint = TreeUtils.getMaxTimepoint( model );
 		List< Triple< Integer, Integer, Integer > > timepointAndDivisions = new ArrayList<>();
 		for ( int timepoint = minTimepoint; timepoint <= maxTimepoint; timepoint++ )
 		{
+			int spots = 0;
 			int divisions = 0;
 			for ( Spot spot : model.getSpatioTemporalIndex().getSpatialIndex( timepoint ) )
 			{
+				if ( onlySelectedSpots && !selectionModel.isSelected( spot ) )
+					continue;
 				if ( spot.outgoingEdges().size() > 1 )
 					divisions++;
+				if ( onlySelectedSpots )
+					spots++;
 			}
-			int spots = model.getSpatioTemporalIndex().getSpatialIndex( timepoint ).size();
+			if ( !onlySelectedSpots )
+				spots = model.getSpatioTemporalIndex().getSpatialIndex( timepoint ).size();
 			timepointAndDivisions.add( Triple.of( timepoint, spots, divisions ) );
 		}
 		return timepointAndDivisions;
