@@ -37,7 +37,6 @@ import com.opencsv.CSVWriter;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.mastodon.mamut.ProjectModel;
-import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.tomancak.divisioncount.SpotAndDivisionCount;
 import org.scijava.Context;
 import org.scijava.ItemVisibility;
@@ -75,7 +74,7 @@ public class ExportDivisionCountsPerTimepointCommand implements Command
 	{
 		try
 		{
-			writeDivisionCountsToFile( projectModel.getModel(), saveTo, context.service( StatusService.class ) );
+			writeDivisionCountsToFile( projectModel, saveTo, context.service( StatusService.class ) );
 		}
 		catch ( IOException e )
 		{
@@ -93,7 +92,8 @@ public class ExportDivisionCountsPerTimepointCommand implements Command
 	 *     <li>The first line is the header.</li>
 	 * </ul>
 	 */
-	public static void writeDivisionCountsToFile( final Model model, final File file, final StatusService statusService ) throws IOException
+	public static void writeDivisionCountsToFile( final ProjectModel projectModel, final File file, final StatusService statusService )
+			throws IOException
 	{
 		if ( file == null )
 			throw new IllegalArgumentException( "Cannot write division counts to file. Given file is null." );
@@ -102,7 +102,7 @@ public class ExportDivisionCountsPerTimepointCommand implements Command
 		{
 			csvWriter.writeNext( new String[] { "timepoint", "divisions" } );
 			List< Triple< Integer, Integer, Integer > > timepointAndDivisions =
-					SpotAndDivisionCount.getSpotAndDivisionsPerTimepoint( model );
+					SpotAndDivisionCount.getSpotAndDivisionsPerTimepoint( projectModel, false );
 			for ( Triple< Integer, Integer, Integer > pair : timepointAndDivisions )
 			{
 				csvWriter.writeNext( new String[] { String.valueOf( pair.getLeft() ), String.valueOf( pair.getRight() ) }, false );

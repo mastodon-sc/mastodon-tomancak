@@ -38,12 +38,14 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.WindowConstants;
@@ -62,9 +64,10 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.mastodon.mamut.ProjectModel;
+import org.mastodon.model.SelectionListener;
 import org.scijava.prefs.PrefService;
 
-public class SpotAndDivisionCountChart extends JFrame
+public class SpotAndDivisionCountChart extends JFrame implements SelectionListener
 {
 
 	private static final String SPOT_COLOR = "spotColor";
@@ -83,19 +86,25 @@ public class SpotAndDivisionCountChart extends JFrame
 
 	private static final String DIVISION_COUNT_SLIDING_AVERAGE_WINDOW_SIZE = "divisionCountSlidingAverageWindowSize";
 
+	private static final String ONLY_SELECTED_SPOTS = "onlySelectedSpots";
+
 	private static final int SPOT_COUNT_DEFAULT_COLOR = new Color( 230, 159, 0 ).getRGB(); // Dark Orange
 
 	private static final int DIVISION_COUNT_DEFAULT_COLOR = new Color( 86, 180, 233 ).getRGB(); // Light Blue
 
 	private static final int DEFAULT_SLIDING_WINDOW_SIZE = 10;
 
+	public static final String GROW_X = "growx";
+
 	private Color spotCountColor; // Dark Orange
 
 	private Color divisionCountColor; // Light Blue
 
-	private final static String TITLE = "Spot and Division Counts over Time";
-	private final static String SPOTS_COUNT_SERIES_NAME = "Spot Counts";
-	private final static String DIVISION_COUNT_SERIES_NAME = "Division Counts";
+	private static final String TITLE = "Spot and Division Counts over Time";
+
+	private static final String SPOTS_COUNT_SERIES_NAME = "Spot Counts";
+
+	private static final String DIVISION_COUNT_SERIES_NAME = "Division Counts";
 
 	private final XYPlot plot;
 
@@ -107,11 +116,20 @@ public class SpotAndDivisionCountChart extends JFrame
 
 	private int divisionWindowSize;
 
+	private boolean onlySelectedSpots;
+
 	private final PrefService prefs;
 
-	SpotAndDivisionCountChart( final double[] timepoints, final double[] spotCounts, final double[] divisionCounts,
-			final PrefService prefs )
+	private final ProjectModel projectModel;
+
+	private XYSeriesCollection spotCountsSeries;
+
+	private XYSeriesCollection divisionCountsSeries;
+
+	SpotAndDivisionCountChart( final ProjectModel projectModel, final PrefService prefs )
 	{
+		this.projectModel = projectModel;
+		this.projectModel.getSelectionModel().listeners().add( this );
 		this.prefs = prefs;
 
 		this.spotCountColor = new Color(
@@ -122,12 +140,9 @@ public class SpotAndDivisionCountChart extends JFrame
 				prefs.getInt( SpotAndDivisionCountChart.class, SPOT_COUNT_SLIDING_AVERAGE_WINDOW_SIZE, DEFAULT_SLIDING_WINDOW_SIZE );
 		this.divisionWindowSize =
 				prefs.getInt( SpotAndDivisionCountChart.class, DIVISION_COUNT_SLIDING_AVERAGE_WINDOW_SIZE, DEFAULT_SLIDING_WINDOW_SIZE );
+		this.onlySelectedSpots = prefs.getBoolean( SpotAndDivisionCountChart.class, ONLY_SELECTED_SPOTS, false );
 
-		XYSeriesCollection spotCountsSeries = createSeries(
-				timepoints, spotCounts, SPOTS_COUNT_SERIES_NAME, spotWindowSize );
-
-		XYSeriesCollection divisionCountsSeries = createSeries(
-				timepoints, divisionCounts, DIVISION_COUNT_SERIES_NAME, divisionWindowSize );
+		updateChartData();
 
 		JFreeChart chart = ChartFactory.createXYLineChart(
 				TITLE,
@@ -168,7 +183,7 @@ public class SpotAndDivisionCountChart extends JFrame
 		chartPanel.setPreferredSize( new Dimension( 800, 600 ) );
 
 		// Add color chooser and visibility controls
-		JPanel controlPanel = createControlPanel( timepoints, spotCounts, divisionCounts );
+		JPanel controlPanel = createControlPanel();
 
 		// Set up the frame layout
 		setLayout( new BorderLayout() );
@@ -184,15 +199,26 @@ public class SpotAndDivisionCountChart extends JFrame
 		repaint();
 	}
 
+	private void updateChartData()
+	{
+		List< Triple< Integer, Integer, Integer > > counts =
+				SpotAndDivisionCount.getSpotAndDivisionsPerTimepoint( projectModel, this.onlySelectedSpots );
+		double[] timepoints = counts.stream().mapToDouble( Triple::getLeft ).toArray();
+		double[] spotCounts = counts.stream().mapToDouble( Triple::getMiddle ).toArray();
+		double[] divisionCounts = counts.stream().mapToDouble( Triple::getRight ).toArray();
+		spotCountsSeries = createSeries( timepoints, spotCounts, SPOTS_COUNT_SERIES_NAME, spotWindowSize );
+		divisionCountsSeries = createSeries( timepoints, divisionCounts, DIVISION_COUNT_SERIES_NAME, divisionWindowSize );
+
+		if ( plot != null )
+		{
+			plot.setDataset( 0, spotCountsSeries );
+			plot.setDataset( 1, divisionCountsSeries );
+		}
+	}
+
 	public static void show( final ProjectModel projectModel, final PrefService prefService )
 	{
-		List< Triple< Integer, Integer, Integer > > divisionCounts =
-				SpotAndDivisionCount.getSpotAndDivisionsPerTimepoint( projectModel.getModel() );
-		double[] timepoints = divisionCounts.stream().mapToDouble( Triple::getLeft ).toArray();
-		double[] spots = divisionCounts.stream().mapToDouble( Triple::getMiddle ).toArray();
-		double[] divisions = divisionCounts.stream().mapToDouble( Triple::getRight ).toArray();
-
-		SpotAndDivisionCountChart chart = new SpotAndDivisionCountChart( timepoints, spots, divisions, prefService );
+		SpotAndDivisionCountChart chart = new SpotAndDivisionCountChart( projectModel, prefService );
 		chart.setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
 		chart.setVisible( true );
 	}
@@ -200,7 +226,7 @@ public class SpotAndDivisionCountChart extends JFrame
 	/**
 	 * Creates a control panel with color choosers and checkboxes for visibility controls.
 	 */
-	private JPanel createControlPanel( final double[] timepoints, final double[] spotCounts, final double[] divisionCounts )
+	private JPanel createControlPanel()
 	{
 		JPanel controlPanel = new JPanel( new MigLayout( "fill, wrap 5", "[grow]", "[]10[]10[]10[]10[]" ) );
 
@@ -237,7 +263,7 @@ public class SpotAndDivisionCountChart extends JFrame
 		spotWindowSpinner.addChangeListener( e -> {
 			spotWindowSize = ( int ) spotWindowSpinner.getValue();
 			prefs.put( SpotAndDivisionCountChart.class, SPOT_COUNT_SLIDING_AVERAGE_WINDOW_SIZE, spotWindowSize );
-			updateSlidingAverage( timepoints, spotCounts, divisionCounts );
+			updateChartData();
 		} );
 
 		// Division-related controls
@@ -273,21 +299,42 @@ public class SpotAndDivisionCountChart extends JFrame
 		divisionWindowSpinner.addChangeListener( e -> {
 			divisionWindowSize = ( int ) divisionWindowSpinner.getValue();
 			prefs.put( SpotAndDivisionCountChart.class, DIVISION_COUNT_SLIDING_AVERAGE_WINDOW_SIZE, divisionWindowSize );
-			updateSlidingAverage( timepoints, spotCounts, divisionCounts );
+			updateChartData();
+		} );
+
+		JRadioButton allSpots = new JRadioButton( "All spots", !onlySelectedSpots );
+		JRadioButton selectedSpots = new JRadioButton( "Only selected spots", onlySelectedSpots );
+		ButtonGroup group = new ButtonGroup();
+		group.add( allSpots );
+		group.add( selectedSpots );
+		allSpots.addActionListener( e -> {
+			onlySelectedSpots = false;
+			prefs.put( SpotAndDivisionCountChart.class, ONLY_SELECTED_SPOTS, onlySelectedSpots );
+			updateChartData();
+			repaint();
+		} );
+		selectedSpots.addActionListener( e -> {
+			this.onlySelectedSpots = true;
+			prefs.put( SpotAndDivisionCountChart.class, ONLY_SELECTED_SPOTS, onlySelectedSpots );
+			updateChartData();
+			repaint();
 		} );
 
 		// Add components to the control panel
-		controlPanel.add( spotColorButton, "growx" );
-		controlPanel.add( showSpotCounts, "growx" );
-		controlPanel.add( showSpotAverage, "growx" );
+		controlPanel.add( spotColorButton, GROW_X );
+		controlPanel.add( showSpotCounts, GROW_X );
+		controlPanel.add( showSpotAverage, GROW_X );
 		controlPanel.add( new JLabel( "Window Size:" ), "align right" );
 		controlPanel.add( spotWindowSpinner, "wmax 50" );
 
-		controlPanel.add( divisionColorButton, "growx" );
-		controlPanel.add( showDivisionCounts, "growx" );
-		controlPanel.add( showDivisionAverage, "growx" );
+		controlPanel.add( divisionColorButton, GROW_X );
+		controlPanel.add( showDivisionCounts, GROW_X );
+		controlPanel.add( showDivisionAverage, GROW_X );
 		controlPanel.add( new JLabel( "Window Size:" ), "align right" );
 		controlPanel.add( divisionWindowSpinner, "wmax 50" );
+
+		controlPanel.add( allSpots, GROW_X );
+		controlPanel.add( selectedSpots, "span, growx" );
 
 		// Add description
 		controlPanel.add( new JLabel(
@@ -331,25 +378,21 @@ public class SpotAndDivisionCountChart extends JFrame
 	 */
 	private void updateAxisVisibility()
 	{
-		XYItemRenderer spotCountRenderer = plot.getRenderer( 0 );
-		Boolean spotCountVisible = spotCountRenderer.getSeriesVisible( 0 );
-		Boolean spotAverageVisible = spotCountRenderer.getSeriesVisible( 1 );
-		boolean isSpotCountVisible = spotCountVisible != null && spotCountVisible;
-		boolean isSpotAverageVisible = spotAverageVisible != null && spotAverageVisible;
-		boolean showSpotAxis = isSpotCountVisible || isSpotAverageVisible;
-		leftAxis.setLabel( showSpotAxis ? SPOTS_COUNT_SERIES_NAME : null );
-		leftAxis.setVisible( showSpotAxis );
-
-		XYItemRenderer divisionCountRenderer = plot.getRenderer( 1 );
-		Boolean divisionCountVisible = divisionCountRenderer.getSeriesVisible( 0 );
-		Boolean divisionAverageVisible = divisionCountRenderer.getSeriesVisible( 1 );
-		boolean isDivisionCountVisible = divisionCountVisible != null && divisionCountVisible;
-		boolean isDivisionAverageVisible = divisionAverageVisible != null && divisionAverageVisible;
-		boolean showDivisionAxis = isDivisionCountVisible || isDivisionAverageVisible;
-		rightAxis.setLabel( showDivisionAxis ? DIVISION_COUNT_SERIES_NAME : null );
-		rightAxis.setVisible( showDivisionAxis );
-
+		updateAxisVisibility( plot.getRenderer( 0 ), leftAxis, SPOTS_COUNT_SERIES_NAME );
+		updateAxisVisibility( plot.getRenderer( 1 ), rightAxis, DIVISION_COUNT_SERIES_NAME );
 		repaint();
+	}
+
+	private void updateAxisVisibility( final XYItemRenderer renderer, final NumberAxis axis,
+			final String labelIfVisible )
+	{
+		Boolean countVisible = renderer.getSeriesVisible( 0 );
+		Boolean averageVisible = renderer.getSeriesVisible( 1 );
+		boolean isCountVisible = countVisible != null && countVisible;
+		boolean isAverageVisible = averageVisible != null && averageVisible;
+		boolean showAxis = isCountVisible || isAverageVisible;
+		axis.setLabel( showAxis ? labelIfVisible : null );
+		axis.setVisible( showAxis );
 	}
 
 	private XYLineAndShapeRenderer createRenderer( final Color color, final Shape shape )
@@ -406,20 +449,6 @@ public class SpotAndDivisionCountChart extends JFrame
 		return dataset;
 	}
 
-	/**
-	 * Updates the sliding average series based on the new window sizes.
-	 */
-	private void updateSlidingAverage( double[] timepoints, double[] spotCounts, double[] divisionCounts )
-	{
-		XYSeriesCollection spotCountsSeries = createSeries(
-				timepoints, spotCounts, SPOTS_COUNT_SERIES_NAME, spotWindowSize );
-		XYSeriesCollection divisionCountsSeries = createSeries(
-				timepoints, divisionCounts, DIVISION_COUNT_SERIES_NAME, divisionWindowSize );
-
-		plot.setDataset( 0, spotCountsSeries );
-		plot.setDataset( 1, divisionCountsSeries );
-	}
-
 	private static double[] calculateSlidingAverage( double[] values, int windowSize )
 	{
 		double[] result = new double[ values.length ];
@@ -432,5 +461,11 @@ public class SpotAndDivisionCountChart extends JFrame
 			result[ i ] = sum / ( i - start + 1 );
 		}
 		return result;
+	}
+
+	@Override
+	public void selectionChanged()
+	{
+		updateChartData();
 	}
 }
