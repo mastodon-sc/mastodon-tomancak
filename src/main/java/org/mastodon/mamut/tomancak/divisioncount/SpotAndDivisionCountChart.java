@@ -64,9 +64,10 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.mastodon.mamut.ProjectModel;
+import org.mastodon.model.SelectionListener;
 import org.scijava.prefs.PrefService;
 
-public class SpotAndDivisionCountChart extends JFrame
+public class SpotAndDivisionCountChart extends JFrame implements SelectionListener
 {
 
 	private static final String SPOT_COLOR = "spotColor";
@@ -126,6 +127,7 @@ public class SpotAndDivisionCountChart extends JFrame
 	SpotAndDivisionCountChart( final ProjectModel projectModel, final PrefService prefs )
 	{
 		this.projectModel = projectModel;
+		this.projectModel.getSelectionModel().listeners().add( this );
 		this.prefs = prefs;
 
 		this.spotCountColor = new Color(
@@ -457,5 +459,11 @@ public class SpotAndDivisionCountChart extends JFrame
 			result[ i ] = sum / ( i - start + 1 );
 		}
 		return result;
+	}
+
+	@Override
+	public void selectionChanged()
+	{
+		updateChartData();
 	}
 }
