@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -31,14 +31,19 @@ package org.mastodon.mamut.tomancak.trackmatching;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 
+import org.mastodon.collection.RefCollections;
 import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefSet;
-import org.mastodon.collection.ref.RefArrayList;
-import org.mastodon.collection.ref.RefSetImp;
-import org.mastodon.mamut.model.Link;
-import org.mastodon.mamut.model.ModelGraph;
-import org.mastodon.mamut.model.Spot;
+import org.mastodon.graph.Edge;
+import org.mastodon.graph.ReadOnlyGraph;
+import org.mastodon.graph.Vertex;
+import org.mastodon.spatial.HasTimepoint;
 
+/**
+ * Utility methods for working with a {@link org.mastodon.graph.branch.BranchGraph branch graphs}.
+ *
+ * @author Matthias Arzt
+ */
 public class BranchGraphUtils
 {
 	private BranchGraphUtils()
@@ -46,12 +51,21 @@ public class BranchGraphUtils
 		// prevent instantiation
 	}
 
-	public static Spot getBranchStart( Spot spot, Spot ref )
+	/**
+	 * Returns the first vertex of the branch, that also contains the given vertex.
+	 *
+	 * @param spot This that vertex defines the branch. It can be any vertex of the branch.
+	 * @param ref  Buffer that might be used to store the result.
+	 * @param <V>  The vertex type.
+	 * @param <E>  The edge type.
+	 * @return The first vertex of the branch.
+	 */
+	public static < V extends Vertex< E >, E extends Edge< V > > V getBranchStart( V spot, V ref )
 	{
-		Spot s = spot;
+		V s = spot;
 		while ( s.incomingEdges().size() == 1 )
 		{
-			Link edge = s.incomingEdges().iterator().next();
+			E edge = s.incomingEdges().iterator().next();
 			s = edge.getSource( ref );
 			if ( s.outgoingEdges().size() != 1 )
 				return edge.getTarget( ref );
@@ -59,12 +73,21 @@ public class BranchGraphUtils
 		return s;
 	}
 
-	public static Spot getBranchEnd( Spot spot, Spot ref )
+	/**
+	 * Returns the last vertex of the branch, that also contains the given vertex.
+	 *
+	 * @param spot This vertex that defines the branch. It can be any vertex of the branch.
+	 * @param ref  Buffer that might be used to store the result.
+	 * @param <V>  The vertex type.
+	 * @param <E>  The edge type.
+	 * @return Last vertex of the branch.
+	 */
+	public static < V extends Vertex< E >, E extends Edge< V > > V getBranchEnd( V spot, V ref )
 	{
-		Spot s = spot;
+		V s = spot;
 		while ( s.outgoingEdges().size() == 1 )
 		{
-			Link edge = s.outgoingEdges().iterator().next();
+			E edge = s.outgoingEdges().iterator().next();
 			s = edge.getTarget( ref );
 			if ( s.incomingEdges().size() != 1 )
 				return edge.getSource( ref );
@@ -72,52 +95,21 @@ public class BranchGraphUtils
 		return s;
 	}
 
-	static Spot findVertexForTimePoint( Spot branchStart, int timePoint, Spot ref )
+	/**
+	 * Returns a set of all vertices that are the first vertex of a branch.
+	 */
+	public static < V extends Vertex< E >, E extends Edge< V > > RefSet< V > getAllBranchStarts( ReadOnlyGraph< V, E > graph )
 	{
-		Spot spot = branchStart;
-		if ( spot.getTimepoint() >= timePoint )
-			return spot;
-		while ( spot.outgoingEdges().size() == 1 )
-		{
-			spot = spot.outgoingEdges().iterator().next().getTarget( ref );
-			if ( spot.getTimepoint() >= timePoint )
-				return spot;
-		}
-		return spot;
-	}
-
-	static Pair< RefList< Spot >, RefList< Link > > getBranchSpotsAndLinks( ModelGraph graph, Spot branchStart )
-	{
-		RefList< Link > links = new RefArrayList<>( graph.edges().getRefPool() );
-		RefList< Spot > spots = new RefArrayList<>( graph.vertices().getRefPool() );
-		spots.add( branchStart );
-		Spot ref = graph.vertexRef();
-		Spot spot = branchStart;
-		while ( spot.outgoingEdges().size() == 1 )
-		{
-			Link link = spot.outgoingEdges().iterator().next();
-			spot = link.getTarget( ref );
-			if ( spot.incomingEdges().size() != 1 )
-				break;
-			links.add( link );
-			spots.add( spot );
-		}
-		graph.releaseRef( ref );
-		return new ValuePair<>( spots, links );
-	}
-
-	static RefSet< Spot > getAllBranchStarts( ModelGraph graph )
-	{
-		Spot ref = graph.vertexRef();
+		V ref = graph.vertexRef();
 		try
 		{
-			RefSet< Spot > set = new RefSetImp<>( graph.vertices().getRefPool() );
-			for ( Spot spot : graph.vertices() )
+			RefSet< V > set = RefCollections.createRefSet( graph.vertices() );
+			for ( V spot : graph.vertices() )
 			{
 				if ( spot.incomingEdges().size() != 1 )
 					set.add( spot );
 				if ( spot.outgoingEdges().size() > 1 )
-					for ( Link link : spot.outgoingEdges() )
+					for ( E link : spot.outgoingEdges() )
 						set.add( link.getTarget( ref ) );
 			}
 			return set;
@@ -126,5 +118,75 @@ public class BranchGraphUtils
 		{
 			graph.releaseRef( ref );
 		}
+	}
+
+	/**
+	 * Returns true if the branch, that contains the given spot, divides.
+	 * (A branch divides if it's last vertex has at least two outgoing edges.)
+	 *
+	 * @param spot The spot that defines the branch. It can be any vertex of the branch.
+	 * @param ref  Buffer that might be used during computation.
+	 * @param <V>  The vertex type.
+	 * @param <E>  The edge type.
+	 * @return True if the branch divides.
+	 */
+	public static < V extends Vertex< E >, E extends Edge< V > > boolean doesBranchDivide( final V spot, final V ref )
+	{
+		V branchEnd = getBranchEnd( spot, ref );
+		return branchEnd.outgoingEdges().size() > 1;
+	}
+
+	/**
+	 * Returns the first vertex of the specified branch with {@code vertex.getTimepoint() >= timepoint.}
+	 *
+	 * @param branchStart The first vertex of the branch.
+	 * @param timepoint   The time point.
+	 * @param ref         Buffer that might be used to store the result.
+	 * @param <V>         The vertex type.
+	 * @param <E>         The edge type.
+	 * @return Vertex of the branch at the given time point.
+	 */
+	public static < V extends Vertex< E > & HasTimepoint, E extends Edge< V > > V findVertexForTimepoint( V branchStart, int timepoint, V ref )
+	{
+		V spot = branchStart;
+		if ( spot.getTimepoint() >= timepoint )
+			return spot;
+		while ( spot.outgoingEdges().size() == 1 )
+		{
+			spot = spot.outgoingEdges().iterator().next().getTarget( ref );
+			if ( spot.getTimepoint() >= timepoint )
+				return spot;
+		}
+		return spot;
+	}
+
+	/**
+	 * Returns a list of all vertices and a list of all edges of the branch that starts at the given vertex.
+	 *
+	 * @param graph       The graph the contains the branch.
+	 * @param branchStart The first vertex of the branch.
+	 * @param <V>         The vertex type.
+	 * @param <E>         The edge type.
+	 * @return A pair of lists, the first one containing the vertices of the branch, the second one the edges of the branch
+	 */
+	public static < V extends Vertex< E > & HasTimepoint, E extends Edge< V > >
+	Pair< RefList< V >, RefList< E > > getBranchSpotsAndLinks( ReadOnlyGraph< V, E > graph, V branchStart )
+	{
+		RefList< E > links = RefCollections.createRefList( graph.edges() );
+		RefList< V > spots = RefCollections.createRefList( graph.vertices() );
+		spots.add( branchStart );
+		V ref = graph.vertexRef();
+		V spot = branchStart;
+		while ( spot.outgoingEdges().size() == 1 )
+		{
+			E link = spot.outgoingEdges().iterator().next();
+			spot = link.getTarget( ref );
+			if ( spot.incomingEdges().size() != 1 )
+				break;
+			links.add( link );
+			spots.add( spot );
+		}
+		graph.releaseRef( ref );
+		return new ValuePair<>( spots, links );
 	}
 }
